@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Leaf, MapPin, Clock, Phone, Instagram, Facebook } from 'lucide-react';
-import { storeInfo, getWhatsAppLink } from '@/data/store';
+import { getStoreInfo, getWhatsAppLink } from '@/lib/sanity-data';
 
 const navLinks = [
   { href: '/', label: 'Beranda' },
@@ -9,7 +9,8 @@ const navLinks = [
   { href: '/kontak', label: 'Hubungi Kami' },
 ];
 
-export function Footer() {
+export async function Footer() {
+  const storeInfo = await getStoreInfo();
   return (
     <footer className="bg-[#2C5F2E] text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -92,7 +93,7 @@ export function Footer() {
               <li className="flex items-center gap-2">
                 <Phone className="w-4 h-4 flex-shrink-0 text-[#A8C5A0]" />
                 <a
-                  href={getWhatsAppLink()}
+                  href={getWhatsAppLink(storeInfo.whatsapp)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-white transition-colors"

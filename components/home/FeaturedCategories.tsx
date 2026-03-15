@@ -1,9 +1,10 @@
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { SectionHeader } from '@/components/ui/SectionHeader';
-import { categories } from '@/data/categories';
+import { getCategories } from '@/lib/sanity-data';
 
-export function FeaturedCategories() {
+export async function FeaturedCategories() {
+  const categories = await getCategories();
   const featured = categories.slice(0, 6);
   return (
     <section className="py-16 md:py-20 bg-[#F7F3EC]">

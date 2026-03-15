@@ -1,8 +1,9 @@
 import { MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-import { getWhatsAppLink } from '@/data/store';
+import { getStoreInfo, getWhatsAppLink } from '@/lib/sanity-data';
 
-export function CTABanner() {
+export async function CTABanner() {
+  const storeInfo = await getStoreInfo();
   return (
     <section className="py-16 md:py-20 bg-[#2C5F2E]">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -18,7 +19,7 @@ export function CTABanner() {
         </p>
         <Button
           as="a"
-          href={getWhatsAppLink('Halo Bali Greenhouse, saya ingin bertanya tentang produk dan melakukan pemesanan.')}
+          href={getWhatsAppLink(storeInfo.whatsapp, 'Halo Bali Greenhouse, saya ingin bertanya tentang produk dan melakukan pemesanan.')}
           target="_blank"
           rel="noopener noreferrer"
           size="lg"

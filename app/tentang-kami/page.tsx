@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { Leaf, Heart, Sprout, Users } from 'lucide-react';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { Button } from '@/components/ui/Button';
-import { getWhatsAppLink } from '@/data/store';
+import { getStoreInfo, getWhatsAppLink } from '@/lib/sanity-data';
 
 export const metadata: Metadata = {
   title: 'Tentang Kami',
@@ -32,7 +32,8 @@ const values = [
   },
 ];
 
-export default function TentangKamiPage() {
+export default async function TentangKamiPage() {
+  const storeInfo = await getStoreInfo();
   return (
     <div className="bg-[#F7F3EC]">
       <div className="bg-[#2C5F2E] py-20">
@@ -115,7 +116,7 @@ export default function TentangKamiPage() {
             </Button>
             <Button
               as="a"
-              href={getWhatsAppLink('Halo, saya ingin konsultasi tentang berkebun')}
+              href={getWhatsAppLink(storeInfo.whatsapp, 'Halo, saya ingin konsultasi tentang berkebun')}
               target="_blank"
               rel="noopener noreferrer"
               variant="outline"

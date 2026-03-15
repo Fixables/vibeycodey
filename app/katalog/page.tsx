@@ -1,14 +1,15 @@
 import { Metadata } from 'next';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { CategoryGrid } from '@/components/catalog/CategoryGrid';
-import { categories } from '@/data/categories';
+import { getCategories } from '@/lib/sanity-data';
 
 export const metadata: Metadata = {
   title: 'Katalog Produk',
   description: 'Jelajahi semua kategori produk berkebun di Bali Greenhouse — benih, pupuk, media tanam, alat berkebun, pot, dan lainnya.',
 };
 
-export default function KatalogPage() {
+export default async function KatalogPage() {
+  const categories = await getCategories();
   return (
     <div className="bg-[#F7F3EC] min-h-screen">
       <div className="bg-[#2C5F2E] py-14">

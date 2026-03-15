@@ -1,7 +1,8 @@
 import { MapPin, Clock, Phone, Mail } from 'lucide-react';
-import { storeInfo, getWhatsAppLink } from '@/data/store';
+import { getStoreInfo, getWhatsAppLink } from '@/lib/sanity-data';
 
-export function StoreInfo() {
+export async function StoreInfo() {
+  const storeInfo = await getStoreInfo();
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-[#2C5F2E] mb-4" style={{ fontFamily: 'var(--font-lora, Lora, serif)' }}>
@@ -32,7 +33,7 @@ export function StoreInfo() {
           </div>
           <div>
             <div className="font-semibold text-[#2A2A2A] text-sm mb-0.5">WhatsApp</div>
-            <a href={getWhatsAppLink()} target="_blank" rel="noopener noreferrer" className="text-[#2C5F2E] text-sm font-medium hover:underline">
+            <a href={getWhatsAppLink(storeInfo.whatsapp)} target="_blank" rel="noopener noreferrer" className="text-[#2C5F2E] text-sm font-medium hover:underline">
               {storeInfo.whatsappDisplay}
             </a>
           </div>

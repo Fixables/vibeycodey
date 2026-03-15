@@ -1,9 +1,10 @@
 import Link from 'next/link';
 import { MessageCircle, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-import { getWhatsAppLink } from '@/data/store';
+import { getStoreInfo, getWhatsAppLink } from '@/lib/sanity-data';
 
-export function HeroSection() {
+export async function HeroSection() {
+  const storeInfo = await getStoreInfo();
   return (
     <section className="relative bg-[#2C5F2E] overflow-hidden">
       <div
@@ -39,7 +40,7 @@ export function HeroSection() {
             </Button>
             <Button
               as="a"
-              href={getWhatsAppLink('Halo, saya ingin bertanya tentang produk Bali Greenhouse')}
+              href={getWhatsAppLink(storeInfo.whatsapp, 'Halo, saya ingin bertanya tentang produk Bali Greenhouse')}
               target="_blank"
               rel="noopener noreferrer"
               size="lg"

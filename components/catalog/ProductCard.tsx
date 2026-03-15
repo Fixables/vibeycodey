@@ -4,13 +4,14 @@ import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Product } from '@/types';
-import { getWhatsAppLink } from '@/data/store';
+import { getWhatsAppLink } from '@/lib/sanity-data';
 
 interface ProductCardProps {
   product: Product;
+  whatsapp: string;
 }
 
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ product, whatsapp }: ProductCardProps) {
   return (
     <Card hover className="overflow-hidden">
       <div className="aspect-square bg-gradient-to-br from-[#A8C5A0]/30 to-[#2C5F2E]/10 relative overflow-hidden">
@@ -38,7 +39,7 @@ export function ProductCard({ product }: ProductCardProps) {
           <span className="text-[#2C5F2E] font-bold text-lg">{product.priceDisplay}</span>
           <Button
             as="a"
-            href={getWhatsAppLink(`Halo, saya ingin memesan ${product.name} (${product.priceDisplay})`)}
+            href={getWhatsAppLink(whatsapp, `Halo, saya ingin memesan ${product.name} (${product.priceDisplay})`)}
             target="_blank"
             rel="noopener noreferrer"
             size="sm"

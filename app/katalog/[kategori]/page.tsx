@@ -2,8 +2,7 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
-import { getCategoryBySlug, categories } from '@/data/categories';
-import { getProductsByCategory } from '@/data/products';
+import { getCategoryBySlug, getCategories, getProductsByCategory, getStoreInfo } from '@/lib/sanity-data';
 import { ProductGrid } from '@/components/catalog/ProductGrid';
 
 interface Props {
@@ -11,12 +10,13 @@ interface Props {
 }
 
 export async function generateStaticParams() {
+  const categories = await getCategories();
   return categories.map((cat) => ({ kategori: cat.slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { kategori } = await params;
-  const category = getCategoryBySlug(kategori);
+  const category = await getCategoryBySlug(kategori);
   if (!category) return {};
   return {
     title: category.name,
@@ -26,13 +26,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function KategoriPage({ params }: Props) {
   const { kategori } = await params;
-  const category = getCategoryBySlug(kategori);
+  const [category, categoryProducts, storeInfo] = await Promise.all([
+    getCategoryBySlug(kategori),
+    getProductsByCategory(kategori),
+    getStoreInfo(),
+  ]);
 
   if (!category) {
     notFound();
   }
-
-  const categoryProducts = getProductsByCategory(kategori);
 
   return (
     <div className="bg-[#F7F3EC] min-h-screen">
@@ -67,6 +69,7 @@ export default async function KategoriPage({ params }: Props) {
         </div>
         <ProductGrid
           products={categoryProducts}
+          whatsapp={storeInfo.whatsapp}
           emptyMessage={`Belum ada produk di kategori ${category.name}.`}
         />
       </div>

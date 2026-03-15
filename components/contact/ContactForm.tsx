@@ -3,15 +3,19 @@
 import { useState, FormEvent } from 'react';
 import { Send } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-import { getWhatsAppLink } from '@/data/store';
+import { getWhatsAppLink } from '@/lib/sanity-data';
 
-export function ContactForm() {
+interface ContactFormProps {
+  whatsapp: string;
+}
+
+export function ContactForm({ whatsapp }: ContactFormProps) {
   const [form, setForm] = useState({ name: '', phone: '', message: '' });
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
     const text = `Halo Bali Greenhouse!\n\nNama: ${form.name}\nNo. HP: ${form.phone}\n\nPesan:\n${form.message}`;
-    window.open(getWhatsAppLink(text), '_blank');
+    window.open(getWhatsAppLink(whatsapp, text), '_blank');
   }
 
   return (

@@ -5,11 +5,10 @@ import { SectionHeader } from '@/components/ui/SectionHeader';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
-import { getFeaturedProducts } from '@/data/products';
-import { getWhatsAppLink } from '@/data/store';
+import { getFeaturedProducts, getStoreInfo, getWhatsAppLink } from '@/lib/sanity-data';
 
-export function FeaturedProducts() {
-  const featured = getFeaturedProducts().slice(0, 6);
+export async function FeaturedProducts() {
+  const [featured, storeInfo] = await Promise.all([getFeaturedProducts(), getStoreInfo()]);
   return (
     <section className="py-16 md:py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -42,7 +41,7 @@ export function FeaturedProducts() {
                   <span className="text-[#2C5F2E] font-bold text-lg">{product.priceDisplay}</span>
                   <Button
                     as="a"
-                    href={getWhatsAppLink(`Halo, saya ingin memesan ${product.name}`)}
+                    href={getWhatsAppLink(storeInfo.whatsapp, `Halo, saya ingin memesan ${product.name}`)}
                     target="_blank"
                     rel="noopener noreferrer"
                     size="sm"

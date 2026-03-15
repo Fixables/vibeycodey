@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Lora, Plus_Jakarta_Sans } from 'next/font/google';
 import './globals.css';
-import { Navbar } from '@/components/layout/Navbar';
+import { NavbarServer } from '@/components/layout/NavbarServer';
 import { Footer } from '@/components/layout/Footer';
 
 const lora = Lora({
@@ -39,7 +39,7 @@ export default function RootLayout({
   return (
     <html lang="id" className={`${lora.variable} ${plusJakartaSans.variable}`}>
       <body className="antialiased min-h-screen flex flex-col">
-        <Navbar />
+        <NavbarServer />
         <main className="flex-1">{children}</main>
         <Footer />
       </body>

@@ -3,10 +3,11 @@ import { ProductCard } from './ProductCard';
 
 interface ProductGridProps {
   products: Product[];
+  whatsapp: string;
   emptyMessage?: string;
 }
 
-export function ProductGrid({ products, emptyMessage = 'Tidak ada produk ditemukan.' }: ProductGridProps) {
+export function ProductGrid({ products, whatsapp, emptyMessage = 'Tidak ada produk ditemukan.' }: ProductGridProps) {
   if (products.length === 0) {
     return (
       <div className="text-center py-16 text-[#6B7280]">
@@ -18,7 +19,7 @@ export function ProductGrid({ products, emptyMessage = 'Tidak ada produk ditemuk
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {products.map((product) => (
-        <ProductCard key={product.id} product={product} />
+        <ProductCard key={product.id} product={product} whatsapp={whatsapp} />
       ))}
     </div>
   );

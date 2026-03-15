@@ -3,8 +3,11 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { Menu, X, MessageCircle, Leaf } from 'lucide-react';
-import { storeInfo, getWhatsAppLink } from '@/data/store';
 import { Button } from '@/components/ui/Button';
+
+interface NavbarProps {
+  whatsappLink: string;
+}
 
 const navLinks = [
   { href: '/', label: 'Beranda' },
@@ -13,7 +16,7 @@ const navLinks = [
   { href: '/kontak', label: 'Kontak' },
 ];
 
-export function Navbar() {
+export function Navbar({ whatsappLink }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -47,7 +50,7 @@ export function Navbar() {
           <div className="hidden md:flex items-center">
             <Button
               as="a"
-              href={getWhatsAppLink('Halo, saya ingin bertanya tentang produk Bali Greenhouse')}
+              href={whatsappLink}
               target="_blank"
               rel="noopener noreferrer"
               size="sm"
@@ -85,7 +88,7 @@ export function Navbar() {
             <div className="mt-3 pt-3 border-t border-[#A8C5A0]/30">
               <Button
                 as="a"
-                href={getWhatsAppLink('Halo, saya ingin bertanya tentang produk Bali Greenhouse')}
+                href={whatsappLink}
                 target="_blank"
                 rel="noopener noreferrer"
                 size="sm"
