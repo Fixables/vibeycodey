@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node:*)",
+      "Bash(powershell.exe -Command \"node --version\" 2>&1; powershell.exe -Command \"npm --version\" 2>&1)",
+      "Read(//c/Program Files/**)",
+      "Read(//c/Users/andyk/AppData/Roaming/**)",
+      "Bash(cmd /c \"node --version && npm --version\")",
+      "Bash(PATH=\"/c/Program Files/nodejs:$PATH\" && export PATH && node --version && npm --version)",
+      "Bash(export:*)",
+      "Bash(cd:*)"
+    ]
+  }
+}
