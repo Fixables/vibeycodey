@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { MapPin, Clock, Phone, Instagram, Facebook, ShoppingBag, Leaf } from 'lucide-react';
 import { getStoreInfo, getWhatsAppLink } from '@/lib/sanity-data';
 
+const SHOPEE_STORE_URL = 'https://shopee.co.id/baligreenhouse278';
+
 const navLinks = [
   { href: '/', label: 'Beranda' },
   { href: '/katalog', label: 'Katalog Produk' },
@@ -11,6 +13,7 @@ const navLinks = [
 
 export async function Footer() {
   const storeInfo = await getStoreInfo();
+  const shopeeUrl = storeInfo.shopeeStoreUrl ?? SHOPEE_STORE_URL;
   return (
     <footer className="bg-[#2C5F2E] text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -31,17 +34,15 @@ export async function Footer() {
               Toko perlengkapan berkebun terpercaya di Bali. Kami menyediakan benih, pupuk, media tanam, dan alat berkebun berkualitas untuk semua kebutuhan Anda.
             </p>
             <div className="flex gap-3 mt-5">
-              {storeInfo.shopeeStoreUrl && (
-                <a
-                  href={storeInfo.shopeeStoreUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-9 h-9 bg-orange-500 hover:bg-orange-400 rounded-lg flex items-center justify-center transition-colors"
-                  aria-label="Shopee"
-                >
-                  <ShoppingBag className="w-4 h-4 text-white" />
-                </a>
-              )}
+              <a
+                href={shopeeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-9 h-9 bg-orange-500 hover:bg-orange-400 rounded-lg flex items-center justify-center transition-colors"
+                aria-label="Shopee"
+              >
+                <ShoppingBag className="w-4 h-4 text-white" />
+              </a>
               {storeInfo.socialMedia?.instagram && (
                 <a
                   href={`https://instagram.com/${storeInfo.socialMedia.instagram}`}
@@ -82,18 +83,16 @@ export async function Footer() {
                   </Link>
                 </li>
               ))}
-              {storeInfo.shopeeStoreUrl && (
-                <li>
-                  <a
-                    href={storeInfo.shopeeStoreUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-white/70 hover:text-white text-sm transition-colors"
-                  >
-                    Toko Shopee Kami
-                  </a>
-                </li>
-              )}
+              <li>
+                <a
+                  href={shopeeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white/70 hover:text-white text-sm transition-colors"
+                >
+                  Toko Shopee Kami
+                </a>
+              </li>
             </ul>
           </div>
 

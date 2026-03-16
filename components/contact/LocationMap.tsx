@@ -7,13 +7,13 @@ const LOCATIONS = [
   {
     id: 'utama',
     label: 'Lokasi Utama',
-    address: 'Kerobokan, Badung, Bali',
+    address: 'Panjer, Denpasar, Bali',
     mapsUrl: 'https://maps.app.goo.gl/ZJ2Zx2MVAXad5TGW7',
   },
   {
     id: 'cabang',
     label: 'Lokasi Cabang',
-    address: 'Bali',
+    address: 'Gunung Agung, Denpasar, Bali',
     mapsUrl: 'https://maps.app.goo.gl/LpotWmp9AhjTViFu8',
   },
 ];
