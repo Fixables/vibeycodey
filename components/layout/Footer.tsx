@@ -1,6 +1,5 @@
 import Link from 'next/link';
-import { MapPin, Clock, Phone, Instagram, Facebook, ShoppingBag } from 'lucide-react';
-import { LogoIcon } from '@/components/ui/LogoIcon';
+import { MapPin, Clock, Phone, Instagram, Facebook, ShoppingBag, Leaf } from 'lucide-react';
 import { getStoreInfo, getWhatsAppLink } from '@/lib/sanity-data';
 
 const navLinks = [
@@ -18,7 +17,9 @@ export async function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <LogoIcon size={22} bare />
+              <div className="w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center">
+                <Leaf className="w-5 h-5 text-white" />
+              </div>
               <div>
                 <div className="font-bold text-lg leading-none" style={{ fontFamily: 'var(--font-lora, Lora, serif)' }}>
                   Bali Greenhouse

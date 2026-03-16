@@ -59,7 +59,7 @@ Use the custom color tokens (`text-green-deep`, `bg-cream`, etc.) — do not har
 Images are stored as native Sanity `image` assets (drag-and-drop in Studio), **not** plain URL strings. The `image` field in the product schema uses `type: 'image'` with hotspot enabled. `urlFor()` from `lib/sanity.ts` converts the Sanity image reference to a CDN URL. `cdn.sanity.io` is whitelisted in `next.config.ts` for `next/image`.
 
 ### Logo
-The site logo is a custom SVG component at `components/ui/LogoIcon.tsx` — a white leaf shape on a green rounded square. Use `<LogoIcon size={36} />` in the Navbar. Use `<LogoIcon size={22} bare />` on dark/green surfaces (e.g. Footer) — `bare` omits the green background. Do not replace with lucide icons.
+The site logo is the lucide `Leaf` icon (white, `w-5 h-5`) inside a green rounded square (`w-9 h-9 bg-[#2C5F2E] rounded-lg`). On dark/green backgrounds (Footer), use `bg-white/20` instead. Do not replace with a custom SVG — the user prefers the lucide Leaf.
 
 ### About Page Content
 The "Cerita Kami" section on `/tentang-kami` is driven by `storeInfo.aboutContent` (Portable Text array) from Sanity. Falls back to hardcoded default paragraphs if not set in CMS. Uses `<PortableText>` from `next-sanity` to render.
