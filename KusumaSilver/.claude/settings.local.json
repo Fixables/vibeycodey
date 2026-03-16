@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git remote:*)",
+      "Bash(cd:*)",
+      "Bash(printf:*)",
+      "WebFetch(domain:shopee.co.id)",
+      "Bash(ls:*)",
+      "Bash(grep:*)",
+      "Bash(taskkill:*)",
+      "Bash(cmd /c \"taskkill /F /IM node.exe\" 2>&1 || true)"
+    ]
+  }
+}
