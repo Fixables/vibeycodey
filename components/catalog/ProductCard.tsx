@@ -36,7 +36,7 @@ export function ProductCard({ product }: ProductCardProps) {
           )}
         </div>
       </Link>
-      <div className="p-5">
+      <div className="p-5 flex flex-col flex-1">
         {product.unit && (
           <Badge variant="green" className="mb-2">{product.unit}</Badge>
         )}
@@ -45,8 +45,8 @@ export function ProductCard({ product }: ProductCardProps) {
             {product.name}
           </h3>
         </Link>
-        <p className="text-[#6B7280] text-sm mb-4 line-clamp-3">{product.description}</p>
-        <div className="flex items-center justify-between gap-2">
+        <p className="text-[#6B7280] text-sm mb-4 line-clamp-3 flex-1">{product.description}</p>
+        <div className="flex items-center justify-between gap-2 mt-auto">
           <span className="text-[#2C5F2E] font-bold text-lg">{product.priceDisplay}</span>
           <Button
             as="a"
