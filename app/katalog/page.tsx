@@ -1,18 +1,23 @@
 import { Metadata } from 'next';
 import { SectionHeader } from '@/components/ui/SectionHeader';
-import { CategoryGrid } from '@/components/catalog/CategoryGrid';
-import { getCategories } from '@/lib/sanity-data';
+import { CatalogClient } from '@/components/catalog/CatalogClient';
+import { getCategories, getProducts, getStoreInfo } from '@/lib/sanity-data';
 
 export const metadata: Metadata = {
   title: 'Katalog Produk',
-  description: 'Jelajahi semua kategori produk berkebun di Bali Greenhouse — benih, pupuk, media tanam, alat berkebun, pot, dan lainnya.',
+  description: 'Jelajahi semua produk berkebun di Bali Greenhouse — benih, pupuk, media tanam, alat berkebun, pot, dan lainnya.',
 };
 
 export default async function KatalogPage() {
-  const categories = await getCategories();
+  const [categories, products, storeInfo] = await Promise.all([
+    getCategories(),
+    getProducts(),
+    getStoreInfo(),
+  ]);
+
   return (
-    <div className="bg-[#F7F3EC] min-h-screen">
-      <div className="bg-[#2C5F2E] py-14">
+    <div className="bg-cream min-h-screen">
+      <div className="bg-green-deep py-14">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeader
             title="Katalog Produk"
@@ -22,9 +27,11 @@ export default async function KatalogPage() {
           />
         </div>
       </div>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <CategoryGrid categories={categories} />
-      </div>
+      <CatalogClient
+        products={products}
+        categories={categories}
+        whatsapp={storeInfo.whatsapp}
+      />
     </div>
   );
 }

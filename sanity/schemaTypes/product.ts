@@ -45,6 +45,12 @@ export const productType = defineType({
       description: 'URL foto produk (opsional)',
     }),
     defineField({
+      name: 'shopeeUrl',
+      title: 'Link Shopee',
+      type: 'url',
+      description: 'URL produk di Shopee (opsional)',
+    }),
+    defineField({
       name: 'unit',
       title: 'Satuan',
       type: 'string',

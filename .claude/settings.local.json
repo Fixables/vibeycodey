@@ -5,7 +5,8 @@
       "Bash(git commit:*)",
       "Bash(git remote:*)",
       "Bash(cd:*)",
-      "Bash(printf:*)"
+      "Bash(printf:*)",
+      "WebFetch(domain:shopee.co.id)"
     ]
   }
 }

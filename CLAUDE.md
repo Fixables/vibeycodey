@@ -118,7 +118,7 @@ types/
 
 ## Data Layer
 All data comes from **Sanity CMS** at build time. Key types in `types/index.ts`:
-- `Product` — id, name, slug, category, price, priceDisplay (derived), description, etc.
+- `Product` — id, name, slug, category, price, priceDisplay (derived), description, imageUrl, shopeeUrl (optional), etc.
 - `Category` — slug, name, description, icon
 - `StoreInfo` — name, tagline, address, city, whatsapp, hours, socialMedia, etc.
 
@@ -136,7 +136,23 @@ To seed Sanity with initial data: `npx tsx sanity/scripts/seed.ts`
 ## Milestone Status
 - **M1 — Foundation & Home Page:** COMPLETE
 - **M2 — Sanity CMS Integration:** COMPLETE (data layer swapped, Studio at /studio, seed script ready)
-- **M3 — Catalog Search & Filter:** Not started
-- **M4 — SEO Polish:** Not started
+- **M3 — Catalog Search & Filter:** COMPLETE (CatalogClient with search + category filter tabs, client-side filtering)
+- **M4 — SEO Polish:** COMPLETE (sitemap.ts, robots.ts, OG/Twitter metadata in layout, metadataBase set, /studio disallowed in robots)
 - **M5 — Real Images:** Not started
 - **M6+ — Admin Panel, DB, Payments:** Future
+
+---
+
+## Deployment & CMS Setup
+
+### Vercel + Sanity Webhook (auto-redeploy on publish)
+The site is statically generated — content is fetched at build time. To keep the live site in sync with Sanity:
+1. In Vercel: **Settings → Git → Deploy Hooks** → create a hook, copy the URL
+2. In [manage.sanity.io](https://manage.sanity.io): project → **API → Webhooks** → paste the URL, trigger on **Create, Update, Delete** events only
+- After setup, publishing in Sanity triggers an automatic Vercel redeploy (~1–2 min)
+- To redeploy manually: Vercel dashboard → Deployments → Redeploy
+
+### Sanity Collaborators
+To give someone (e.g. a team member) edit access to the CMS:
+- Go to [manage.sanity.io](https://manage.sanity.io) → project → **Members → Invite members**
+- Assign role **Editor**; they log in at `/studio` with their own Sanity account

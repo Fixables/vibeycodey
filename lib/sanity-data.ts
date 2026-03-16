@@ -23,6 +23,7 @@ const PRODUCT_FIELDS = `
   price,
   description,
   imageUrl,
+  shopeeUrl,
   unit,
   featured,
   inStock
@@ -73,6 +74,7 @@ type RawProduct = {
   price: number;
   description: string;
   imageUrl?: string;
+  shopeeUrl?: string;
   unit?: string;
   featured?: boolean;
   inStock: boolean;

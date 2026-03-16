@@ -15,6 +15,7 @@ export interface Product {
   priceDisplay: string;
   description: string;
   imageUrl?: string;
+  shopeeUrl?: string;
   unit?: string;
   featured?: boolean;
   inStock: boolean;
