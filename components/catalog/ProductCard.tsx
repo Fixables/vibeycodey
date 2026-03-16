@@ -1,22 +1,21 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { ShoppingBag, MessageCircle } from 'lucide-react';
+import { ShoppingBag } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Product } from '@/types';
-import { getWhatsAppLink } from '@/lib/sanity-data';
+
+const SHOPEE_STORE_URL = 'https://shopee.co.id/baligreenhouse278';
 
 interface ProductCardProps {
   product: Product;
   whatsapp: string;
 }
 
-export function ProductCard({ product, whatsapp }: ProductCardProps) {
+export function ProductCard({ product }: ProductCardProps) {
   const detailHref = `/katalog/${product.category}/${product.slug}`;
-  const orderHref = product.shopeeUrl
-    ? product.shopeeUrl
-    : getWhatsAppLink(whatsapp, `Halo, saya ingin memesan ${product.name} (${product.priceDisplay})`);
+  const orderHref = product.shopeeUrl ?? SHOPEE_STORE_URL;
 
   return (
     <Card hover className="overflow-hidden">
@@ -57,11 +56,7 @@ export function ProductCard({ product, whatsapp }: ProductCardProps) {
             size="sm"
             variant="primary"
           >
-            {product.shopeeUrl ? (
-              <ShoppingBag className="w-3.5 h-3.5" />
-            ) : (
-              <MessageCircle className="w-3.5 h-3.5" />
-            )}
+            <ShoppingBag className="w-3.5 h-3.5" />
             Pesan
           </Button>
         </div>

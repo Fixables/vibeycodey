@@ -14,21 +14,13 @@ export default function Icon() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          borderRadius: 8,
+          borderRadius: 7,
         }}
       >
-        {/* Leaf shape */}
-        <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
-          <path
-            d="M11 2C7.5 2 4 5 4.5 9.5C5 14 7.5 18 11 19C14.5 18 17 14 17.5 9.5C18 5 14.5 2 11 2Z"
-            fill="white"
-          />
-          <path
-            d="M11 19V15"
-            stroke="white"
-            strokeWidth="1.6"
-            strokeLinecap="round"
-          />
+        {/* Lucide Leaf icon paths */}
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
+          <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
         </svg>
       </div>
     ),

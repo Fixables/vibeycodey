@@ -2,14 +2,15 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowLeft, ShoppingBag, MessageCircle, Tag } from 'lucide-react';
+import { ArrowLeft, ShoppingBag, Tag } from 'lucide-react';
 import {
   getProductBySlug,
   getAllProductSlugs,
   getCategoryBySlug,
   getStoreInfo,
-  getWhatsAppLink,
 } from '@/lib/sanity-data';
+
+const SHOPEE_STORE_URL = 'https://shopee.co.id/baligreenhouse278';
 import { Badge } from '@/components/ui/Badge';
 
 interface Props {
@@ -42,9 +43,8 @@ export default async function ProductPage({ params }: Props) {
 
   if (!product || !category) notFound();
 
-  const orderHref = product.shopeeUrl
-    ? product.shopeeUrl
-    : getWhatsAppLink(storeInfo.whatsapp, `Halo, saya ingin memesan ${product.name} (${product.priceDisplay})`);
+  const shopeeStoreUrl = storeInfo.shopeeStoreUrl ?? SHOPEE_STORE_URL;
+  const orderHref = product.shopeeUrl ?? shopeeStoreUrl;
 
   return (
     <div className="bg-[#F7F3EC] min-h-screen">
@@ -118,21 +118,14 @@ export default async function ProductPage({ params }: Props) {
                   href={orderHref}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full inline-flex items-center justify-center gap-2 bg-[#2C5F2E] hover:bg-[#4A8C4F] text-white font-semibold px-6 py-3.5 rounded-xl transition-colors text-base"
+                  className="w-full inline-flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-400 text-white font-semibold px-6 py-3.5 rounded-xl transition-colors text-base"
                 >
-                  {product.shopeeUrl ? (
-                    <ShoppingBag className="w-5 h-5" />
-                  ) : (
-                    <MessageCircle className="w-5 h-5" />
-                  )}
-                  {product.shopeeUrl ? 'Beli di Shopee' : 'Pesan via WhatsApp'}
+                  <ShoppingBag className="w-5 h-5" />
+                  Beli di Shopee
                 </a>
-
-                {product.shopeeUrl && (
-                  <p className="text-xs text-[#6B7280] text-center mt-3">
-                    Anda akan diarahkan ke halaman produk di Shopee
-                  </p>
-                )}
+                <p className="text-xs text-[#6B7280] text-center mt-3">
+                  Anda akan diarahkan ke halaman Shopee
+                </p>
               </div>
             </div>
           </div>
