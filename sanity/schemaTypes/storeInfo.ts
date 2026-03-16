@@ -69,9 +69,22 @@ export const storeInfoType = defineType({
       type: 'string',
     }),
     defineField({
+      name: 'shopeeStoreUrl',
+      title: 'Link Toko Shopee',
+      type: 'url',
+      description: 'URL halaman toko Bali Greenhouse di Shopee',
+    }),
+    defineField({
       name: 'mapsEmbedUrl',
       title: 'URL Embed Google Maps (opsional)',
       type: 'url',
+    }),
+    defineField({
+      name: 'aboutContent',
+      title: 'Konten "Cerita Kami"',
+      type: 'array',
+      of: [{ type: 'block' }],
+      description: 'Paragraf untuk halaman Tentang Kami — edit bebas di sini',
     }),
   ],
   preview: {

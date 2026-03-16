@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import { Leaf, Heart, Sprout, Users } from 'lucide-react';
+import { PortableText } from 'next-sanity';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { Button } from '@/components/ui/Button';
 import { getStoreInfo, getWhatsAppLink } from '@/lib/sanity-data';
@@ -32,6 +33,12 @@ const values = [
   },
 ];
 
+const defaultAbout = [
+  'Bali Greenhouse lahir dari kecintaan mendalam terhadap alam dan dunia berkebun. Berawal dari sebuah toko kecil di Kerobokan, kami telah berkembang menjadi salah satu destinasi perlengkapan berkebun terpercaya di Bali.',
+  'Kami memahami betul kebutuhan para pecinta tanaman di Bali — dari petani profesional yang membutuhkan pupuk berkualitas tinggi, hingga pemula yang baru memulai perjalanan berkebun di balkon rumah mereka.',
+  'Dengan lebih dari 500 jenis produk yang kami kurasi langsung dari merek-merek terpercaya, kami berkomitmen untuk menjadi mitra terbaik dalam setiap langkah perjalanan berkebun Anda.',
+];
+
 export default async function TentangKamiPage() {
   const storeInfo = await getStoreInfo();
   return (
@@ -55,21 +62,18 @@ export default async function TentangKamiPage() {
         <div className="bg-white rounded-3xl p-8 md:p-12 border border-[#A8C5A0]/30">
           <SectionHeader title="Cerita Kami" align="left" className="mb-6" />
           <div className="space-y-4 text-[#2A2A2A] leading-relaxed">
-            <p>
-              Bali Greenhouse lahir dari kecintaan mendalam terhadap alam dan dunia berkebun.
-              Berawal dari sebuah toko kecil di Kerobokan, kami telah berkembang menjadi
-              salah satu destinasi perlengkapan berkebun terpercaya di Bali.
-            </p>
-            <p>
-              Kami memahami betul kebutuhan para pecinta tanaman di Bali — dari petani
-              profesional yang membutuhkan pupuk berkualitas tinggi, hingga pemula yang
-              baru memulai perjalanan berkebun di balkon rumah mereka.
-            </p>
-            <p>
-              Dengan lebih dari 500 jenis produk yang kami kurasi langsung dari merek-merek
-              terpercaya, kami berkomitmen untuk menjadi mitra terbaik dalam setiap langkah
-              perjalanan berkebun Anda.
-            </p>
+            {storeInfo.aboutContent && storeInfo.aboutContent.length > 0 ? (
+              <PortableText
+                value={storeInfo.aboutContent as Parameters<typeof PortableText>[0]['value']}
+                components={{
+                  block: {
+                    normal: ({ children }) => <p>{children}</p>,
+                  },
+                }}
+              />
+            ) : (
+              defaultAbout.map((para, i) => <p key={i}>{para}</p>)
+            )}
           </div>
         </div>
       </div>

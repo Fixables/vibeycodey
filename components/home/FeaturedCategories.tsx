@@ -26,8 +26,15 @@ export async function FeaturedCategories() {
                 {cat.name}
               </h3>
               <p className="text-[#6B7280] text-sm leading-relaxed">{cat.description}</p>
-              <div className="flex items-center gap-1 mt-4 text-[#2C5F2E] text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-                Lihat produk <ArrowRight className="w-3.5 h-3.5" />
+              <div className="flex items-center justify-between mt-4">
+                {cat.productCount != null && cat.productCount > 0 && (
+                  <span className="text-xs text-[#6B7280] bg-[#A8C5A0]/20 px-2.5 py-1 rounded-full">
+                    {cat.productCount} produk
+                  </span>
+                )}
+                <span className="flex items-center gap-1 text-[#2C5F2E] text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity ml-auto">
+                  Lihat produk <ArrowRight className="w-3.5 h-3.5" />
+                </span>
               </div>
             </Link>
           ))}

@@ -39,10 +39,11 @@ export const productType = defineType({
       validation: (r) => r.required(),
     }),
     defineField({
-      name: 'imageUrl',
-      title: 'URL Foto',
-      type: 'url',
-      description: 'URL foto produk (opsional)',
+      name: 'image',
+      title: 'Foto Produk',
+      type: 'image',
+      description: 'Upload foto produk langsung di sini',
+      options: { hotspot: true },
     }),
     defineField({
       name: 'shopeeUrl',

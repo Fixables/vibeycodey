@@ -1,11 +1,8 @@
 import Link from 'next/link';
-import Image from 'next/image';
-import { ShoppingBag, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { SectionHeader } from '@/components/ui/SectionHeader';
-import { Card } from '@/components/ui/Card';
-import { Badge } from '@/components/ui/Badge';
-import { Button } from '@/components/ui/Button';
-import { getFeaturedProducts, getStoreInfo, getWhatsAppLink } from '@/lib/sanity-data';
+import { ProductCard } from '@/components/catalog/ProductCard';
+import { getFeaturedProducts, getStoreInfo } from '@/lib/sanity-data';
 
 export async function FeaturedProducts() {
   const [featured, storeInfo] = await Promise.all([getFeaturedProducts(), getStoreInfo()]);
@@ -19,46 +16,16 @@ export async function FeaturedProducts() {
         />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {featured.map((product) => (
-            <Card key={product.id} hover className="overflow-hidden">
-              <div className="aspect-square bg-gradient-to-br from-[#A8C5A0]/30 to-[#2C5F2E]/10 relative overflow-hidden">
-                {product.imageUrl ? (
-                  <Image
-                    src={product.imageUrl}
-                    alt={product.name}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  />
-                ) : (
-                  <div className="absolute inset-0 flex items-center justify-center text-6xl">🌿</div>
-                )}
-              </div>
-              <div className="p-5">
-                <Badge variant="green" className="mb-2">{product.unit}</Badge>
-                <h3 className="font-bold text-[#2A2A2A] text-base mb-1 line-clamp-2">{product.name}</h3>
-                <p className="text-[#6B7280] text-sm mb-4 line-clamp-2">{product.description}</p>
-                <div className="flex items-center justify-between">
-                  <span className="text-[#2C5F2E] font-bold text-lg">{product.priceDisplay}</span>
-                  <Button
-                    as="a"
-                    href={getWhatsAppLink(storeInfo.whatsapp, `Halo, saya ingin memesan ${product.name}`)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    size="sm"
-                    variant="primary"
-                  >
-                    <ShoppingBag className="w-3.5 h-3.5" />
-                    Pesan
-                  </Button>
-                </div>
-              </div>
-            </Card>
+            <ProductCard key={product.id} product={product} whatsapp={storeInfo.whatsapp} />
           ))}
         </div>
         <div className="text-center mt-10">
-          <Button as="a" href="/katalog" variant="outline" size="md" className="gap-2">
+          <Link
+            href="/katalog"
+            className="inline-flex items-center gap-2 text-[#2C5F2E] font-semibold hover:text-[#4A8C4F] transition-colors border border-[#2C5F2E] hover:border-[#4A8C4F] px-6 py-2.5 rounded-xl"
+          >
             Lihat Semua Produk <ArrowRight className="w-4 h-4" />
-          </Button>
+          </Link>
         </div>
       </div>
     </section>

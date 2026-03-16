@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import { ContactForm } from '@/components/contact/ContactForm';
 import { StoreInfo } from '@/components/contact/StoreInfo';
+import { LocationMap } from '@/components/contact/LocationMap';
 import { getStoreInfo } from '@/lib/sanity-data';
 
 export const metadata: Metadata = {
@@ -34,15 +35,7 @@ export default async function KontakPage() {
             <div className="bg-white rounded-3xl p-8 border border-[#A8C5A0]/30 shadow-sm">
               <StoreInfo />
             </div>
-            <div className="bg-white rounded-3xl overflow-hidden border border-[#A8C5A0]/30 shadow-sm">
-              <div className="aspect-video bg-gradient-to-br from-[#A8C5A0]/30 to-[#2C5F2E]/10 flex items-center justify-center">
-                <div className="text-center text-[#6B7280]">
-                  <div className="text-4xl mb-2">📍</div>
-                  <p className="text-sm font-medium">Peta Lokasi</p>
-                  <p className="text-xs">Kerobokan, Badung, Bali</p>
-                </div>
-              </div>
-            </div>
+            <LocationMap />
           </div>
         </div>
       </div>

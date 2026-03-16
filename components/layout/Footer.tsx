@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { Leaf, MapPin, Clock, Phone, Instagram, Facebook } from 'lucide-react';
+import { MapPin, Clock, Phone, Instagram, Facebook, ShoppingBag } from 'lucide-react';
+import { LogoIcon } from '@/components/ui/LogoIcon';
 import { getStoreInfo, getWhatsAppLink } from '@/lib/sanity-data';
 
 const navLinks = [
@@ -17,9 +18,7 @@ export async function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center">
-                <Leaf className="w-5 h-5 text-white" />
-              </div>
+              <LogoIcon size={22} bare />
               <div>
                 <div className="font-bold text-lg leading-none" style={{ fontFamily: 'var(--font-lora, Lora, serif)' }}>
                   Bali Greenhouse
@@ -31,6 +30,17 @@ export async function Footer() {
               Toko perlengkapan berkebun terpercaya di Bali. Kami menyediakan benih, pupuk, media tanam, dan alat berkebun berkualitas untuk semua kebutuhan Anda.
             </p>
             <div className="flex gap-3 mt-5">
+              {storeInfo.shopeeStoreUrl && (
+                <a
+                  href={storeInfo.shopeeStoreUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-9 h-9 bg-orange-500 hover:bg-orange-400 rounded-lg flex items-center justify-center transition-colors"
+                  aria-label="Shopee"
+                >
+                  <ShoppingBag className="w-4 h-4 text-white" />
+                </a>
+              )}
               {storeInfo.socialMedia?.instagram && (
                 <a
                   href={`https://instagram.com/${storeInfo.socialMedia.instagram}`}
@@ -71,6 +81,18 @@ export async function Footer() {
                   </Link>
                 </li>
               ))}
+              {storeInfo.shopeeStoreUrl && (
+                <li>
+                  <a
+                    href={storeInfo.shopeeStoreUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-white/70 hover:text-white text-sm transition-colors"
+                  >
+                    Toko Shopee Kami
+                  </a>
+                </li>
+              )}
             </ul>
           </div>
 

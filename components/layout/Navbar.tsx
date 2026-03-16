@@ -2,8 +2,9 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { Menu, X, MessageCircle, Leaf } from 'lucide-react';
+import { Menu, X, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { LogoIcon } from '@/components/ui/LogoIcon';
 
 interface NavbarProps {
   whatsappLink: string;
@@ -24,9 +25,7 @@ export function Navbar({ whatsappLink }: NavbarProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-9 h-9 bg-[#2C5F2E] rounded-lg flex items-center justify-center group-hover:bg-[#4A8C4F] transition-colors">
-              <Leaf className="w-5 h-5 text-white" />
-            </div>
+            <LogoIcon size={36} />
             <div className="leading-tight">
               <div className="font-bold text-[#2C5F2E] text-lg leading-none" style={{ fontFamily: 'var(--font-lora, Lora, serif)' }}>
                 Bali Greenhouse

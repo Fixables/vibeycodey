@@ -37,5 +37,15 @@ export interface StoreInfo {
     instagram?: string;
     facebook?: string;
   };
+  shopeeStoreUrl?: string;
   mapsEmbedUrl?: string;
+  aboutContent?: unknown[];
+}
+
+export interface Testimonial {
+  id: string;
+  name: string;
+  location?: string;
+  content: string;
+  rating?: number;
 }

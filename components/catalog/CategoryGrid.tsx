@@ -18,8 +18,15 @@ export function CategoryGrid({ categories }: CategoryGridProps) {
           <div className="text-3xl mb-3">{cat.icon}</div>
           <h3 className="font-bold text-[#2C5F2E] text-sm mb-1 group-hover:text-[#4A8C4F] transition-colors">{cat.name}</h3>
           <p className="text-[#6B7280] text-xs leading-relaxed line-clamp-2">{cat.description}</p>
-          <div className="flex items-center gap-1 mt-3 text-[#2C5F2E] text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-            Lihat <ArrowRight className="w-3 h-3" />
+          <div className="flex items-center justify-between mt-3">
+            {cat.productCount != null && cat.productCount > 0 && (
+              <span className="text-[10px] text-[#6B7280] bg-[#A8C5A0]/20 px-2 py-0.5 rounded-full">
+                {cat.productCount} produk
+              </span>
+            )}
+            <span className="flex items-center gap-1 text-[#2C5F2E] text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity ml-auto">
+              Lihat <ArrowRight className="w-3 h-3" />
+            </span>
           </div>
         </Link>
       ))}
