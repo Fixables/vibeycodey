@@ -9,7 +9,9 @@
       "WebFetch(domain:shopee.co.id)",
       "Bash(python -c \":*)",
       "Bash(pip install:*)",
-      "Bash(python -m pip install openpyxl -q)"
+      "Bash(python -m pip install openpyxl -q)",
+      "Bash(npm install:*)",
+      "Bash(npx tsx:*)"
     ]
   }
 }
