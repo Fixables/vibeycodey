@@ -6,7 +6,10 @@
       "Bash(git remote:*)",
       "Bash(cd:*)",
       "Bash(printf:*)",
-      "WebFetch(domain:shopee.co.id)"
+      "WebFetch(domain:shopee.co.id)",
+      "Bash(python -c \":*)",
+      "Bash(pip install:*)",
+      "Bash(python -m pip install openpyxl -q)"
     ]
   }
 }

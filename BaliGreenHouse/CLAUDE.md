@@ -154,6 +154,22 @@ To seed Sanity with initial data: `npx tsx sanity/scripts/seed.ts`
 
 ---
 
+## Product Catalog (BGH Panjer — Feb 2026)
+Data source: `BGH - PANJER - FEB 2026.xlsx` Master sheet. 8 categories, ~320 products.
+
+| Category slug | Name | Source in Excel |
+|---|---|---|
+| `media-tanam` | Media Tanam | MEDIA TANAM (53 items) |
+| `pupuk` | Pupuk | PUPUK (75 items) |
+| `pestisida` | Pestisida | PESTISIDA: FUNGISIDA + HERBISIDA + INSEKTISIDA (30 items) + ETHREL |
+| `pot-plastik` | Pot Plastik | PERLENGKAPAN › POT PLASTIK (items with valid price) |
+| `polybag` | Polybag & Planter Bag | PERLENGKAPAN › POLYBAG |
+| `alat-berkebun` | Alat Berkebun | PERLENGKAPAN › CATOK + GUNTING + misc tools |
+| `kawat-bonsai` | Kawat Bonsai | PERLENGKAPAN › KAWAT |
+| `perlengkapan` | Perlengkapan Kebun | PERLENGKAPAN › PERLENGKAPAN LAIN |
+
+Excluded from seed: items with no sell price, duplicate SKUs (PL3156, PL3168, PS4026), internal entries (KARANG OK1002, ONGKIR OK1003).
+
 ## Milestone Status
 - **M1 — Foundation & Home Page:** COMPLETE
 - **M2 — Sanity CMS Integration:** COMPLETE (data layer, Studio at /studio, seed script)
@@ -161,6 +177,7 @@ To seed Sanity with initial data: `npx tsx sanity/scripts/seed.ts`
 - **M4 — SEO Polish:** COMPLETE (sitemap, robots, OG metadata, metadataBase)
 - **M5 — Real Images & UX Polish:** COMPLETE (native image upload, Shopee CTA, logo, map toggle)
 - **M6 — Content & Product Depth:** COMPLETE
+- **M7 — Real Catalog Data:** COMPLETE (seed.ts updated with full BGH Panjer Feb 2026 catalog, 8 categories, ~320 products)
   - Individual product detail pages (`/katalog/[kategori]/[slug]`) with SSG
   - Testimonials section on home page (Sanity-driven, hides if empty)
   - Instagram follow section on home page (Sanity-driven, hides if no handle set)
