@@ -11,7 +11,8 @@
       "Bash(cd:*)",
       "Bash(find /c/Users/andyk/Documents/GitHub/vibeycodey/KusumaSilver -type f -not -path */node_modules/* -not -path */.next/* -not -path */.git/*)",
       "Bash(rm -f \"/c/Users/andyk/Documents/GitHub/vibeycodey/KusumaSilver/app/[locale]/reseller/page.tsx\")",
-      "Bash(rmdir \"/c/Users/andyk/Documents/GitHub/vibeycodey/KusumaSilver/app/[locale]/reseller\")"
+      "Bash(rmdir \"/c/Users/andyk/Documents/GitHub/vibeycodey/KusumaSilver/app/[locale]/reseller\")",
+      "Bash(npx uipro:*)"
     ]
   }
 }
