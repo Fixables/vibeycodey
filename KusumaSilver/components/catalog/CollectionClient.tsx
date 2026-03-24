@@ -45,7 +45,7 @@ export function CollectionClient({
   return (
     <div>
       {/* Sticky filter bar */}
-      <div className="sticky top-[65px] z-40 border-b border-ivory-dark bg-white/95 backdrop-blur-md px-4 py-4 sm:px-6 lg:px-8">
+      <div className="sticky top-[65px] z-40 border-b border-warm-white-dark bg-white/95 backdrop-blur-md px-4 py-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <SearchFilter value={query} onChange={setQuery} locale={locale} />
 
@@ -55,8 +55,8 @@ export function CollectionClient({
               onClick={() => setActiveCategory('all')}
               className={`shrink-0 rounded-full px-4 py-1.5 text-xs font-semibold transition-colors ${
                 activeCategory === 'all'
-                  ? 'bg-espresso text-white'
-                  : 'bg-ivory-dark text-text-light hover:text-espresso'
+                  ? 'bg-charcoal text-warm-white'
+                  : 'bg-warm-white-dark text-text-muted hover:text-charcoal'
               }`}
             >
               {t.catalog.allCategories}
@@ -67,17 +67,17 @@ export function CollectionClient({
                 onClick={() => setActiveCategory(cat.slug)}
                 className={`shrink-0 rounded-full px-4 py-1.5 text-xs font-semibold transition-colors ${
                   activeCategory === cat.slug
-                    ? 'bg-espresso text-white'
-                    : 'bg-ivory-dark text-text-light hover:text-espresso'
+                    ? 'bg-charcoal text-warm-white'
+                    : 'bg-warm-white-dark text-text-muted hover:text-charcoal'
                 }`}
               >
-                {cat.icon} {locale === 'en' ? cat.nameEn || cat.name : cat.name}
+                {locale === 'en' ? cat.nameEn || cat.name : cat.name}
               </button>
             ))}
           </div>
 
           {/* Results count */}
-          <div className="mt-2 text-xs text-text-light">
+          <div className="mt-2 text-xs text-text-muted">
             {filtered.length} {locale === 'en' ? 'pieces found' : 'perhiasan ditemukan'}
           </div>
         </div>

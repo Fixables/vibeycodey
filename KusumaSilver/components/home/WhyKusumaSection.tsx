@@ -13,7 +13,7 @@ export function WhyKusumaSection({ locale }: WhyKusumaProps) {
   const t = getT(locale);
 
   return (
-    <section className="bg-ivory py-20 sm:py-28">
+    <section className="bg-warm-white py-20 sm:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeader title={t.whyUs.title} />
 
@@ -23,15 +23,15 @@ export function WhyKusumaSection({ locale }: WhyKusumaProps) {
             return (
               <div
                 key={i}
-                className="rounded-2xl border border-ivory-dark bg-white p-6 text-center shadow-sm"
+                className="rounded-2xl border border-warm-white-dark bg-white p-6 text-center shadow-sm"
               >
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-espresso/5">
-                  <Icon size={24} className="text-espresso" />
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-silver-bright/15">
+                  <Icon size={22} className="text-charcoal" />
                 </div>
-                <h3 className="mt-4 font-heading text-lg font-semibold text-espresso">
+                <h3 className="mt-4 font-heading text-lg font-semibold text-charcoal">
                   {item.title}
                 </h3>
-                <p className="mt-2 text-sm leading-relaxed text-text-light">
+                <p className="mt-2 text-sm leading-relaxed text-text-muted">
                   {item.body}
                 </p>
               </div>

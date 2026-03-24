@@ -36,8 +36,8 @@ export function LocaleSwitcher({ currentLocale }: LocaleSwitcherProps) {
         disabled={isPending}
         className={`rounded px-2 py-0.5 text-xs font-semibold transition-colors ${
           currentLocale === 'id'
-            ? 'bg-espresso text-white'
-            : 'text-text-light hover:text-espresso'
+            ? 'bg-charcoal text-warm-white'
+            : 'text-text-muted hover:text-charcoal'
         }`}
       >
         ID
@@ -47,8 +47,8 @@ export function LocaleSwitcher({ currentLocale }: LocaleSwitcherProps) {
         disabled={isPending}
         className={`rounded px-2 py-0.5 text-xs font-semibold transition-colors ${
           currentLocale === 'en'
-            ? 'bg-espresso text-white'
-            : 'text-text-light hover:text-espresso'
+            ? 'bg-charcoal text-warm-white'
+            : 'text-text-muted hover:text-charcoal'
         }`}
       >
         EN

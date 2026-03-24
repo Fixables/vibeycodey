@@ -3,7 +3,6 @@ export const en = {
     home: 'Home',
     collections: 'Collections',
     customOrder: 'Custom Order',
-    reseller: 'Reseller',
     about: 'About Us',
     contact: 'Contact',
     orderNow: 'Order Now',
@@ -46,18 +45,6 @@ export const en = {
       { title: 'Custom Orders', body: 'We accept custom orders tailored to your wishes with personal consultation.' },
       { title: 'Quality Guarantee', body: 'Every piece comes with a quality guarantee and after-sales service.' },
     ],
-  },
-  reseller: {
-    title: 'Reseller Program',
-    subtitle: 'Join our growing reseller network',
-    benefits: [
-      'Competitive profit margins',
-      'Exclusive high-quality products',
-      'Marketing support from our team',
-      'Fast shipping across Indonesia',
-      'Personal business consultation',
-    ],
-    cta: 'Become a Reseller',
   },
   testimonials: {
     title: 'What Our Customers Say',

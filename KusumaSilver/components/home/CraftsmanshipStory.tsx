@@ -10,45 +10,57 @@ interface CraftsmanshipStoryProps {
 export function CraftsmanshipStory({ locale }: CraftsmanshipStoryProps) {
   const t = getT(locale);
 
+  const craftItems = [
+    { abbrev: 'RI', label: locale === 'en' ? 'Rings' : 'Cincin' },
+    { abbrev: 'NK', label: locale === 'en' ? 'Necklaces' : 'Kalung' },
+    { abbrev: 'BR', label: locale === 'en' ? 'Bracelets' : 'Gelang' },
+    { abbrev: 'CU', label: locale === 'en' ? 'Custom' : 'Custom' },
+  ];
+
   return (
-    <section className="bg-espresso py-20 sm:py-28">
+    <section className="bg-warm-white-mid py-20 sm:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
-          {/* Text */}
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:gap-16 lg:items-center">
+          {/* Text side */}
           <div>
-            <span className="text-xs font-semibold uppercase tracking-widest text-gold">
-              925 Sterling Silver
-            </span>
-            <h2 className="font-heading mt-3 text-3xl font-semibold text-white sm:text-4xl lg:text-5xl leading-tight">
+            {/* Ornamental line divider */}
+            <div className="mb-6 flex items-center gap-3">
+              <div className="h-px w-10 bg-silver-mid" />
+              <span className="text-xs font-medium text-silver-dark tracking-[0.15em] uppercase">
+                {locale === 'en' ? 'Our Story' : 'Cerita Kami'}
+              </span>
+            </div>
+            <h2 className="font-heading text-3xl font-light leading-snug text-charcoal sm:text-4xl">
               {t.craftsmanship.title}
             </h2>
-            <div className="mt-4 h-0.5 w-12 bg-gold" />
-            <p className="mt-6 text-base leading-relaxed text-white/70">
+            <p className="mt-2 text-sm font-medium text-silver-dark tracking-wide">
+              925 Sterling Silver
+            </p>
+            <p className="mt-6 text-base leading-relaxed text-text-muted">
               {t.craftsmanship.body}
             </p>
             <Link
               href={`/${locale}/tentang-kami`}
-              className="mt-8 inline-flex items-center gap-2 rounded-lg border border-gold/50 bg-white/5 px-6 py-3 text-sm font-semibold text-gold transition-all hover:bg-white/10"
+              className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-charcoal transition-colors hover:text-terracotta"
             >
               {t.craftsmanship.cta}
-              <ArrowRight size={16} />
+              <ArrowRight size={15} />
             </Link>
           </div>
 
-          {/* Visual grid */}
+          {/* Visual grid — four craft category tiles */}
           <div className="grid grid-cols-2 gap-4">
-            {[
-              { emoji: '💍', label: locale === 'en' ? 'Rings' : 'Cincin' },
-              { emoji: '📿', label: locale === 'en' ? 'Necklaces' : 'Kalung' },
-              { emoji: '🪬', label: locale === 'en' ? 'Bracelets' : 'Gelang' },
-              { emoji: '✨', label: locale === 'en' ? 'Custom' : 'Custom' },
-            ].map((item) => (
+            {craftItems.map((item) => (
               <div
                 key={item.label}
-                className="flex flex-col items-center justify-center rounded-2xl border border-white/10 bg-white/5 py-8 text-center"
+                className="flex flex-col items-center justify-center rounded-2xl border border-silver-mid/20 bg-warm-white-dark py-10 text-center"
               >
-                <span className="text-5xl">{item.emoji}</span>
-                <span className="mt-3 text-sm font-medium text-white/70">
+                <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-warm-white border border-silver-mid/30">
+                  <span className="font-heading text-lg font-semibold text-charcoal tracking-wide">
+                    {item.abbrev}
+                  </span>
+                </div>
+                <span className="mt-3 text-sm font-medium text-text-muted">
                   {item.label}
                 </span>
               </div>

@@ -4,6 +4,7 @@ import '@/app/globals.css';
 import { NavbarServer } from '@/components/layout/NavbarServer';
 import { Footer } from '@/components/layout/Footer';
 import { SUPPORTED_LOCALES } from '@/lib/i18n';
+import { getStoreInfo, getWhatsAppLink } from '@/lib/sanity-data';
 import type { Locale } from '@/types';
 
 const cormorant = Cormorant_Garamond({
@@ -48,19 +49,21 @@ export default async function LocaleLayout({
 }) {
   const { locale: localeStr } = await params;
   const locale = localeStr as Locale;
+  const storeInfo = await getStoreInfo();
+  const waLink = getWhatsAppLink(storeInfo.whatsapp);
 
   return (
     <html lang={locale} className={`${cormorant.variable} ${jakarta.variable}`}>
-      <body className="font-body bg-ivory text-text antialiased">
+      <body className="font-body bg-warm-white text-text antialiased">
         <NavbarServer locale={locale} />
         <main className="min-h-screen">{children}</main>
         <Footer locale={locale} />
-        {/* Mobile sticky WhatsApp button */}
+        {/* Sticky WhatsApp button */}
         <a
-          href="https://wa.me/62"
+          href={waLink}
           target="_blank"
           rel="noopener noreferrer"
-          className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] shadow-lg transition-transform hover:scale-110 lg:hidden"
+          className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] shadow-lg transition-transform hover:scale-110"
           aria-label="WhatsApp"
         >
           <svg viewBox="0 0 24 24" fill="white" className="h-7 w-7">

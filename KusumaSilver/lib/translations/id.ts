@@ -3,7 +3,6 @@ export const id = {
     home: 'Beranda',
     collections: 'Koleksi',
     customOrder: 'Custom Order',
-    reseller: 'Reseller',
     about: 'Tentang Kami',
     contact: 'Kontak',
     orderNow: 'Pesan Sekarang',
@@ -46,18 +45,6 @@ export const id = {
       { title: 'Custom Order', body: 'Kami menerima pesanan khusus sesuai keinginan Anda dengan konsultasi personal.' },
       { title: 'Garansi Kualitas', body: 'Setiap perhiasan dilengkapi garansi kualitas dan layanan purna jual.' },
     ],
-  },
-  reseller: {
-    title: 'Program Reseller',
-    subtitle: 'Bergabunglah bersama jaringan reseller kami',
-    benefits: [
-      'Margin keuntungan kompetitif',
-      'Produk eksklusif berkualitas tinggi',
-      'Dukungan pemasaran dari tim kami',
-      'Pengiriman cepat ke seluruh Indonesia',
-      'Konsultasi bisnis personal',
-    ],
-    cta: 'Daftar Reseller',
   },
   testimonials: {
     title: 'Apa Kata Pelanggan Kami',

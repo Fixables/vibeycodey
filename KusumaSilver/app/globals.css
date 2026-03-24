@@ -1,23 +1,46 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-espresso:     #1E1A16;
-  --color-espresso-mid: #3D352D;
-  --color-stone:        #8C8276;
-  --color-silver:       #C4C4C4;
-  --color-ivory:        #F8F4EE;
-  --color-ivory-dark:   #EDE8DF;
-  --color-gold:         #B8922A;
-  --color-text:         #1A1A1A;
-  --color-text-light:   #7A7068;
+  /* Core dark backgrounds */
+  --color-charcoal:       #18181B;
+  --color-charcoal-mid:   #27272A;
+  --color-charcoal-light: #3F3F46;
+
+  /* Silver family — primary accent identity */
+  --color-silver-bright:  #D4D4D8;
+  --color-silver-mid:     #A1A1AA;
+  --color-silver-dark:    #71717A;
+
+  /* Warm whites — page surfaces */
+  --color-warm-white:      #FAF9F7;
+  --color-warm-white-dark: #EDEBE5;
+  --color-warm-white-mid:  #F3F1EC;
+
+  /* Earthy Balinese accent — use sparingly */
+  --color-terracotta:     #C47A52;
+  --color-terracotta-mid: #A86340;
+
+  /* Text */
+  --color-text:           #18181B;
+  --color-text-muted:     #71717A;
+
+  /* Legacy aliases — old class names still compile, now map to new palette */
+  --color-espresso:       #18181B;
+  --color-espresso-mid:   #27272A;
+  --color-stone:          #71717A;
+  --color-silver:         #D4D4D8;
+  --color-ivory:          #FAF9F7;
+  --color-ivory-dark:     #EDEBE5;
+  --color-gold:           #C47A52;
+  --color-text-light:     #71717A;
 
   --font-heading: var(--font-cormorant);
   --font-body:    var(--font-jakarta);
 }
 
 :root {
-  --background: #F8F4EE;
-  --foreground: #1A1A1A;
+  --background: #FAF9F7;
+  --foreground: #18181B;
 }
 
 body {
@@ -28,4 +51,25 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading), Georgia, serif;
+}
+
+/* Ornamental divider — Balinese-inspired thin separator */
+.ornament-divider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+}
+.ornament-divider::before,
+.ornament-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, transparent, #A1A1AA, transparent);
+}
+.ornament-divider-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #A1A1AA;
 }

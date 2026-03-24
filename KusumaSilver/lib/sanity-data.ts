@@ -1,7 +1,7 @@
 import { cache } from 'react';
 import { client, urlFor } from './sanity';
 import { formatPrice } from './utils';
-import type { Category, Product, StoreInfo, Testimonial } from '@/types';
+import type { Category, Product, StoreInfo, Testimonial, HomePageContent, AboutPageContent, ContactPageContent } from '@/types';
 
 // ---- Helpers ----
 
@@ -77,7 +77,7 @@ export async function getCategories(): Promise<Category[]> {
     nameEn: (c.nameEn as string) ?? '',
     description: (c.description as string) ?? '',
     descriptionEn: (c.descriptionEn as string) ?? '',
-    icon: (c.icon as string) ?? '💎',
+    icon: (c.icon as string) ?? '',
     productCount: c.productCount as number,
   }));
 }
@@ -100,7 +100,7 @@ export async function getCategoryBySlug(slug: string): Promise<Category | null> 
     nameEn: (raw.nameEn as string) ?? '',
     description: (raw.description as string) ?? '',
     descriptionEn: (raw.descriptionEn as string) ?? '',
-    icon: (raw.icon as string) ?? '💎',
+    icon: (raw.icon as string) ?? '',
     productCount: raw.productCount as number,
   };
 }
@@ -198,12 +198,10 @@ export const getStoreInfo = cache(async (): Promise<StoreInfo> => {
     whatsappDisplay,
     email,
     "hours": { "weekday": hoursWeekday, "weekend": hoursWeekend },
-    "socialMedia": { "instagram": instagram, "tiktok": tiktok },
+    "socialMedia": { "instagram": instagram, "tiktok": tiktok, "facebook": facebook },
     mapsEmbedUrl,
     aboutContent,
-    aboutContentEn,
-    resellerContent,
-    resellerContentEn
+    aboutContentEn
   }`;
 
   const raw = await safeFetch<Record<string, unknown> | null>(query, undefined, null);
@@ -222,7 +220,34 @@ export const getStoreInfo = cache(async (): Promise<StoreInfo> => {
     mapsEmbedUrl: raw?.mapsEmbedUrl as string | undefined,
     aboutContent: raw?.aboutContent as unknown[] | undefined,
     aboutContentEn: raw?.aboutContentEn as unknown[] | undefined,
-    resellerContent: raw?.resellerContent as unknown[] | undefined,
-    resellerContentEn: raw?.resellerContentEn as unknown[] | undefined,
   };
 });
+
+// ---- Page Content ----
+
+export async function getHomePageContent(): Promise<HomePageContent> {
+  const data = await safeFetch<Record<string, unknown> | null>(
+    `*[_type == "homePage" && _id == "homePage"][0]`,
+    undefined,
+    null
+  );
+  return (data ?? {}) as HomePageContent;
+}
+
+export async function getAboutPageContent(): Promise<AboutPageContent> {
+  const data = await safeFetch<Record<string, unknown> | null>(
+    `*[_type == "aboutPage" && _id == "aboutPage"][0]`,
+    undefined,
+    null
+  );
+  return (data ?? {}) as AboutPageContent;
+}
+
+export async function getContactPageContent(): Promise<ContactPageContent> {
+  const data = await safeFetch<Record<string, unknown> | null>(
+    `*[_type == "contactPage" && _id == "contactPage"][0]`,
+    undefined,
+    null
+  );
+  return (data ?? {}) as ContactPageContent;
+}

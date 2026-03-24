@@ -16,7 +16,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Sanity not configured — return static routes only
   }
 
-  const staticRoutes = ['', '/koleksi', '/custom-order', '/reseller', '/tentang-kami', '/kontak'];
+  const staticRoutes = ['', '/koleksi', '/custom-order', '/tentang-kami', '/kontak'];
 
   const staticEntries = LOCALES.flatMap((locale) =>
     staticRoutes.map((route) => ({

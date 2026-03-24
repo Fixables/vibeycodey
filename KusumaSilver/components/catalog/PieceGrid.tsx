@@ -15,8 +15,10 @@ export function PieceGrid({ products, locale, whatsapp, emptyMessage }: PieceGri
   if (!products.length) {
     return (
       <div className="py-16 text-center">
-        <div className="text-5xl">💍</div>
-        <p className="mt-4 text-text-light">{emptyMessage ?? t.catalog.noResults}</p>
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-warm-white-dark">
+          <div className="h-8 w-8 rounded-full bg-silver-mid/40" />
+        </div>
+        <p className="text-text-muted">{emptyMessage ?? t.catalog.noResults}</p>
       </div>
     );
   }

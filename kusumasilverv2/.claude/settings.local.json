@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/andyk/Documents/GitHub/vibeycodey/**)",
+      "Bash(cat ../KusumaSilver/app/[locale]/page.tsx)",
+      "Bash(ls ../KusumaSilver/app/[locale]/)",
+      "Bash(npx ruflo@latest task --help)",
+      "Bash(npx:*)"
+    ]
+  }
+}

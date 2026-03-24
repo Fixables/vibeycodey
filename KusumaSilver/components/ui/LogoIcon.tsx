@@ -15,7 +15,7 @@ export function LogoIcon({ size = 36, className = '', bare = false }: LogoIconPr
 
   return (
     <div
-      className={`flex items-center justify-center rounded-lg bg-espresso ${className}`}
+      className={`flex items-center justify-center rounded-lg bg-charcoal ${className}`}
       style={{ width: size, height: size }}
     >
       <Gem size={iconSize} className="text-white" />

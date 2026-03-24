@@ -1,11 +1,14 @@
-# Kusuma Silver — Claude Context
+# Kusuma Silver V2 — Claude Context
 
-> **For Claude:** Update this file at the end of every session where milestones are completed or conventions change. Keep the Milestone Status and Project Structure sections current.
+> **For Claude:** Update this file at the end of every session where milestones are completed or conventions change.
 
 ## Project Overview
+
 Customer-facing e-commerce website for **Kusuma Silver**, a premium Balinese 925 sterling silver jewelry brand. **Bilingual: Indonesian (id) + English (en)**. Tagline: "Perhiasan Perak 925 Asli dari Bali" / "Authentic 925 Silver Jewelry from Bali".
 
 **Do not hardcode text strings in components** — always use `getT(locale)` from `lib/i18n.ts`.
+**Do not use emojis anywhere** — use text abbreviations or geometric/icon alternatives.
+**Reseller page has been removed entirely** — do not re-add it anywhere.
 
 ---
 
@@ -40,20 +43,48 @@ npm run lint     # eslint
 - **Server components:** `const t = getT(locale)` — pass `locale` down from page params
 - **Client components:** Receive `locale` or `t` as props from server boundary
 - Translations are in `lib/translations/id.ts` and `lib/translations/en.ts`
-- Type: `Translation` from `lib/i18n.ts`
+- The `reseller` key has been removed from both translation files
 
 ### Tailwind v4
 CSS-based config in `app/globals.css` inside `@theme inline`. No `tailwind.config.ts`.
 
-Color tokens: `espresso`, `espresso-mid`, `stone`, `silver`, `ivory`, `ivory-dark`, `gold`, `text`, `text-light`.
-Font vars: `--font-cormorant` (headings, `font-heading`), `--font-jakarta` (body, `font-body`).
+#### New V2 Color Tokens (primary)
+| Token | Hex | Usage |
+|---|---|---|
+| `charcoal` | `#18181B` | Hero/footer backgrounds, CTA buttons |
+| `charcoal-mid` | `#27272A` | Hover dark states |
+| `charcoal-light` | `#3F3F46` | Light dark surfaces |
+| `silver-bright` | `#D4D4D8` | Primary silver accent — CTA on dark bg, stats |
+| `silver-mid` | `#A1A1AA` | Secondary silver — borders, dividers, labels |
+| `silver-dark` | `#71717A` | Muted silver — subtle borders |
+| `warm-white` | `#FAF9F7` | Page background |
+| `warm-white-dark` | `#EDEBE5` | Card backgrounds, borders |
+| `warm-white-mid` | `#F3F1EC` | Alternate section backgrounds |
+| `terracotta` | `#C47A52` | Earthy Balinese accent — use sparingly (prices, hover accents) |
+| `terracotta-mid` | `#A86340` | Terracotta hover |
+| `text` | `#18181B` | Primary body text |
+| `text-muted` | `#71717A` | Muted body text |
 
-**Always use token classes** (e.g. `bg-espresso`, `text-gold`) — never hardcode hex.
+#### Legacy Aliases (still compile, map to V2 values)
+| Old Token | Maps To |
+|---|---|
+| `espresso` | `charcoal` (#18181B) |
+| `espresso-mid` | `charcoal-mid` (#27272A) |
+| `stone` | `silver-dark` (#71717A) |
+| `silver` | `silver-bright` (#D4D4D8) |
+| `ivory` | `warm-white` (#FAF9F7) |
+| `ivory-dark` | `warm-white-dark` (#EDEBE5) |
+| `gold` | `terracotta` (#C47A52) |
+| `text-light` | `text-muted` (#71717A) |
+
+**Prefer new token names in new code.** Legacy aliases exist so old components don't break.
+
+Font vars: `--font-cormorant` (headings, `font-heading`), `--font-jakarta` (body, `font-body`).
 
 ### Path Alias
 `@/` maps to project root.
 
-### Routing
+### Routing (V2 — Reseller Removed)
 ```
 /                    → redirect to /id
 /[locale]/           → Home
@@ -61,32 +92,41 @@ Font vars: `--font-cormorant` (headings, `font-heading`), `--font-jakarta` (body
 /[locale]/koleksi/[kategori]        → Category page
 /[locale]/koleksi/[kategori]/[slug] → Piece detail page
 /[locale]/custom-order              → Custom Order page
-/[locale]/reseller                  → Reseller Program
 /[locale]/tentang-kami              → About
 /[locale]/kontak                    → Contact
 /studio/[[...tool]]                 → Sanity Studio (no locale prefix)
 ```
 
+**The `/reseller` route has been completely deleted** — page, directory, schema fields, translations, sitemap entry, nav links.
+
 ### Orders / CTA
 - **All order CTAs** link to WhatsApp via `getWhatsAppLink(whatsapp, message)` from `lib/sanity-data.ts`
-- **No Shopee integration** — this brand is WhatsApp-only
-- Message template (id): `Halo, saya tertarik dengan ${product.name}. Bisa info lebih lanjut?`
-- Message template (en): `Hello, I'm interested in ${product.nameEn}. Could you provide more details?`
-
-### Product Images
-Multiple images stored as array of Sanity `image` assets (`images[]` in schema). `urlFor()` from `lib/sanity.ts` converts to CDN URL. Detail page shows first image prominently + thumbnail strip.
+- **No Shopee integration** — WhatsApp-only
 
 ### Logo
-lucide `Gem` icon (white) inside dark espresso rounded square (`bg-espresso`). On dark backgrounds, use `bg-white/20`. Component: `components/ui/LogoIcon.tsx`.
+lucide `Gem` icon (white) inside dark charcoal rounded square (`bg-charcoal` or legacy `bg-espresso`). On dark backgrounds, use `bg-warm-white/10`. Component: `components/ui/LogoIcon.tsx`.
 
-### SSG / generateStaticParams
-Every `app/[locale]/...` page exports:
-```typescript
-export function generateStaticParams() {
-  return SUPPORTED_LOCALES.map(locale => ({ locale }));
-}
+### Ornamental Dividers (Balinese)
+Use between sections or as visual accents:
+```tsx
+<div className="flex items-center gap-4">
+  <div className="flex-1 h-px bg-gradient-to-r from-transparent via-silver-dark/40 to-transparent" />
+  <div className="flex gap-1.5">
+    <span className="h-1 w-1 rounded-full bg-silver-dark/50" />
+    <span className="h-1 w-1 rounded-full bg-silver-mid/70" />
+    <span className="h-1 w-1 rounded-full bg-silver-dark/50" />
+  </div>
+  <div className="flex-1 h-px bg-gradient-to-r from-transparent via-silver-dark/40 to-transparent" />
+</div>
 ```
-Nested pages combine locale with content slugs.
+
+### Category Icons
+Do NOT use emoji icons in the UI. Replace emoji category icons with a 2-letter monogram box:
+```tsx
+<div className="flex h-12 w-12 items-center justify-center rounded-xl bg-warm-white-dark text-charcoal group-hover:bg-charcoal group-hover:text-silver-bright">
+  <span className="font-heading text-base font-semibold tracking-wide">{displayName.slice(0, 2).toUpperCase()}</span>
+</div>
+```
 
 ---
 
@@ -95,14 +135,14 @@ Nested pages combine locale with content slugs.
 app/
   layout.tsx              # Root passthrough layout
   page.tsx                # Redirects to /id
-  globals.css             # Tailwind v4 @theme + base styles
+  globals.css             # Tailwind v4 @theme + new V2 palette
   icon.tsx                # Favicon (ImageResponse)
   opengraph-image.tsx     # OG image (1200×630)
   robots.ts
-  sitemap.ts              # Locale-aware sitemap
+  sitemap.ts              # Locale-aware sitemap (reseller removed)
   studio/[[...tool]]/page.tsx    # Sanity Studio
   [locale]/
-    layout.tsx            # Fonts, metadata, Navbar, Footer, sticky WA button
+    layout.tsx            # Fonts, metadata, Navbar, Footer, WA sticky button (uses real number from Sanity)
     page.tsx              # Home page
     koleksi/
       page.tsx            # Collections catalog
@@ -111,94 +151,71 @@ app/
         [slug]/
           page.tsx        # Piece detail (multi-image, specs, WA CTA)
     custom-order/page.tsx
-    reseller/page.tsx
     tentang-kami/page.tsx
     kontak/page.tsx
+    # NOTE: reseller/ has been deleted entirely
 
 components/
   layout/                 # NavbarServer (server), Navbar (client, locale switcher), Footer
-  ui/                     # Button, Badge, Card, SectionHeader, LogoIcon, LocaleSwitcher
-  home/                   # HeroSection, FeaturedCollections, CraftsmanshipStory,
-                          #   FeaturedPieces, CustomOrderHighlight, WhyKusumaSection,
-                          #   Testimonials, InstagramSection, CTABanner
-  catalog/                # PieceCard, PieceGrid, CategoryGrid, CollectionClient, SearchFilter
+  ui/                     # Button, Badge, Card, SectionHeader (with ornamental divider), LogoIcon, LocaleSwitcher
+  home/                   # All redesigned with V2 palette — no emojis
+  catalog/                # PieceCard, PieceGrid, CategoryGrid (no emoji icons), CollectionClient, SearchFilter
   contact/                # ContactForm
 
 lib/
   sanity.ts               # createClient + urlFor()
-  sanity-data.ts          # All GROQ queries, getWhatsAppLink, getStoreInfo (React cache)
+  sanity-data.ts          # GROQ queries + getWhatsAppLink + getStoreInfo + getHomePageContent + getAboutPageContent + getContactPageContent
   i18n.ts                 # Locale type, getT(), SUPPORTED_LOCALES
   translations/
-    id.ts                 # Indonesian strings
-    en.ts                 # English strings
+    id.ts                 # Indonesian strings (reseller key removed)
+    en.ts                 # English strings (reseller key removed)
     index.ts              # Barrel export
   utils.ts                # formatPrice(), cn()
 
 types/
-  index.ts                # Locale, Product, Category, StoreInfo, Testimonial, CustomOrderStep
+  index.ts                # Locale, Product, Category, StoreInfo, Testimonial, CustomOrderStep, HomePageContent, AboutPageContent, ContactPageContent
 
 sanity/
-  sanity.config.ts        # Studio config (title: Kusuma Silver Studio)
-  schemaTypes/            # category, product, storeInfo, testimonial, customOrderStep
+  sanity.config.ts        # Studio config — V2 structure with Beranda, Tentang Kami, Kontak, Informasi Toko singletons
+  schemaTypes/            # category, product, storeInfo, testimonial, customOrderStep, homePage, aboutPage, contactPage
   scripts/seed.ts         # Jewelry seed data
-
-middleware.ts             # Locale detection, redirects / → /id
 ```
 
 ---
 
-## Brand / Design System
-
-### Colors (defined in `app/globals.css`)
-| Token | Hex | Usage |
-|---|---|---|
-| `espresso` | `#1E1A16` | Primary dark — nav, headings, CTAs |
-| `espresso-mid` | `#3D352D` | Hover states |
-| `stone` | `#8C8276` | Borders, muted elements |
-| `silver` | `#C4C4C4` | Decorative accents |
-| `ivory` | `#F8F4EE` | Page background |
-| `ivory-dark` | `#EDE8DF` | Card backgrounds, borders |
-| `gold` | `#B8922A` | Price highlights, badges |
-| `text` | `#1A1A1A` | Body text |
-| `text-light` | `#7A7068` | Muted warm text |
-
-### Typography
-- **Headings:** Cormorant Garamond — `font-heading` class, CSS var `--font-cormorant`
-- **Body:** Plus Jakarta Sans — `font-body` class, CSS var `--font-jakarta`
-
----
-
-## Data Layer
-All data from **Sanity CMS** at build time. Key types in `types/index.ts`:
-- `Product` — bilingual (name/nameEn, description/descriptionEn), images[] array, jewelry specs (material, weight, sizes, stone, craftingTime, isCustomizable), no shopeeUrl
-- `Category` — bilingual (name/nameEn, description/descriptionEn)
-- `StoreInfo` — bilingual tagline, no shopeeStoreUrl, has tiktok, aboutContentEn, resellerContent*
-- `Testimonial` — bilingual (content/contentEn)
-- `CustomOrderStep` — bilingual (title/titleEn, description/descriptionEn)
-
-Environment variables (`.env.local` + Vercel):
-```
-NEXT_PUBLIC_SANITY_PROJECT_ID=...
-NEXT_PUBLIC_SANITY_DATASET=production
-SANITY_API_TOKEN=sk...   # seed script only
-```
-
-Seed: `npx tsx sanity/scripts/seed.ts`
+## Sanity Studio Structure (V2)
+The Studio sidebar now shows:
+1. **Beranda** — home page hero/sections content (singleton)
+2. **Tentang Kami** — about page content (singleton)
+3. **Kontak** — contact page content (singleton)
+4. **Informasi Toko** — WhatsApp, address, hours, social media (singleton)
+5. **Kategori** — product categories
+6. **Perhiasan** — product entries
+7. **Testimoni** — testimonials
+8. **Langkah Custom Order** — custom order steps
 
 ---
 
 ## Milestone Status
-- **M1 — Foundation & Home Page:** COMPLETE (Kusuma Silver brand)
+- **M1 — Foundation & Home Page:** COMPLETE
 - **M2 — Sanity CMS Integration:** COMPLETE
-- **M3 — Collections / Catalog:** COMPLETE (PieceCard, CollectionClient, category + detail pages)
-- **M4 — SEO Polish:** COMPLETE (sitemap, robots, OG image, favicon, metadataBase)
-- **M5 — Bilingual i18n:** COMPLETE (middleware, lib/i18n, translations, locale switcher)
-- **M6 — Inner Pages:** COMPLETE (custom-order, reseller, tentang-kami, kontak)
-- **M7 — Admin Panel, Payments:** Future
+- **M3 — Collections / Catalog:** COMPLETE
+- **M4 — SEO Polish:** COMPLETE
+- **M5 — Bilingual i18n:** COMPLETE
+- **M6 — Inner Pages:** COMPLETE
+- **M7 — V2 Redesign:** COMPLETE
+  - New silver-elegant palette (charcoal + silver + warm-white + terracotta)
+  - Reseller page fully removed
+  - No emojis in UI
+  - Expanded Sanity schemas (homePage, aboutPage, contactPage)
+  - All pages updated with new palette
+  - Ornamental Balinese dividers
+  - Navbar "Bali Silver" subtext added
+  - WA button fixed to use real Sanity number
 
 ---
 
 ## Deployment
 - Statically generated at build time
 - Vercel deploy hook → Sanity webhook for auto-redeploy on CMS publish
-- After initial deploy: add Sanity environment variables in Vercel dashboard
+- Environment variables: `NEXT_PUBLIC_SANITY_PROJECT_ID`, `NEXT_PUBLIC_SANITY_DATASET`, `SANITY_API_TOKEN` (seed only)

@@ -38,17 +38,21 @@ export default async function KategoriPage({
 
   return (
     <div>
-      <div className="bg-espresso py-16">
+      <div className="bg-charcoal py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <Link
             href={`/${locale}/koleksi`}
-            className="mb-6 inline-flex items-center gap-1.5 text-sm text-white/60 transition-colors hover:text-white"
+            className="mb-6 inline-flex items-center gap-1.5 text-sm text-warm-white/60 transition-colors hover:text-warm-white"
           >
             <ChevronLeft size={16} />
             {t.collections.title}
           </Link>
           <div className="flex items-center gap-4">
-            <span className="text-5xl">{category.icon}</span>
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-warm-white/10">
+              <span className="font-heading text-lg font-semibold text-silver-bright">
+                {name.slice(0, 2).toUpperCase()}
+              </span>
+            </div>
             <SectionHeader
               title={name}
               subtitle={description}

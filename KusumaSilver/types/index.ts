@@ -42,12 +42,10 @@ export interface StoreInfo {
   whatsappDisplay: string;
   email?: string;
   hours: { weekday: string; weekend: string };
-  socialMedia?: { instagram?: string; tiktok?: string };
+  socialMedia?: { instagram?: string; tiktok?: string; facebook?: string };
   mapsEmbedUrl?: string;
   aboutContent?: unknown[];
   aboutContentEn?: unknown[];
-  resellerContent?: unknown[];
-  resellerContentEn?: unknown[];
 }
 
 export interface Testimonial {
@@ -67,4 +65,58 @@ export interface CustomOrderStep {
   description: string;
   descriptionEn: string;
   icon: string;
+}
+
+export interface HomePageContent {
+  heroHeadline?: string;
+  heroHeadlineEn?: string;
+  heroSubtext?: string;
+  heroSubtextEn?: string;
+  heroImage?: string;
+  heroCtaLabel?: string;
+  heroCtaLabelEn?: string;
+  collectionsTitle?: string;
+  collectionsTitleEn?: string;
+  collectionsSubtitle?: string;
+  collectionsSubtitleEn?: string;
+  craftsmanshipTitle?: string;
+  craftsmanshipTitleEn?: string;
+  craftsmanshipBody?: string;
+  craftsmanshipBodyEn?: string;
+  craftsmanshipImage?: string;
+  ctaBannerTitle?: string;
+  ctaBannerTitleEn?: string;
+  ctaBannerSubtext?: string;
+  ctaBannerSubtextEn?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+}
+
+export interface AboutPageContent {
+  pageTitle?: string;
+  pageTitleEn?: string;
+  subtitle?: string;
+  subtitleEn?: string;
+  content?: unknown[];
+  contentEn?: unknown[];
+  heroImage?: string;
+  values?: Array<{
+    title: string;
+    titleEn?: string;
+    description: string;
+    descriptionEn?: string;
+  }>;
+  seoTitle?: string;
+  seoDescription?: string;
+}
+
+export interface ContactPageContent {
+  pageTitle?: string;
+  pageTitleEn?: string;
+  subtitle?: string;
+  subtitleEn?: string;
+  introText?: string;
+  introTextEn?: string;
+  seoTitle?: string;
+  seoDescription?: string;
 }

@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils';
 
-type BadgeVariant = 'espresso' | 'gold' | 'stone' | 'gray' | 'silver';
+type BadgeVariant = 'charcoal' | 'terracotta' | 'silver' | 'gray';
 
 interface BadgeProps {
   variant?: BadgeVariant;
@@ -9,14 +9,13 @@ interface BadgeProps {
 }
 
 const variants: Record<BadgeVariant, string> = {
-  espresso: 'bg-espresso text-white',
-  gold:     'bg-gold text-white',
-  stone:    'bg-stone text-white',
-  silver:   'bg-silver text-espresso',
-  gray:     'bg-gray-100 text-gray-700',
+  charcoal:   'bg-charcoal text-warm-white',
+  terracotta: 'bg-terracotta text-white',
+  silver:     'bg-silver-bright text-charcoal',
+  gray:       'bg-gray-100 text-gray-700',
 };
 
-export function Badge({ variant = 'espresso', className, children }: BadgeProps) {
+export function Badge({ variant = 'charcoal', className, children }: BadgeProps) {
   return (
     <span
       className={cn(

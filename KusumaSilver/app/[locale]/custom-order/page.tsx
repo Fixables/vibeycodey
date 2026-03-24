@@ -21,10 +21,17 @@ export default async function CustomOrderPage({ params }: { params: Promise<{ lo
   const waLink = getWhatsAppLink(storeInfo.whatsapp, waMessage);
 
   return (
-    <div className="bg-ivory min-h-screen">
-      {/* Hero */}
-      <div className="bg-espresso py-20 text-center">
+    <div className="bg-warm-white min-h-screen">
+      {/* Page hero */}
+      <div className="bg-charcoal py-20 sm:py-24 text-center">
         <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-4 flex items-center justify-center gap-3">
+            <div className="h-px w-10 bg-silver-mid/50" />
+            <span className="text-xs font-medium text-silver-mid tracking-[0.15em] uppercase">
+              {locale === 'en' ? 'Made to Order' : 'Dibuat Khusus'}
+            </span>
+            <div className="h-px w-10 bg-silver-mid/50" />
+          </div>
           <SectionHeader
             title={t.customOrder.title}
             subtitle={t.customOrder.subtitle}
@@ -35,29 +42,34 @@ export default async function CustomOrderPage({ params }: { params: Promise<{ lo
 
       <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
         {/* Description */}
-        <div className="rounded-2xl border border-ivory-dark bg-white p-8 text-center shadow-sm">
-          <p className="text-base leading-relaxed text-text-light">{t.customOrder.body}</p>
+        <div className="rounded-2xl border border-warm-white-dark bg-white p-8 text-center shadow-sm">
+          <p className="text-base leading-relaxed text-text-muted">{t.customOrder.body}</p>
         </div>
 
         {/* Steps */}
         <div className="mt-12">
-          <h2 className="font-heading text-center text-2xl font-semibold text-espresso sm:text-3xl">
-            {locale === 'en' ? 'How It Works' : 'Cara Kerja Kami'}
-          </h2>
-          <div className="mt-8 space-y-6">
+          <div className="mb-8 flex items-center gap-3">
+            <div className="h-px w-8 bg-silver-mid" />
+            <h2 className="font-heading text-2xl font-light text-charcoal sm:text-3xl">
+              {locale === 'en' ? 'How It Works' : 'Cara Kerja Kami'}
+            </h2>
+          </div>
+          <div className="space-y-4">
             {t.customOrder.steps.map((step, i) => (
               <div
                 key={i}
-                className="flex gap-5 rounded-2xl border border-ivory-dark bg-white p-6 shadow-sm"
+                className="flex gap-5 rounded-2xl border border-warm-white-dark bg-white p-6 shadow-sm"
               >
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-espresso font-heading text-xl font-semibold text-gold">
-                  {String(i + 1).padStart(2, '0')}
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-charcoal">
+                  <span className="font-heading text-lg font-semibold text-silver-bright">
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
                 </div>
                 <div>
-                  <h3 className="font-heading text-lg font-semibold text-espresso">
+                  <h3 className="font-heading text-lg font-semibold text-charcoal">
                     {step.title}
                   </h3>
-                  <p className="mt-1 text-sm leading-relaxed text-text-light">
+                  <p className="mt-1 text-sm leading-relaxed text-text-muted">
                     {step.description}
                   </p>
                 </div>
@@ -67,13 +79,19 @@ export default async function CustomOrderPage({ params }: { params: Promise<{ lo
         </div>
 
         {/* CTA */}
-        <div className="mt-12 rounded-2xl bg-espresso p-8 text-center">
-          <h2 className="font-heading text-2xl font-semibold text-white">
+        <div className="mt-12 rounded-2xl bg-charcoal p-8 text-center">
+          {/* Ornamental divider */}
+          <div className="mb-6 flex items-center justify-center gap-4">
+            <div className="h-px w-10 bg-silver-mid/40" />
+            <div className="h-1.5 w-1.5 rounded-full bg-silver-bright" />
+            <div className="h-px w-10 bg-silver-mid/40" />
+          </div>
+          <h2 className="font-heading text-2xl font-light text-warm-white">
             {locale === 'en' ? 'Ready to Start?' : 'Siap Memulai?'}
           </h2>
-          <p className="mt-2 text-sm text-white/70">
+          <p className="mt-2 text-sm text-warm-white/60">
             {locale === 'en'
-              ? 'Contact us via WhatsApp and let\'s bring your dream jewelry to life.'
+              ? "Contact us via WhatsApp and let's bring your dream jewelry to life."
               : 'Hubungi kami via WhatsApp dan wujudkan perhiasan impian Anda.'}
           </p>
           <a

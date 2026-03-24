@@ -20,13 +20,13 @@ type ButtonProps = ButtonAsButton | ButtonAsAnchor;
 
 const variants: Record<ButtonVariant, string> = {
   primary:
-    'bg-espresso text-white hover:bg-espresso-mid active:scale-[0.98] shadow-sm',
+    'bg-charcoal text-warm-white hover:bg-charcoal-mid active:scale-[0.98] shadow-sm',
   secondary:
-    'bg-gold text-white hover:bg-yellow-700 active:scale-[0.98] shadow-sm',
+    'bg-terracotta text-white hover:bg-terracotta-mid active:scale-[0.98] shadow-sm',
   outline:
-    'border-2 border-espresso text-espresso hover:bg-espresso hover:text-white active:scale-[0.98]',
+    'border-2 border-charcoal text-charcoal hover:bg-charcoal hover:text-warm-white active:scale-[0.98]',
   ghost:
-    'text-espresso hover:bg-ivory-dark active:scale-[0.98]',
+    'text-charcoal hover:bg-warm-white-dark active:scale-[0.98]',
   whatsapp:
     'bg-[#25D366] text-white hover:bg-[#20b958] active:scale-[0.98] shadow-sm',
 };

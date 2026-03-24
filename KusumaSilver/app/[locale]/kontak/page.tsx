@@ -16,10 +16,16 @@ export default async function KontakPage({ params }: { params: Promise<{ locale:
   const waLink = getWhatsAppLink(storeInfo.whatsapp);
 
   return (
-    <div className="bg-ivory min-h-screen">
-      {/* Hero */}
-      <div className="bg-espresso py-20 text-center">
+    <div className="bg-warm-white min-h-screen">
+      {/* Page hero */}
+      <div className="bg-charcoal py-20 sm:py-24 text-center">
         <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+          {/* Ornamental label */}
+          <div className="mb-4 flex items-center justify-center gap-3">
+            <div className="h-px w-10 bg-silver-mid/50" />
+            <span className="text-xs font-medium text-silver-mid tracking-[0.15em] uppercase">Kusuma Silver</span>
+            <div className="h-px w-10 bg-silver-mid/50" />
+          </div>
           <SectionHeader
             title={t.contact.title}
             subtitle={t.contact.subtitle}
@@ -35,17 +41,20 @@ export default async function KontakPage({ params }: { params: Promise<{ locale:
 
           {/* Store Info */}
           <div className="space-y-5">
-            <div className="rounded-2xl border border-ivory-dark bg-white p-6 shadow-sm">
-              <h2 className="font-heading text-xl font-semibold text-espresso mb-4">
-                {locale === 'en' ? 'Find Us' : 'Temukan Kami'}
-              </h2>
+            <div className="rounded-2xl border border-warm-white-dark bg-white p-6 shadow-sm">
+              <div className="flex items-center gap-3 mb-5">
+                <div className="h-px w-8 bg-silver-mid" />
+                <h2 className="font-heading text-xl font-light text-charcoal">
+                  {locale === 'en' ? 'Find Us' : 'Temukan Kami'}
+                </h2>
+              </div>
               <ul className="space-y-4">
                 <li className="flex gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-espresso/5">
-                    <MapPin size={20} className="text-espresso" />
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-charcoal/5">
+                    <MapPin size={20} className="text-charcoal" />
                   </div>
                   <div>
-                    <div className="text-xs font-semibold uppercase tracking-wider text-text-light mb-0.5">
+                    <div className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-0.5">
                       {t.contact.address}
                     </div>
                     <div className="text-sm text-text">
@@ -54,11 +63,11 @@ export default async function KontakPage({ params }: { params: Promise<{ locale:
                   </div>
                 </li>
                 <li className="flex gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-espresso/5">
-                    <Clock size={20} className="text-espresso" />
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-charcoal/5">
+                    <Clock size={20} className="text-charcoal" />
                   </div>
                   <div>
-                    <div className="text-xs font-semibold uppercase tracking-wider text-text-light mb-0.5">
+                    <div className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-0.5">
                       {t.contact.hours}
                     </div>
                     <div className="text-sm text-text">{storeInfo.hours.weekday}</div>
@@ -70,14 +79,14 @@ export default async function KontakPage({ params }: { params: Promise<{ locale:
                     <MessageCircle size={20} className="text-[#25D366]" />
                   </div>
                   <div>
-                    <div className="text-xs font-semibold uppercase tracking-wider text-text-light mb-0.5">
+                    <div className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-0.5">
                       {t.contact.whatsapp}
                     </div>
                     <a
                       href={waLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm text-espresso transition-colors hover:text-gold"
+                      className="text-sm text-charcoal transition-colors hover:text-terracotta"
                     >
                       {storeInfo.whatsappDisplay}
                     </a>
@@ -85,16 +94,16 @@ export default async function KontakPage({ params }: { params: Promise<{ locale:
                 </li>
                 {storeInfo.email && (
                   <li className="flex gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-espresso/5">
-                      <Mail size={20} className="text-espresso" />
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-charcoal/5">
+                      <Mail size={20} className="text-charcoal" />
                     </div>
                     <div>
-                      <div className="text-xs font-semibold uppercase tracking-wider text-text-light mb-0.5">
+                      <div className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-0.5">
                         {t.contact.email}
                       </div>
                       <a
                         href={`mailto:${storeInfo.email}`}
-                        className="text-sm text-espresso transition-colors hover:text-gold"
+                        className="text-sm text-charcoal transition-colors hover:text-terracotta"
                       >
                         {storeInfo.email}
                       </a>
@@ -106,7 +115,7 @@ export default async function KontakPage({ params }: { params: Promise<{ locale:
 
             {/* Map if available */}
             {storeInfo.mapsEmbedUrl && (
-              <div className="overflow-hidden rounded-2xl border border-ivory-dark shadow-sm">
+              <div className="overflow-hidden rounded-2xl border border-warm-white-dark shadow-sm">
                 <iframe
                   src={storeInfo.mapsEmbedUrl}
                   width="100%"

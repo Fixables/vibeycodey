@@ -15,7 +15,7 @@ export async function Testimonials({ locale }: TestimonialsProps) {
   if (!testimonials.length) return null;
 
   return (
-    <section className="bg-white py-20 sm:py-28">
+    <section className="bg-warm-white-dark py-20 sm:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeader title={t.testimonials.title} />
 
@@ -23,33 +23,38 @@ export async function Testimonials({ locale }: TestimonialsProps) {
           {testimonials.map((t_item) => (
             <div
               key={t_item.id}
-              className="rounded-2xl border border-ivory-dark bg-ivory p-6 shadow-sm"
+              className="rounded-2xl border border-silver-mid/20 bg-warm-white p-6 shadow-sm"
             >
+              {/* Silver quote mark */}
+              <div className="font-heading text-4xl font-light leading-none text-silver-mid select-none">
+                &ldquo;
+              </div>
+
               {/* Stars */}
-              <div className="flex gap-0.5">
+              <div className="mt-1 flex gap-0.5">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <Star
                     key={i}
-                    size={14}
+                    size={13}
                     className={
                       i < (t_item.rating ?? 5)
-                        ? 'fill-gold text-gold'
-                        : 'fill-none text-stone'
+                        ? 'fill-silver-bright text-silver-bright'
+                        : 'fill-none text-silver-dark'
                     }
                   />
                 ))}
               </div>
 
               {/* Content */}
-              <p className="mt-3 text-sm leading-relaxed text-text">
-                &ldquo;{locale === 'en' && t_item.contentEn ? t_item.contentEn : t_item.content}&rdquo;
+              <p className="mt-3 text-sm leading-relaxed text-text-muted">
+                {locale === 'en' && t_item.contentEn ? t_item.contentEn : t_item.content}
               </p>
 
               {/* Author */}
-              <div className="mt-4 border-t border-ivory-dark pt-4">
-                <div className="text-sm font-semibold text-espresso">{t_item.name}</div>
+              <div className="mt-4 border-t border-warm-white-dark pt-4">
+                <div className="text-sm font-semibold text-charcoal">{t_item.name}</div>
                 {t_item.location && (
-                  <div className="text-xs text-text-light">{t_item.location}</div>
+                  <div className="text-xs text-silver-dark">{t_item.location}</div>
                 )}
               </div>
             </div>

@@ -20,7 +20,7 @@ export async function FeaturedPieces({ locale }: FeaturedPiecesProps) {
   if (!products.length) return null;
 
   return (
-    <section className="bg-white py-20 sm:py-28">
+    <section className="bg-warm-white py-20 sm:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeader
           title={locale === 'en' ? 'Featured Pieces' : 'Perhiasan Pilihan'}
@@ -45,10 +45,10 @@ export async function FeaturedPieces({ locale }: FeaturedPiecesProps) {
         <div className="mt-10 text-center">
           <Link
             href={`/${locale}/koleksi`}
-            className="inline-flex items-center gap-2 rounded-lg bg-espresso px-7 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-espresso-mid"
+            className="inline-flex items-center gap-2 rounded-lg bg-charcoal px-7 py-3.5 text-sm font-semibold text-warm-white transition-colors hover:bg-charcoal-mid"
           >
             {t.collections.viewAll}
-            <ArrowRight size={16} />
+            <ArrowRight size={15} />
           </Link>
         </div>
       </div>

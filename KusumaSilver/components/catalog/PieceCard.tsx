@@ -25,9 +25,9 @@ export function PieceCard({ product, locale, whatsapp }: PieceCardProps) {
   const detailHref = `/${locale}/koleksi/${product.category}/${product.slug}`;
 
   return (
-    <div className="group flex flex-col overflow-hidden rounded-2xl border border-ivory-dark bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-md">
+    <div className="group flex flex-col overflow-hidden rounded-2xl border border-warm-white-dark bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-md">
       {/* Image */}
-      <Link href={detailHref} className="relative block aspect-square overflow-hidden bg-ivory-dark">
+      <Link href={detailHref} className="relative block aspect-square overflow-hidden bg-warm-white-dark">
         {product.imageUrl ? (
           <Image
             src={product.imageUrl}
@@ -37,10 +37,14 @@ export function PieceCard({ product, locale, whatsapp }: PieceCardProps) {
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           />
         ) : (
-          <div className="flex h-full items-center justify-center text-5xl">💍</div>
+          <div className="flex h-full items-center justify-center bg-warm-white-mid">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-silver-mid/20">
+              <div className="h-8 w-8 rounded-full bg-silver-mid/40" />
+            </div>
+          </div>
         )}
         {product.isCustomizable && (
-          <div className="absolute left-3 top-3 rounded-full bg-gold px-2 py-0.5 text-xs font-semibold text-white">
+          <div className="absolute left-3 top-3 rounded-full bg-charcoal px-2.5 py-0.5 text-xs font-semibold text-warm-white">
             {t.piece.customizable}
           </div>
         )}
@@ -49,31 +53,31 @@ export function PieceCard({ product, locale, whatsapp }: PieceCardProps) {
       {/* Content */}
       <div className="flex flex-1 flex-col p-4">
         <Link href={detailHref}>
-          <h3 className="font-heading text-base font-semibold text-espresso leading-tight line-clamp-2">
+          <h3 className="font-heading text-base font-semibold text-charcoal leading-tight line-clamp-2">
             {name}
           </h3>
         </Link>
-        <p className="mt-1 text-sm text-text-light line-clamp-2 leading-relaxed">
+        <p className="mt-1 text-sm text-text-muted line-clamp-2 leading-relaxed">
           {description}
         </p>
 
         {/* Specs */}
         {product.material && (
-          <div className="mt-2 text-xs text-stone">
+          <div className="mt-2 text-xs text-silver-dark">
             {t.piece.material}: {product.material}
           </div>
         )}
 
         {/* Price + CTA */}
         <div className="mt-auto flex items-center justify-between pt-4">
-          <span className="font-heading text-lg font-semibold text-gold">
+          <span className="font-heading text-lg font-semibold text-terracotta">
             {product.priceDisplay}
           </span>
           <a
             href={waLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 rounded-lg bg-espresso px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-espresso-mid"
+            className="flex items-center gap-1.5 rounded-lg bg-charcoal px-3 py-2 text-xs font-semibold text-warm-white transition-colors hover:bg-charcoal-mid"
           >
             <MessageCircle size={14} />
             {t.piece.order}

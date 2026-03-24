@@ -15,13 +15,13 @@ export function SearchFilter({ value, onChange, locale }: SearchFilterProps) {
 
   return (
     <div className="relative">
-      <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone" />
+      <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-silver-dark" />
       <input
         type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={t.catalog.search}
-        className="w-full rounded-xl border border-ivory-dark bg-white py-3 pl-10 pr-4 text-sm text-text outline-none transition-colors focus:border-espresso placeholder:text-stone"
+        className="w-full rounded-xl border border-warm-white-dark bg-white py-3 pl-10 pr-4 text-sm text-text outline-none transition-colors focus:border-silver-mid placeholder:text-silver-dark"
       />
     </div>
   );

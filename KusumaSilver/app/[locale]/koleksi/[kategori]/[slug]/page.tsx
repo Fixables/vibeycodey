@@ -45,25 +45,25 @@ export default async function PieceDetailPage({
   const images = product.images?.length ? product.images : product.imageUrl ? [product.imageUrl] : [];
 
   return (
-    <div className="bg-ivory min-h-screen">
+    <div className="bg-warm-white min-h-screen">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Breadcrumb */}
-        <nav className="mb-8 flex items-center gap-2 text-sm text-text-light">
-          <Link href={`/${locale}/koleksi`} className="transition-colors hover:text-espresso">
+        <nav className="mb-8 flex items-center gap-2 text-sm text-text-muted">
+          <Link href={`/${locale}/koleksi`} className="transition-colors hover:text-charcoal">
             {t.nav.collections}
           </Link>
           <ChevronLeft size={14} className="rotate-180" />
-          <Link href={`/${locale}/koleksi/${kategori}`} className="transition-colors hover:text-espresso capitalize">
+          <Link href={`/${locale}/koleksi/${kategori}`} className="transition-colors hover:text-charcoal capitalize">
             {kategori}
           </Link>
           <ChevronLeft size={14} className="rotate-180" />
-          <span className="text-espresso font-medium">{name}</span>
+          <span className="text-charcoal font-medium">{name}</span>
         </nav>
 
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
           {/* Images */}
           <div>
-            <div className="relative aspect-square overflow-hidden rounded-2xl bg-ivory-dark">
+            <div className="relative aspect-square overflow-hidden rounded-2xl bg-warm-white-dark">
               {images[0] ? (
                 <Image
                   src={images[0]}
@@ -74,7 +74,11 @@ export default async function PieceDetailPage({
                   sizes="(max-width: 1024px) 100vw, 50vw"
                 />
               ) : (
-                <div className="flex h-full items-center justify-center text-8xl">💍</div>
+                <div className="flex h-full items-center justify-center bg-warm-white-mid">
+                  <div className="flex h-20 w-20 items-center justify-center rounded-full bg-silver-mid/20">
+                    <div className="h-10 w-10 rounded-full bg-silver-mid/40" />
+                  </div>
+                </div>
               )}
             </div>
             {/* Thumbnails */}
@@ -83,7 +87,7 @@ export default async function PieceDetailPage({
                 {images.slice(1).map((img, i) => (
                   <div
                     key={i}
-                    className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl border border-ivory-dark bg-ivory-dark"
+                    className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl border border-warm-white-dark bg-warm-white-dark"
                   >
                     <Image
                       src={img}
@@ -102,7 +106,7 @@ export default async function PieceDetailPage({
           <div className="flex flex-col">
             <div className="flex flex-wrap items-center gap-2">
               {product.isCustomizable && (
-                <Badge variant="gold">
+                <Badge variant="terracotta">
                   <Sparkles size={12} className="mr-1" />
                   {t.piece.customizable}
                 </Badge>
@@ -114,51 +118,51 @@ export default async function PieceDetailPage({
               )}
             </div>
 
-            <h1 className="font-heading mt-3 text-3xl font-semibold text-espresso sm:text-4xl leading-tight">
+            <h1 className="font-heading mt-3 text-3xl font-semibold text-charcoal sm:text-4xl leading-tight">
               {name}
             </h1>
 
-            <div className="mt-4 font-heading text-2xl font-semibold text-gold">
+            <div className="mt-4 font-heading text-2xl font-semibold text-terracotta">
               {product.priceDisplay}
             </div>
 
-            <p className="mt-6 text-base leading-relaxed text-text-light">{description}</p>
+            <p className="mt-6 text-base leading-relaxed text-text-muted">{description}</p>
 
             {/* Specs table */}
             {(product.material || product.weight || product.sizes || product.stone || product.craftingTime) && (
-              <div className="mt-6 rounded-2xl border border-ivory-dark bg-white p-5">
-                <h2 className="font-heading text-base font-semibold text-espresso mb-3">
+              <div className="mt-6 rounded-2xl border border-warm-white-dark bg-white p-5">
+                <h2 className="font-heading text-base font-semibold text-charcoal mb-3">
                   {locale === 'en' ? 'Specifications' : 'Spesifikasi'}
                 </h2>
                 <dl className="space-y-2">
                   {product.material && (
                     <div className="flex gap-3">
-                      <dt className="w-32 shrink-0 text-sm text-text-light">{t.piece.material}</dt>
-                      <dd className="text-sm font-medium text-espresso">{product.material}</dd>
+                      <dt className="w-32 shrink-0 text-sm text-text-muted">{t.piece.material}</dt>
+                      <dd className="text-sm font-medium text-charcoal">{product.material}</dd>
                     </div>
                   )}
                   {product.weight && (
                     <div className="flex gap-3">
-                      <dt className="w-32 shrink-0 text-sm text-text-light">{t.piece.weight}</dt>
-                      <dd className="text-sm font-medium text-espresso">{product.weight}g</dd>
+                      <dt className="w-32 shrink-0 text-sm text-text-muted">{t.piece.weight}</dt>
+                      <dd className="text-sm font-medium text-charcoal">{product.weight}g</dd>
                     </div>
                   )}
                   {product.sizes && (
                     <div className="flex gap-3">
-                      <dt className="w-32 shrink-0 text-sm text-text-light">{t.piece.sizes}</dt>
-                      <dd className="text-sm font-medium text-espresso">{product.sizes}</dd>
+                      <dt className="w-32 shrink-0 text-sm text-text-muted">{t.piece.sizes}</dt>
+                      <dd className="text-sm font-medium text-charcoal">{product.sizes}</dd>
                     </div>
                   )}
                   {product.stone && (
                     <div className="flex gap-3">
-                      <dt className="w-32 shrink-0 text-sm text-text-light">{t.piece.stone}</dt>
-                      <dd className="text-sm font-medium text-espresso">{product.stone}</dd>
+                      <dt className="w-32 shrink-0 text-sm text-text-muted">{t.piece.stone}</dt>
+                      <dd className="text-sm font-medium text-charcoal">{product.stone}</dd>
                     </div>
                   )}
                   {product.craftingTime && (
                     <div className="flex gap-3">
-                      <dt className="w-32 shrink-0 text-sm text-text-light">{t.piece.craftingTime}</dt>
-                      <dd className="text-sm font-medium text-espresso">{product.craftingTime}</dd>
+                      <dt className="w-32 shrink-0 text-sm text-text-muted">{t.piece.craftingTime}</dt>
+                      <dd className="text-sm font-medium text-charcoal">{product.craftingTime}</dd>
                     </div>
                   )}
                 </dl>

@@ -23,6 +23,7 @@ export const storeInfo = defineType({
     defineField({ name: 'hoursWeekend', title: 'Hours (Weekend)', type: 'string' }),
     defineField({ name: 'instagram', title: 'Instagram Username', type: 'string', description: 'Without @' }),
     defineField({ name: 'tiktok', title: 'TikTok Username', type: 'string', description: 'Without @' }),
+    defineField({ name: 'facebook', title: 'Facebook URL', type: 'url', description: 'Full Facebook page URL' }),
     defineField({ name: 'mapsEmbedUrl', title: 'Google Maps Embed URL', type: 'url' }),
     defineField({
       name: 'aboutContent',
@@ -33,18 +34,6 @@ export const storeInfo = defineType({
     defineField({
       name: 'aboutContentEn',
       title: 'About Content (English)',
-      type: 'array',
-      of: [{ type: 'block' }],
-    }),
-    defineField({
-      name: 'resellerContent',
-      title: 'Reseller Content (Indonesian)',
-      type: 'array',
-      of: [{ type: 'block' }],
-    }),
-    defineField({
-      name: 'resellerContentEn',
-      title: 'Reseller Content (English)',
       type: 'array',
       of: [{ type: 'block' }],
     }),

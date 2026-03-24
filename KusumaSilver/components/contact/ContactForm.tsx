@@ -28,11 +28,11 @@ export function ContactForm({ locale, whatsapp }: ContactFormProps) {
   }
 
   const inputClass =
-    'w-full rounded-xl border border-ivory-dark bg-ivory px-4 py-3 text-sm text-text outline-none transition-colors focus:border-espresso placeholder:text-stone';
+    'w-full rounded-xl border border-warm-white-dark bg-warm-white px-4 py-3 text-sm text-text outline-none transition-colors focus:border-charcoal placeholder:text-silver-dark';
 
   return (
-    <div className="rounded-2xl border border-ivory-dark bg-white p-6 shadow-sm">
-      <h2 className="font-heading text-xl font-semibold text-espresso mb-4">
+    <div className="rounded-2xl border border-warm-white-dark bg-white p-6 shadow-sm">
+      <h2 className="font-heading text-xl font-semibold text-charcoal mb-4">
         {locale === 'en' ? 'Send Us a Message' : 'Kirim Pesan'}
       </h2>
       <form onSubmit={handleSubmit} className="space-y-4">
