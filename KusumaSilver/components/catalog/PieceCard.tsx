@@ -25,15 +25,15 @@ export function PieceCard({ product, locale, whatsapp }: PieceCardProps) {
   const detailHref = `/${locale}/koleksi/${product.category}/${product.slug}`;
 
   return (
-    <div className="group flex flex-col overflow-hidden rounded-2xl border border-warm-white-dark bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-md">
-      {/* Image */}
-      <Link href={detailHref} className="relative block aspect-square overflow-hidden bg-warm-white-dark">
+    <div className="group flex flex-col overflow-hidden rounded-2xl border border-warm-white-dark bg-white transition-shadow duration-300 hover:shadow-lg">
+      {/* Image — portrait ratio for jewelry */}
+      <Link href={detailHref} className="relative block aspect-[4/5] overflow-hidden bg-warm-white-dark">
         {product.imageUrl ? (
           <Image
             src={product.imageUrl}
             alt={name}
             fill
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            className="object-cover transition-transform duration-500 group-hover:scale-103"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           />
         ) : (
@@ -51,17 +51,16 @@ export function PieceCard({ product, locale, whatsapp }: PieceCardProps) {
       </Link>
 
       {/* Content */}
-      <div className="flex flex-1 flex-col p-4">
+      <div className="flex flex-1 flex-col p-5">
         <Link href={detailHref}>
-          <h3 className="font-heading text-base font-semibold text-charcoal leading-tight line-clamp-2">
+          <h3 className="font-heading text-base font-semibold text-charcoal leading-tight line-clamp-2 transition-colors hover:text-terracotta">
             {name}
           </h3>
         </Link>
-        <p className="mt-1 text-sm text-text-muted line-clamp-2 leading-relaxed">
+        <p className="mt-1.5 text-sm text-text-muted line-clamp-2 leading-relaxed">
           {description}
         </p>
 
-        {/* Specs */}
         {product.material && (
           <div className="mt-2 text-xs text-silver-dark">
             {t.piece.material}: {product.material}
@@ -69,7 +68,7 @@ export function PieceCard({ product, locale, whatsapp }: PieceCardProps) {
         )}
 
         {/* Price + CTA */}
-        <div className="mt-auto flex items-center justify-between pt-4">
+        <div className="mt-auto flex items-center justify-between pt-5 border-t border-warm-white-dark mt-4">
           <span className="font-heading text-lg font-semibold text-terracotta">
             {product.priceDisplay}
           </span>
@@ -77,10 +76,10 @@ export function PieceCard({ product, locale, whatsapp }: PieceCardProps) {
             href={waLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 rounded-lg bg-charcoal px-3 py-2 text-xs font-semibold text-warm-white transition-colors hover:bg-charcoal-mid"
+            aria-label={t.piece.order}
+            className="flex items-center justify-center h-9 w-9 rounded-lg bg-charcoal text-warm-white transition-colors duration-200 hover:bg-charcoal-mid"
           >
-            <MessageCircle size={14} />
-            {t.piece.order}
+            <MessageCircle size={16} />
           </a>
         </div>
       </div>

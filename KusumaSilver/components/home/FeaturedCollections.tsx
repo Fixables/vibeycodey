@@ -15,14 +15,14 @@ export async function FeaturedCollections({ locale }: FeaturedCollectionsProps) 
   const featured = categories.slice(0, 6);
 
   return (
-    <section className="bg-warm-white py-20 sm:py-28">
+    <section className="bg-warm-white py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeader
           title={t.collections.title}
           subtitle={t.collections.subtitle}
         />
 
-        <div className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+        <div className="mt-14 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           {featured.map((category) => {
             const displayName = locale === 'en' ? category.nameEn || category.name : category.name;
             const abbrev = displayName.slice(0, 2).toUpperCase();
@@ -30,16 +30,22 @@ export async function FeaturedCollections({ locale }: FeaturedCollectionsProps) 
               <Link
                 key={category.slug}
                 href={`/${locale}/koleksi/${category.slug}`}
-                className="group flex flex-col items-center rounded-2xl border border-warm-white-dark bg-white p-5 text-center shadow-sm transition-all hover:-translate-y-1 hover:border-silver-mid/50 hover:shadow-md"
+                className="group relative flex flex-col items-center overflow-hidden rounded-2xl border border-warm-white-dark bg-warm-white-mid px-4 py-8 text-center transition-all duration-300 hover:border-charcoal hover:bg-charcoal"
               >
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-warm-white-dark text-charcoal transition-colors group-hover:bg-charcoal group-hover:text-silver-bright">
-                  <span className="font-heading text-base font-semibold tracking-wide">{abbrev}</span>
-                </div>
-                <h3 className="mt-3 text-sm font-semibold text-charcoal leading-tight">
+                {/* Decorative background abbrev */}
+                <span
+                  className="absolute inset-0 flex items-center justify-center font-heading text-7xl font-semibold text-silver-bright/10 select-none transition-opacity duration-300 group-hover:text-silver-bright/5"
+                  aria-hidden="true"
+                >
+                  {abbrev}
+                </span>
+
+                {/* Foreground content */}
+                <h3 className="relative text-sm font-semibold text-charcoal leading-tight transition-colors duration-300 group-hover:text-warm-white">
                   {displayName}
                 </h3>
                 {typeof category.productCount === 'number' && (
-                  <span className="mt-1 text-xs text-text-muted">
+                  <span className="relative mt-1.5 text-xs text-text-muted transition-colors duration-300 group-hover:text-warm-white/50">
                     {category.productCount} {locale === 'en' ? 'pieces' : 'perhiasan'}
                   </span>
                 )}
@@ -48,10 +54,10 @@ export async function FeaturedCollections({ locale }: FeaturedCollectionsProps) 
           })}
         </div>
 
-        <div className="mt-8 text-center">
+        <div className="mt-10 text-center">
           <Link
             href={`/${locale}/koleksi`}
-            className="inline-flex items-center gap-2 text-sm font-semibold text-charcoal transition-colors hover:text-terracotta"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-charcoal transition-colors duration-200 hover:text-terracotta"
           >
             {t.collections.viewAll}
             <ArrowRight size={15} />

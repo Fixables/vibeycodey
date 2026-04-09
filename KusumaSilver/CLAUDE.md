@@ -13,19 +13,21 @@ Customer-facing e-commerce website for **Kusuma Silver**, a premium Balinese 925
 ---
 
 ## Tech Stack
-| Layer | Choice |
-|---|---|
-| Framework | Next.js 16 (App Router) + React 19 + TypeScript |
-| Styling | Tailwind CSS v4 |
-| Icons | lucide-react |
-| Fonts | Cormorant Garamond (headings) + Plus Jakarta Sans (body) via Google Fonts |
-| i18n | Custom `lib/i18n.ts` + `lib/translations/{id,en}.ts` |
-| CMS | Sanity (Studio at /studio) |
-| Deployment | Vercel |
+
+| Layer      | Choice                                                                    |
+| ---------- | ------------------------------------------------------------------------- |
+| Framework  | Next.js 16 (App Router) + React 19 + TypeScript                           |
+| Styling    | Tailwind CSS v4                                                           |
+| Icons      | lucide-react                                                              |
+| Fonts      | Cormorant Garamond (headings) + Plus Jakarta Sans (body) via Google Fonts |
+| i18n       | Custom `lib/i18n.ts` + `lib/translations/{id,en}.ts`                      |
+| CMS        | Sanity (Studio at /studio)                                                |
+| Deployment | Vercel                                                                    |
 
 ---
 
 ## Dev Commands
+
 ```bash
 npm run dev      # local dev server
 npm run build    # production build
@@ -38,6 +40,7 @@ npm run lint     # eslint
 ## Critical Conventions
 
 ### Bilingual / i18n
+
 - All pages live under `app/[locale]/` (locale = `id` | `en`)
 - `middleware.ts` redirects `/` → `/id` (default locale)
 - **Server components:** `const t = getT(locale)` — pass `locale` down from page params
@@ -46,45 +49,50 @@ npm run lint     # eslint
 - The `reseller` key has been removed from both translation files
 
 ### Tailwind v4
+
 CSS-based config in `app/globals.css` inside `@theme inline`. No `tailwind.config.ts`.
 
 #### New V2 Color Tokens (primary)
-| Token | Hex | Usage |
-|---|---|---|
-| `charcoal` | `#18181B` | Hero/footer backgrounds, CTA buttons |
-| `charcoal-mid` | `#27272A` | Hover dark states |
-| `charcoal-light` | `#3F3F46` | Light dark surfaces |
-| `silver-bright` | `#D4D4D8` | Primary silver accent — CTA on dark bg, stats |
-| `silver-mid` | `#A1A1AA` | Secondary silver — borders, dividers, labels |
-| `silver-dark` | `#71717A` | Muted silver — subtle borders |
-| `warm-white` | `#FAF9F7` | Page background |
-| `warm-white-dark` | `#EDEBE5` | Card backgrounds, borders |
-| `warm-white-mid` | `#F3F1EC` | Alternate section backgrounds |
-| `terracotta` | `#C47A52` | Earthy Balinese accent — use sparingly (prices, hover accents) |
-| `terracotta-mid` | `#A86340` | Terracotta hover |
-| `text` | `#18181B` | Primary body text |
-| `text-muted` | `#71717A` | Muted body text |
+
+| Token             | Hex       | Usage                                                          |
+| ----------------- | --------- | -------------------------------------------------------------- |
+| `charcoal`        | `#18181B` | Hero/footer backgrounds, CTA buttons                           |
+| `charcoal-mid`    | `#27272A` | Hover dark states                                              |
+| `charcoal-light`  | `#3F3F46` | Light dark surfaces                                            |
+| `silver-bright`   | `#D4D4D8` | Primary silver accent — CTA on dark bg, stats                  |
+| `silver-mid`      | `#A1A1AA` | Secondary silver — borders, dividers, labels                   |
+| `silver-dark`     | `#71717A` | Muted silver — subtle borders                                  |
+| `warm-white`      | `#FAF9F7` | Page background                                                |
+| `warm-white-dark` | `#EDEBE5` | Card backgrounds, borders                                      |
+| `warm-white-mid`  | `#F3F1EC` | Alternate section backgrounds                                  |
+| `terracotta`      | `#C47A52` | Earthy Balinese accent — use sparingly (prices, hover accents) |
+| `terracotta-mid`  | `#A86340` | Terracotta hover                                               |
+| `text`            | `#18181B` | Primary body text                                              |
+| `text-muted`      | `#71717A` | Muted body text                                                |
 
 #### Legacy Aliases (still compile, map to V2 values)
-| Old Token | Maps To |
-|---|---|
-| `espresso` | `charcoal` (#18181B) |
-| `espresso-mid` | `charcoal-mid` (#27272A) |
-| `stone` | `silver-dark` (#71717A) |
-| `silver` | `silver-bright` (#D4D4D8) |
-| `ivory` | `warm-white` (#FAF9F7) |
-| `ivory-dark` | `warm-white-dark` (#EDEBE5) |
-| `gold` | `terracotta` (#C47A52) |
-| `text-light` | `text-muted` (#71717A) |
+
+| Old Token      | Maps To                     |
+| -------------- | --------------------------- |
+| `espresso`     | `charcoal` (#18181B)        |
+| `espresso-mid` | `charcoal-mid` (#27272A)    |
+| `stone`        | `silver-dark` (#71717A)     |
+| `silver`       | `silver-bright` (#D4D4D8)   |
+| `ivory`        | `warm-white` (#FAF9F7)      |
+| `ivory-dark`   | `warm-white-dark` (#EDEBE5) |
+| `gold`         | `terracotta` (#C47A52)      |
+| `text-light`   | `text-muted` (#71717A)      |
 
 **Prefer new token names in new code.** Legacy aliases exist so old components don't break.
 
 Font vars: `--font-cormorant` (headings, `font-heading`), `--font-jakarta` (body, `font-body`).
 
 ### Path Alias
+
 `@/` maps to project root.
 
 ### Routing (V2 — Reseller Removed)
+
 ```
 /                    → redirect to /id
 /[locale]/           → Home
@@ -100,14 +108,18 @@ Font vars: `--font-cormorant` (headings, `font-heading`), `--font-jakarta` (body
 **The `/reseller` route has been completely deleted** — page, directory, schema fields, translations, sitemap entry, nav links.
 
 ### Orders / CTA
+
 - **All order CTAs** link to WhatsApp via `getWhatsAppLink(whatsapp, message)` from `lib/sanity-data.ts`
 - **No Shopee integration** — WhatsApp-only
 
 ### Logo
+
 lucide `Gem` icon (white) inside dark charcoal rounded square (`bg-charcoal` or legacy `bg-espresso`). On dark backgrounds, use `bg-warm-white/10`. Component: `components/ui/LogoIcon.tsx`.
 
 ### Ornamental Dividers (Balinese)
+
 Use between sections or as visual accents:
+
 ```tsx
 <div className="flex items-center gap-4">
   <div className="flex-1 h-px bg-gradient-to-r from-transparent via-silver-dark/40 to-transparent" />
@@ -120,17 +132,51 @@ Use between sections or as visual accents:
 </div>
 ```
 
-### Category Icons
-Do NOT use emoji icons in the UI. Replace emoji category icons with a 2-letter monogram box:
+### Category Cards
+
+Do NOT use emoji icons. Use the 2-letter abbreviation as a **large decorative background** element, not a small nested box. The abbrev sits behind the category name as a ghost watermark:
+
 ```tsx
-<div className="flex h-12 w-12 items-center justify-center rounded-xl bg-warm-white-dark text-charcoal group-hover:bg-charcoal group-hover:text-silver-bright">
-  <span className="font-heading text-base font-semibold tracking-wide">{displayName.slice(0, 2).toUpperCase()}</span>
+<Link className="group relative flex flex-col items-center overflow-hidden rounded-2xl border border-warm-white-dark bg-warm-white-mid px-4 py-8 text-center transition-all duration-300 hover:border-charcoal hover:bg-charcoal">
+  {/* Ghost abbrev as decorative background */}
+  <span className="absolute inset-0 flex items-center justify-center font-heading text-7xl font-semibold text-silver-bright/10 select-none">
+    {abbrev}
+  </span>
+  <h3 className="relative text-sm font-semibold text-charcoal transition-colors group-hover:text-warm-white">
+    {displayName}
+  </h3>
+</Link>
+```
+
+### Layout Sections
+
+Prefer **manifesto/editorial** layout for feature lists over icon-card grids:
+
+```tsx
+{/* Numbered divider list — no icon cards */}
+<div className="divide-y divide-warm-white-dark">
+  {items.map((item, i) => (
+    <div key={i} className="flex gap-8 py-8">
+      <span className="font-heading text-sm text-silver-dark w-6 shrink-0 tabular-nums">
+        {String(i + 1).padStart(2, '0')}
+      </span>
+      <div>
+        <h3 className="font-heading text-lg font-semibold text-charcoal">{item.title}</h3>
+        <p className="mt-2 text-sm text-text-muted">{item.body}</p>
+      </div>
+    </div>
+  ))}
 </div>
 ```
+
+### Hero Section
+
+Use `min-h-[90vh]` with flexbox centering and a **stats strip anchored to the bottom** (border-top + grid-cols-3). No dot-grid texture, no tagline pill — use a thin overline above the headline instead.
 
 ---
 
 ## Project Structure
+
 ```
 app/
   layout.tsx              # Root passthrough layout
@@ -184,7 +230,9 @@ sanity/
 ---
 
 ## Sanity Studio Structure (V2)
+
 The Studio sidebar now shows:
+
 1. **Beranda** — home page hero/sections content (singleton)
 2. **Tentang Kami** — about page content (singleton)
 3. **Kontak** — contact page content (singleton)
@@ -197,6 +245,7 @@ The Studio sidebar now shows:
 ---
 
 ## Milestone Status
+
 - **M1 — Foundation & Home Page:** COMPLETE
 - **M2 — Sanity CMS Integration:** COMPLETE
 - **M3 — Collections / Catalog:** COMPLETE
@@ -212,10 +261,21 @@ The Studio sidebar now shows:
   - Ornamental Balinese dividers
   - Navbar "Bali Silver" subtext added
   - WA button fixed to use real Sanity number
+- **M8 — UI/UX Editorial Polish (UI/UX Pro Max):** COMPLETE
+  - HeroSection: editorial luxury — `min-h-[90vh]`, large clamp() headline, stats strip at bottom, removed dot-grid texture
+  - WhyKusumaSection: icon card grid removed → numbered manifesto layout with sticky title column
+  - CraftsmanshipStory: placeholder 2-letter tiles removed → charcoal spec card (material/origin/technique/finish + decorative 925 mark)
+  - CTABanner: jarring green WhatsApp button replaced with brand `silver-bright` palette
+  - FeaturedCollections: abbrev now large decorative ghost background, hover inverts to charcoal
+  - PieceCard: portrait aspect ratio (4:5), shadow elevation hover, icon-only WA button with aria-label
+  - SectionHeader: added `overline` prop for consistent section labelling
+  - Inner pages (About, Custom Order, Contact): unified dark hero treatment, manifesto layouts, consistent dividers
+  - Python for UI/UX Pro Max script: `/c/Users/andyk/AppData/Local/Programs/Python/Python313/python.exe`
 
 ---
 
 ## Deployment
+
 - Statically generated at build time
 - Vercel deploy hook → Sanity webhook for auto-redeploy on CMS publish
 - Environment variables: `NEXT_PUBLIC_SANITY_PROJECT_ID`, `NEXT_PUBLIC_SANITY_DATASET`, `SANITY_API_TOKEN` (seed only)
