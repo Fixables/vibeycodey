@@ -8,6 +8,7 @@ export interface Category {
   descriptionEn: string;
   icon: string;
   productCount?: number;
+  coverImageUrl?: string;
 }
 
 export interface Product {

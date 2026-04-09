@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { MessageCircle, ArrowRight } from 'lucide-react';
+import Image from 'next/image';
+import { MessageCircle, Play } from 'lucide-react';
 import type { Locale } from '@/types';
 import { getT } from '@/lib/i18n';
 import { getStoreInfo, getWhatsAppLink } from '@/lib/sanity-data';
@@ -17,88 +18,90 @@ export async function HeroSection({ locale }: HeroSectionProps) {
       : 'Halo, saya tertarik dengan perhiasan Kusuma Silver.';
   const waLink = getWhatsAppLink(storeInfo.whatsapp, waMessage);
 
-  const stats = [
-    { value: '500+', label: locale === 'en' ? 'Designs' : 'Desain' },
-    { value: '1000+', label: locale === 'en' ? 'Happy Customers' : 'Pelanggan Puas' },
-    { value: '925', label: locale === 'en' ? 'Silver Standard' : 'Standar Perak' },
-  ];
+  // heroImage comes from the HomePageContent singleton in Sanity if set
+  const heroImage: string | undefined = undefined; // placeholder — wire to CMS when ready
 
   return (
-    <section className="relative flex min-h-[90vh] flex-col justify-center overflow-hidden bg-charcoal">
-      {/* Subtle vertical rule left edge */}
-      <div className="absolute left-8 top-0 h-full w-px bg-gradient-to-b from-transparent via-silver-mid/15 to-transparent hidden lg:block" />
+    <section className="relative flex min-h-[100svh] flex-col items-center justify-center overflow-hidden bg-charcoal">
+      {/* Background image */}
+      {heroImage ? (
+        <Image
+          src={heroImage}
+          alt="Kusuma Silver artisan"
+          fill
+          priority
+          className="object-cover object-center"
+          sizes="100vw"
+        />
+      ) : (
+        /* CSS hammered texture fallback */
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `
+              radial-gradient(ellipse 80px 80px at 15% 20%, rgba(212,212,216,0.06) 0%, transparent 70%),
+              radial-gradient(ellipse 60px 90px at 40% 55%, rgba(212,212,216,0.04) 0%, transparent 70%),
+              radial-gradient(ellipse 100px 70px at 70% 30%, rgba(212,212,216,0.05) 0%, transparent 70%),
+              radial-gradient(ellipse 50px 80px at 85% 70%, rgba(212,212,216,0.04) 0%, transparent 70%),
+              radial-gradient(ellipse 70px 50px at 30% 80%, rgba(212,212,216,0.04) 0%, transparent 70%)
+            `,
+            backgroundColor: '#18181B',
+          }}
+        />
+      )}
 
-      {/* Top overline */}
-      <div className="absolute top-8 left-0 right-0 flex items-center justify-center px-4">
-        <div className="flex items-center gap-4">
-          <div className="h-px w-12 bg-silver-mid/25" />
-          <span className="text-[10px] font-medium text-silver-mid/70 tracking-[0.25em] uppercase">
+      {/* Gradient overlay — heavier at bottom for CTA readability */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-black/40" />
+
+      {/* Top label */}
+      <div className="absolute top-6 left-0 right-0 flex justify-center">
+        <div className="flex items-center gap-3 px-4">
+          <div className="h-px w-8 bg-silver-mid/30" />
+          <span className="text-[9px] font-medium tracking-[0.3em] uppercase text-silver-mid/60">
             {t.hero.tagline}
           </span>
-          <div className="h-px w-12 bg-silver-mid/25" />
+          <div className="h-px w-8 bg-silver-mid/30" />
         </div>
       </div>
 
       {/* Main content */}
-      <div className="relative mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 pb-24">
-        <div className="mx-auto max-w-3xl text-center">
-          {/* Headline — large editorial serif */}
-          <h1
-            className="font-heading font-light tracking-tight text-warm-white"
-            style={{ fontSize: 'clamp(2.8rem, 7vw, 5.5rem)', lineHeight: '1.05' }}
+      <div className="relative z-10 mx-auto max-w-2xl px-6 text-center">
+        <h1
+          className="font-heading font-light tracking-tight text-warm-white"
+          style={{ fontSize: 'clamp(2.6rem, 8vw, 5rem)', lineHeight: '1.08' }}
+        >
+          {t.hero.headline}
+        </h1>
+        <p className="mt-5 text-sm leading-relaxed text-warm-white/65 sm:text-base">
+          {t.hero.sub}
+        </p>
+
+        {/* Play button */}
+        <button
+          aria-label="Play video"
+          className="mx-auto mt-9 flex h-16 w-16 items-center justify-center rounded-full border border-warm-white/30 bg-warm-white/10 backdrop-blur-sm transition-all hover:bg-warm-white/20"
+        >
+          <Play size={22} className="text-warm-white translate-x-0.5" fill="white" />
+        </button>
+        <p className="mt-2 text-xs tracking-widest uppercase text-warm-white/45">Play</p>
+
+        {/* Pill CTAs */}
+        <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+          <Link
+            href={`/${locale}/koleksi`}
+            className="rounded-full border border-warm-white/50 px-8 py-3 text-sm font-medium text-warm-white transition-all hover:bg-warm-white/10"
           >
-            {t.hero.headline}
-          </h1>
-
-          {/* Ornamental rule */}
-          <div className="mt-8 flex items-center justify-center gap-3">
-            <div className="h-px w-16 bg-silver-mid/30" />
-            <div className="h-px w-3 bg-silver-bright/60" />
-            <div className="h-px w-16 bg-silver-mid/30" />
-          </div>
-
-          {/* Sub */}
-          <p className="mx-auto mt-7 max-w-md text-sm leading-relaxed text-warm-white/55 sm:text-base">
-            {t.hero.sub}
-          </p>
-
-          {/* CTAs */}
-          <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-            <Link
-              href={`/${locale}/koleksi`}
-              className="flex items-center gap-2 rounded-lg bg-silver-bright px-7 py-3.5 text-sm font-semibold text-charcoal transition-all duration-200 hover:bg-silver-mid"
-            >
-              {t.hero.cta}
-              <ArrowRight size={15} />
-            </Link>
-            <a
-              href={waLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 rounded-lg border border-warm-white/20 px-7 py-3.5 text-sm font-semibold text-warm-white/80 transition-all duration-200 hover:border-warm-white/40 hover:text-warm-white"
-            >
-              <MessageCircle size={15} />
-              {t.hero.ctaSecondary}
-            </a>
-          </div>
-        </div>
-      </div>
-
-      {/* Stats strip — anchored to bottom */}
-      <div className="absolute bottom-0 left-0 right-0 border-t border-warm-white/8">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-3 divide-x divide-warm-white/8">
-            {stats.map((stat) => (
-              <div key={stat.label} className="px-4 py-5 text-center">
-                <div className="font-heading text-xl font-semibold text-silver-bright sm:text-2xl">
-                  {stat.value}
-                </div>
-                <div className="mt-0.5 text-[10px] tracking-wider text-warm-white/35 uppercase">
-                  {stat.label}
-                </div>
-              </div>
-            ))}
-          </div>
+            {t.hero.cta}
+          </Link>
+          <a
+            href={waLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 rounded-full bg-warm-white px-8 py-3 text-sm font-semibold text-charcoal transition-all hover:bg-silver-bright"
+          >
+            <MessageCircle size={14} />
+            {t.hero.ctaSecondary}
+          </a>
         </div>
       </div>
     </section>

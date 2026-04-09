@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { MessageCircle } from 'lucide-react';
 import { getWhatsAppLink } from '@/lib/sanity-data';
 import { getT } from '@/lib/i18n';
 import type { Product, Locale } from '@/types';
@@ -14,7 +13,6 @@ interface PieceCardProps {
 export function PieceCard({ product, locale, whatsapp }: PieceCardProps) {
   const t = getT(locale);
   const name = locale === 'en' ? product.nameEn || product.name : product.name;
-  const description = locale === 'en' ? product.descriptionEn || product.description : product.description;
 
   const waMessage =
     locale === 'en'
@@ -23,53 +21,42 @@ export function PieceCard({ product, locale, whatsapp }: PieceCardProps) {
   const waLink = getWhatsAppLink(whatsapp, waMessage);
 
   const detailHref = `/${locale}/koleksi/${product.category}/${product.slug}`;
+  const handmadeLabel = locale === 'en' ? 'Handmade in Bali' : 'Buatan Bali';
 
   return (
-    <div className="group flex flex-col overflow-hidden rounded-2xl border border-warm-white-dark bg-white transition-shadow duration-300 hover:shadow-lg">
-      {/* Image — portrait ratio for jewelry */}
-      <Link href={detailHref} className="relative block aspect-[4/5] overflow-hidden bg-warm-white-dark">
+    <div className="group overflow-hidden rounded-2xl border border-warm-white-dark bg-white transition-shadow duration-300 hover:shadow-lg">
+      {/* Image — portrait ratio */}
+      <Link href={detailHref} className="relative block aspect-[4/5] overflow-hidden bg-charcoal">
         {product.imageUrl ? (
           <Image
             src={product.imageUrl}
             alt={name}
             fill
-            className="object-cover transition-transform duration-500 group-hover:scale-103"
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
           />
         ) : (
-          <div className="flex h-full items-center justify-center bg-warm-white-mid">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-silver-mid/20">
-              <div className="h-8 w-8 rounded-full bg-silver-mid/40" />
-            </div>
+          <div className="flex h-full items-center justify-center bg-charcoal-light">
+            <div className="h-12 w-12 rounded-full bg-silver-mid/20" />
           </div>
         )}
-        {product.isCustomizable && (
-          <div className="absolute left-3 top-3 rounded-full bg-charcoal px-2.5 py-0.5 text-xs font-semibold text-warm-white">
-            {t.piece.customizable}
-          </div>
-        )}
+        {/* Handmade in Bali badge */}
+        <div className="absolute left-3 top-3">
+          <span className="rounded-full bg-warm-white/90 px-2.5 py-1 text-[10px] font-medium text-charcoal backdrop-blur-sm">
+            {handmadeLabel}
+          </span>
+        </div>
       </Link>
 
       {/* Content */}
-      <div className="flex flex-1 flex-col p-5">
+      <div className="p-4">
         <Link href={detailHref}>
-          <h3 className="font-heading text-base font-semibold text-charcoal leading-tight line-clamp-2 transition-colors hover:text-terracotta">
+          <h3 className="font-heading text-base font-semibold text-charcoal leading-snug line-clamp-2 transition-colors hover:text-terracotta">
             {name}
           </h3>
         </Link>
-        <p className="mt-1.5 text-sm text-text-muted line-clamp-2 leading-relaxed">
-          {description}
-        </p>
-
-        {product.material && (
-          <div className="mt-2 text-xs text-silver-dark">
-            {t.piece.material}: {product.material}
-          </div>
-        )}
-
-        {/* Price + CTA */}
-        <div className="mt-auto flex items-center justify-between pt-5 border-t border-warm-white-dark mt-4">
-          <span className="font-heading text-lg font-semibold text-terracotta">
+        <div className="mt-2 flex items-center justify-between">
+          <span className="font-heading text-base font-semibold text-charcoal">
             {product.priceDisplay}
           </span>
           <a
@@ -77,9 +64,9 @@ export function PieceCard({ product, locale, whatsapp }: PieceCardProps) {
             target="_blank"
             rel="noopener noreferrer"
             aria-label={t.piece.order}
-            className="flex items-center justify-center h-9 w-9 rounded-lg bg-charcoal text-warm-white transition-colors duration-200 hover:bg-charcoal-mid"
+            className="text-xs font-medium text-terracotta transition-opacity hover:opacity-70"
           >
-            <MessageCircle size={16} />
+            {locale === 'en' ? 'Order →' : 'Pesan →'}
           </a>
         </div>
       </div>

@@ -59,6 +59,27 @@ function mapProduct(raw: Record<string, unknown>): Product {
 
 // ---- Categories ----
 
+function mapCategory(c: Record<string, unknown>): Category {
+  let coverImageUrl: string | undefined;
+  if (c.coverImage) {
+    try {
+      coverImageUrl = urlFor(c.coverImage as Record<string, unknown>).width(600).height(480).url();
+    } catch {
+      coverImageUrl = undefined;
+    }
+  }
+  return {
+    slug: c.slug as string,
+    name: c.name as string,
+    nameEn: (c.nameEn as string) ?? '',
+    description: (c.description as string) ?? '',
+    descriptionEn: (c.descriptionEn as string) ?? '',
+    icon: (c.icon as string) ?? '',
+    productCount: c.productCount as number,
+    coverImageUrl,
+  };
+}
+
 export async function getCategories(): Promise<Category[]> {
   const query = `*[_type == "category"] | order(order asc) {
     "slug": slug.current,
@@ -67,19 +88,12 @@ export async function getCategories(): Promise<Category[]> {
     description,
     descriptionEn,
     icon,
-    "productCount": count(*[_type == "product" && references(^._id) && inStock == true])
+    "productCount": count(*[_type == "product" && references(^._id) && inStock == true]),
+    "coverImage": *[_type == "product" && references(^._id) && inStock == true && defined(images[0])][0].images[0]
   }`;
   const raw = await safeFetch<Record<string, unknown>[]>(query, undefined, []);
   if (!raw) return [];
-  return raw.map((c) => ({
-    slug: c.slug as string,
-    name: c.name as string,
-    nameEn: (c.nameEn as string) ?? '',
-    description: (c.description as string) ?? '',
-    descriptionEn: (c.descriptionEn as string) ?? '',
-    icon: (c.icon as string) ?? '',
-    productCount: c.productCount as number,
-  }));
+  return raw.map(mapCategory);
 }
 
 export async function getCategoryBySlug(slug: string): Promise<Category | null> {
@@ -90,19 +104,12 @@ export async function getCategoryBySlug(slug: string): Promise<Category | null> 
     description,
     descriptionEn,
     icon,
-    "productCount": count(*[_type == "product" && references(^._id) && inStock == true])
+    "productCount": count(*[_type == "product" && references(^._id) && inStock == true]),
+    "coverImage": *[_type == "product" && references(^._id) && inStock == true && defined(images[0])][0].images[0]
   }`;
   const raw = await safeFetch<Record<string, unknown> | null>(query, { slug }, null);
   if (!raw) return null;
-  return {
-    slug: raw.slug as string,
-    name: raw.name as string,
-    nameEn: (raw.nameEn as string) ?? '',
-    description: (raw.description as string) ?? '',
-    descriptionEn: (raw.descriptionEn as string) ?? '',
-    icon: (raw.icon as string) ?? '',
-    productCount: raw.productCount as number,
-  };
+  return mapCategory(raw);
 }
 
 // ---- Products ----

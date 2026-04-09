@@ -1,6 +1,8 @@
-import { SectionHeader } from '@/components/ui/SectionHeader';
+import { Gem, Hammer, PenLine, ShieldCheck } from 'lucide-react';
 import { getT } from '@/lib/i18n';
 import type { Locale } from '@/types';
+
+const icons = [Gem, Hammer, PenLine, ShieldCheck];
 
 interface WhyKusumaProps {
   locale: Locale;
@@ -10,40 +12,34 @@ export function WhyKusumaSection({ locale }: WhyKusumaProps) {
   const t = getT(locale);
 
   return (
-    <section className="bg-warm-white py-24 sm:py-32">
+    <section className="bg-warm-white-mid py-20 sm:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-16 lg:grid-cols-[1fr_2fr] lg:gap-20">
-          {/* Left: sticky title column */}
-          <div className="lg:sticky lg:top-28 lg:self-start">
-            <div className="mb-5 flex items-center gap-3">
-              <div className="h-px w-8 bg-silver-mid" />
-              <span className="text-xs font-medium text-silver-dark tracking-[0.15em] uppercase">
-                {locale === 'en' ? 'Our Promise' : 'Janji Kami'}
-              </span>
-            </div>
-            <h2 className="font-heading text-3xl font-light text-charcoal sm:text-4xl">
-              {t.whyUs.title}
-            </h2>
-          </div>
+        <h2 className="font-heading text-3xl font-light text-charcoal text-center sm:text-4xl">
+          {t.whyUs.title}
+        </h2>
+        <div className="mt-4 flex items-center justify-center gap-2">
+          <div className="h-px w-10 bg-silver-mid/60" />
+          <div className="h-1 w-1 rounded-full bg-silver-dark" />
+          <div className="h-px w-10 bg-silver-mid/60" />
+        </div>
 
-          {/* Right: numbered manifesto items */}
-          <div className="divide-y divide-warm-white-dark">
-            {t.whyUs.items.map((item, i) => (
-              <div key={i} className="flex gap-8 py-8 first:pt-0 last:pb-0">
-                <span className="font-heading text-sm font-medium text-silver-dark mt-0.5 w-6 shrink-0 tabular-nums">
-                  {String(i + 1).padStart(2, '0')}
-                </span>
-                <div>
-                  <h3 className="font-heading text-lg font-semibold text-charcoal">
-                    {item.title}
-                  </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-text-muted">
-                    {item.body}
-                  </p>
+        <div className="mt-14 grid grid-cols-2 gap-5 sm:grid-cols-4">
+          {t.whyUs.items.map((item, i) => {
+            const Icon = icons[i];
+            return (
+              <div key={i} className="flex flex-col items-center text-center">
+                <div className="flex h-14 w-14 items-center justify-center rounded-full border border-terracotta/20 bg-terracotta/5">
+                  <Icon size={24} className="text-terracotta" strokeWidth={1.5} />
                 </div>
+                <h3 className="mt-4 font-heading text-base font-semibold text-charcoal leading-tight">
+                  {item.title}
+                </h3>
+                <p className="mt-2 text-xs leading-relaxed text-text-muted">
+                  {item.body}
+                </p>
               </div>
-            ))}
-          </div>
+            );
+          })}
         </div>
       </div>
     </section>

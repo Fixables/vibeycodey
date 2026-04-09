@@ -2,8 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { Menu, X, MessageCircle } from 'lucide-react';
-import { LogoIcon } from '@/components/ui/LogoIcon';
+import { Menu, X, Search, ShoppingBag } from 'lucide-react';
 import { LocaleSwitcher } from '@/components/ui/LocaleSwitcher';
 import { getT } from '@/lib/i18n';
 import type { Locale } from '@/types';
@@ -27,85 +26,80 @@ export function Navbar({ locale, whatsappLink, storeName }: NavbarProps) {
   ];
 
   return (
-    <header className="sticky top-0 z-50 border-b border-warm-white-dark bg-warm-white/95 backdrop-blur-md">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
-        {/* Logo */}
-        <Link href={`/${locale}`} className="flex items-center gap-2.5">
-          <LogoIcon size={36} />
-          <div className="flex flex-col">
-            <span className="font-heading text-lg font-semibold text-charcoal tracking-tight leading-none">
-              {storeName}
-            </span>
-            <span className="text-[10px] text-text-muted tracking-[0.15em] uppercase leading-tight">
-              Bali Silver
-            </span>
-          </div>
+    <header className="sticky top-0 z-50 border-b border-warm-white-dark bg-warm-white/98 backdrop-blur-md">
+      <div className="relative mx-auto flex max-w-7xl items-center justify-between px-4 py-3.5 sm:px-6 lg:px-8">
+        {/* Left: hamburger */}
+        <button
+          className="flex h-9 w-9 items-center justify-center text-charcoal transition-opacity hover:opacity-60"
+          onClick={() => setMobileOpen((v) => !v)}
+          aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+        >
+          {mobileOpen ? <X size={22} /> : <Menu size={22} strokeWidth={1.5} />}
+        </button>
+
+        {/* Center: logo — absolute centered */}
+        <Link
+          href={`/${locale}`}
+          className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center leading-none"
+        >
+          <span className="font-heading text-xl font-semibold tracking-tight text-charcoal">
+            {storeName}
+          </span>
+          <span className="text-[8px] font-medium tracking-[0.35em] uppercase text-charcoal/55">
+            Silver
+          </span>
         </Link>
 
-        {/* Desktop Nav */}
-        <nav className="hidden items-center gap-7 lg:flex">
-          {links.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="text-sm font-medium text-text-muted transition-colors hover:text-charcoal"
-            >
-              {link.label}
-            </Link>
-          ))}
-        </nav>
-
-        {/* Desktop Right */}
-        <div className="hidden items-center gap-3 lg:flex">
-          <LocaleSwitcher currentLocale={locale} />
-          <a
-            href={whatsappLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 rounded-lg border border-charcoal bg-charcoal px-4 py-2 text-sm font-semibold text-warm-white transition-all hover:bg-charcoal-mid"
+        {/* Right: search + locale + cart */}
+        <div className="flex items-center gap-3">
+          <button
+            aria-label="Search"
+            className="text-charcoal/70 transition-opacity hover:opacity-60"
           >
-            <MessageCircle size={15} />
-            {t.nav.orderNow}
-          </a>
+            <Search size={20} strokeWidth={1.5} />
+          </button>
+          <LocaleSwitcher currentLocale={locale} />
+          <button
+            aria-label="Cart"
+            className="relative text-charcoal/70 transition-opacity hover:opacity-60"
+          >
+            <ShoppingBag size={20} strokeWidth={1.5} />
+            <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-charcoal text-[9px] font-semibold text-warm-white">
+              0
+            </span>
+          </button>
         </div>
-
-        {/* Mobile toggle */}
-        <button
-          className="lg:hidden text-charcoal"
-          onClick={() => setMobileOpen((v) => !v)}
-          aria-label="Toggle menu"
-        >
-          {mobileOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Full-width slide-down drawer */}
       {mobileOpen && (
-        <div className="border-t border-warm-white-dark bg-warm-white px-4 pb-4 lg:hidden">
-          <nav className="flex flex-col gap-1 pt-3">
-            {links.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
+        <div className="border-t border-warm-white-dark bg-warm-white">
+          <nav className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
+            <ul className="space-y-1">
+              {links.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center justify-between rounded-xl px-4 py-3 text-sm font-medium text-text-muted transition-colors hover:bg-warm-white-dark hover:text-charcoal"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-5 border-t border-warm-white-dark pt-4">
+              <a
+                href={whatsappLink}
+                target="_blank"
+                rel="noopener noreferrer"
                 onClick={() => setMobileOpen(false)}
-                className="rounded-lg px-3 py-2.5 text-sm font-medium text-text-muted transition-colors hover:bg-warm-white-dark hover:text-charcoal"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-charcoal py-3 text-sm font-semibold text-warm-white transition-colors hover:bg-charcoal-mid"
               >
-                {link.label}
-              </Link>
-            ))}
+                {t.nav.orderNow}
+              </a>
+            </div>
           </nav>
-          <div className="mt-4 flex items-center justify-between border-t border-warm-white-dark pt-4">
-            <LocaleSwitcher currentLocale={locale} />
-            <a
-              href={whatsappLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 rounded-lg bg-charcoal px-4 py-2 text-sm font-semibold text-warm-white"
-            >
-              <MessageCircle size={15} />
-              {t.nav.orderNow}
-            </a>
-          </div>
         </div>
       )}
     </header>

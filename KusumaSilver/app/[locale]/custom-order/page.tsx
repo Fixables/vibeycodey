@@ -1,12 +1,14 @@
-import Link from 'next/link';
-import { MessageCircle } from 'lucide-react';
+import { MessageCircle, MessageSquareText, PenSquare, Hammer, Package } from 'lucide-react';
 import { getStoreInfo, getWhatsAppLink } from '@/lib/sanity-data';
 import { SUPPORTED_LOCALES, getT } from '@/lib/i18n';
+import { ContactForm } from '@/components/contact/ContactForm';
 import type { Locale } from '@/types';
 
 export function generateStaticParams() {
   return SUPPORTED_LOCALES.map((locale) => ({ locale }));
 }
+
+const stepIcons = [MessageSquareText, PenSquare, Hammer, Package];
 
 export default async function CustomOrderPage({ params }: { params: Promise<{ locale: Locale }> }) {
   const { locale } = await params;
@@ -20,100 +22,119 @@ export default async function CustomOrderPage({ params }: { params: Promise<{ lo
   const waLink = getWhatsAppLink(storeInfo.whatsapp, waMessage);
 
   return (
-    <div className="bg-warm-white min-h-screen">
-      {/* Page hero */}
-      <div className="relative bg-charcoal py-24 sm:py-32">
-        <div className="absolute left-8 top-0 h-full w-px bg-gradient-to-b from-transparent via-silver-mid/12 to-transparent hidden lg:block" />
-        <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 text-center">
-          <div className="mb-5 flex items-center justify-center gap-3">
-            <div className="h-px w-10 bg-silver-mid/40" />
-            <span className="text-[10px] font-medium text-silver-mid/70 tracking-[0.25em] uppercase">
-              {locale === 'en' ? 'Made to Order' : 'Dibuat Khusus'}
-            </span>
-            <div className="h-px w-10 bg-silver-mid/40" />
-          </div>
+    <div className="bg-warm-white min-h-screen pb-24">
+      {/* Page hero — hammered texture */}
+      <div
+        className="relative overflow-hidden py-20 sm:py-24 text-center"
+        style={{
+          background: 'linear-gradient(145deg, #D8D5CE 0%, #C4C0B8 30%, #D0CCC4 55%, #B8B4AC 80%, #C8C4BC 100%)',
+        }}
+      >
+        <div
+          className="absolute inset-0 opacity-50"
+          style={{
+            backgroundImage: `
+              radial-gradient(ellipse 6px 4px at 10% 20%, rgba(255,255,255,0.5) 0%, transparent 100%),
+              radial-gradient(ellipse 4px 6px at 30% 60%, rgba(255,255,255,0.3) 0%, transparent 100%),
+              radial-gradient(ellipse 8px 5px at 60% 35%, rgba(255,255,255,0.4) 0%, transparent 100%),
+              radial-gradient(ellipse 5px 7px at 80% 70%, rgba(255,255,255,0.35) 0%, transparent 100%)
+            `,
+          }}
+        />
+        <div className="relative mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
           <h1
-            className="font-heading font-light text-warm-white"
-            style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', lineHeight: '1.1' }}
+            className="font-heading font-light text-charcoal"
+            style={{ fontSize: 'clamp(2rem, 6vw, 3.5rem)', lineHeight: '1.1' }}
           >
-            {t.customOrder.title}
+            {locale === 'en' ? 'Custom Bespoke Order' : 'Pesanan Khusus'}
           </h1>
-          <div className="mt-6 flex items-center justify-center gap-3">
-            <div className="h-px w-10 bg-silver-mid/30" />
-            <div className="h-px w-2 bg-silver-bright/50" />
-            <div className="h-px w-10 bg-silver-mid/30" />
-          </div>
-          <p className="mt-6 text-base text-warm-white/55 leading-relaxed max-w-xl mx-auto">
+          <p className="mt-3 text-sm text-charcoal/60 sm:text-base">
             {t.customOrder.subtitle}
           </p>
         </div>
       </div>
 
-      <div className="mx-auto max-w-4xl px-4 py-20 sm:px-6 lg:px-8">
-        {/* Description */}
-        <p className="text-base leading-relaxed text-text-muted text-center max-w-2xl mx-auto">
-          {t.customOrder.body}
-        </p>
-
-        {/* Divider */}
-        <div className="my-14 flex items-center gap-4">
-          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-silver-dark/30 to-transparent" />
-          <div className="flex gap-1.5">
-            <span className="h-1 w-1 rounded-full bg-silver-dark/40" />
-            <span className="h-1 w-1 rounded-full bg-silver-mid/60" />
-            <span className="h-1 w-1 rounded-full bg-silver-dark/40" />
-          </div>
-          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-silver-dark/30 to-transparent" />
-        </div>
-
-        {/* Steps — manifesto layout */}
-        <div>
-          <div className="mb-8 flex items-center gap-3">
-            <div className="h-px w-8 bg-silver-mid" />
-            <h2 className="font-heading text-2xl font-light text-charcoal sm:text-3xl">
-              {locale === 'en' ? 'How It Works' : 'Cara Kerja Kami'}
-            </h2>
-          </div>
-          <div className="divide-y divide-warm-white-dark">
-            {t.customOrder.steps.map((step, i) => (
-              <div key={i} className="flex gap-8 py-8 first:pt-0 last:pb-0">
-                <span className="font-heading text-sm font-medium text-silver-dark mt-0.5 w-6 shrink-0 tabular-nums">
-                  {String(i + 1).padStart(2, '0')}
-                </span>
-                <div>
-                  <h3 className="font-heading text-lg font-semibold text-charcoal">{step.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-text-muted">{step.description}</p>
+      <div className="mx-auto max-w-xl px-4 py-16 sm:px-6 lg:px-8">
+        {/* Vertical centered icon steps */}
+        <div className="space-y-12">
+          {t.customOrder.steps.map((step, i) => {
+            const Icon = stepIcons[i];
+            return (
+              <div key={i} className="flex flex-col items-center text-center">
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-warm-white-dark bg-warm-white">
+                  <Icon size={28} className="text-charcoal" strokeWidth={1.25} />
                 </div>
+                <h3 className="mt-4 font-heading text-xl font-semibold text-charcoal">
+                  {step.title}
+                </h3>
+                <p className="mt-2 max-w-xs text-sm text-text-muted leading-relaxed">
+                  {step.description}
+                </p>
+                {i < t.customOrder.steps.length - 1 && (
+                  <div className="mt-8 h-8 w-px bg-warm-white-dark" />
+                )}
               </div>
-            ))}
-          </div>
+            );
+          })}
         </div>
 
-        {/* CTA block */}
-        <div className="mt-16 rounded-2xl bg-charcoal px-8 py-12 text-center">
-          <div className="mb-6 flex items-center justify-center gap-4">
-            <div className="h-px w-10 bg-silver-mid/30" />
-            <div className="h-px w-2 bg-silver-bright/50" />
-            <div className="h-px w-10 bg-silver-mid/30" />
-          </div>
-          <h2 className="font-heading text-2xl font-light text-warm-white">
-            {locale === 'en' ? 'Ready to Start?' : 'Siap Memulai?'}
+        {/* Share Your Vision form */}
+        <div className="mt-16">
+          <h2 className="font-heading text-2xl font-light text-charcoal text-center">
+            {locale === 'en' ? 'Share Your Vision' : 'Ceritakan Visi Anda'}
           </h2>
-          <p className="mt-3 text-sm text-warm-white/55">
-            {locale === 'en'
-              ? "Contact us via WhatsApp and let's bring your dream jewelry to life."
-              : 'Hubungi kami via WhatsApp dan wujudkan perhiasan impian Anda.'}
-          </p>
-          <a
-            href={waLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-8 inline-flex items-center gap-2 rounded-lg bg-silver-bright px-7 py-3.5 text-sm font-semibold text-charcoal transition-all duration-200 hover:bg-silver-mid"
-          >
-            <MessageCircle size={17} />
-            {t.customOrder.cta}
-          </a>
+          <div className="mt-8 space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <input
+                type="text"
+                placeholder={locale === 'en' ? 'Name' : 'Nama'}
+                className="rounded-xl border border-warm-white-dark bg-warm-white px-4 py-3 text-sm text-text outline-none transition-colors focus:border-silver-mid placeholder:text-silver-dark"
+              />
+              <input
+                type="email"
+                placeholder="Email"
+                className="rounded-xl border border-warm-white-dark bg-warm-white px-4 py-3 text-sm text-text outline-none transition-colors focus:border-silver-mid placeholder:text-silver-dark"
+              />
+            </div>
+            <textarea
+              placeholder={locale === 'en' ? 'Description (Optional)' : 'Deskripsi (Opsional)'}
+              rows={3}
+              className="w-full rounded-xl border border-warm-white-dark bg-warm-white px-4 py-3 text-sm text-text outline-none resize-none transition-colors focus:border-silver-mid placeholder:text-silver-dark"
+            />
+            {/* Upload zone */}
+            <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-warm-white-dark bg-warm-white px-6 py-8 text-center">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" className="text-silver-dark">
+                <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/>
+                <circle cx="12" cy="13" r="3"/>
+              </svg>
+              <p className="text-sm font-medium text-charcoal">
+                {locale === 'en' ? 'Upload Sketches or Inspiration Images' : 'Upload Sketsa atau Gambar Inspirasi'}
+              </p>
+              <p className="text-xs text-text-muted">
+                {locale === 'en' ? '(Tap to browse files)' : '(Ketuk untuk cari file)'}
+              </p>
+            </div>
+            <button
+              type="submit"
+              className="w-full rounded-full bg-silver-mid/30 py-3.5 text-sm font-semibold text-charcoal transition-all hover:bg-silver-mid/50"
+            >
+              {locale === 'en' ? 'Submit Request' : 'Kirim Permintaan'}
+            </button>
+          </div>
         </div>
+      </div>
+
+      {/* Sticky bottom WhatsApp bar */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 bg-warm-white/95 backdrop-blur-sm border-t border-warm-white-dark px-4 py-3 safe-area-inset-bottom">
+        <a
+          href={waLink}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex w-full items-center justify-center gap-2 rounded-full bg-charcoal-light py-3.5 text-sm font-semibold text-warm-white transition-colors hover:bg-charcoal"
+        >
+          <MessageCircle size={18} strokeWidth={1.5} />
+          {locale === 'en' ? 'Consult with an Artisan — Direct Chat' : 'Konsultasi dengan Pengrajin — Chat Langsung'}
+        </a>
       </div>
     </div>
   );

@@ -1,9 +1,8 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, ChevronDown } from 'lucide-react';
 import { getCategoryBySlug, getProductsByCategory, getCategories, getStoreInfo } from '@/lib/sanity-data';
 import { PieceGrid } from '@/components/catalog/PieceGrid';
-import { SectionHeader } from '@/components/ui/SectionHeader';
 import { SUPPORTED_LOCALES, getT } from '@/lib/i18n';
 import type { Locale } from '@/types';
 
@@ -34,36 +33,73 @@ export default async function KategoriPage({
 
   const t = getT(locale);
   const name = locale === 'en' ? category.nameEn || category.name : category.name;
-  const description = locale === 'en' ? category.descriptionEn || category.description : category.description;
+
+  const filterLabels = locale === 'en'
+    ? ['Material', 'Stone', 'Crafting Technique']
+    : ['Material', 'Batu', 'Teknik Kerajinan'];
 
   return (
-    <div>
-      <div className="bg-charcoal py-16">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div className="bg-warm-white min-h-screen">
+      {/* Hammered silver texture header */}
+      <div
+        className="relative overflow-hidden py-16 sm:py-20"
+        style={{
+          background: 'linear-gradient(145deg, #D8D5CE 0%, #C4C0B8 30%, #D0CCC4 55%, #B8B4AC 80%, #C8C4BC 100%)',
+        }}
+      >
+        {/* Hammered bump overlay */}
+        <div
+          className="absolute inset-0 opacity-60"
+          style={{
+            backgroundImage: `
+              radial-gradient(ellipse 6px 4px at 8% 15%, rgba(255,255,255,0.5) 0%, transparent 100%),
+              radial-gradient(ellipse 4px 6px at 22% 40%, rgba(255,255,255,0.3) 0%, transparent 100%),
+              radial-gradient(ellipse 8px 5px at 38% 70%, rgba(255,255,255,0.4) 0%, transparent 100%),
+              radial-gradient(ellipse 5px 7px at 55% 25%, rgba(255,255,255,0.35) 0%, transparent 100%),
+              radial-gradient(ellipse 7px 4px at 70% 55%, rgba(255,255,255,0.45) 0%, transparent 100%),
+              radial-gradient(ellipse 4px 8px at 85% 30%, rgba(255,255,255,0.3) 0%, transparent 100%),
+              radial-gradient(ellipse 6px 5px at 92% 75%, rgba(255,255,255,0.4) 0%, transparent 100%),
+              radial-gradient(ellipse 3px 3px at 15% 85%, rgba(0,0,0,0.08) 0%, transparent 100%),
+              radial-gradient(ellipse 5px 3px at 45% 50%, rgba(0,0,0,0.06) 0%, transparent 100%),
+              radial-gradient(ellipse 4px 5px at 75% 80%, rgba(0,0,0,0.07) 0%, transparent 100%)
+            `,
+          }}
+        />
+
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <Link
             href={`/${locale}/koleksi`}
-            className="mb-6 inline-flex items-center gap-1.5 text-sm text-warm-white/60 transition-colors hover:text-warm-white"
+            className="mb-6 inline-flex items-center gap-1.5 text-sm text-charcoal/60 transition-colors hover:text-charcoal"
           >
             <ChevronLeft size={16} />
             {t.collections.title}
           </Link>
-          <div className="flex items-center gap-4">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-warm-white/10">
-              <span className="font-heading text-lg font-semibold text-silver-bright">
-                {name.slice(0, 2).toUpperCase()}
-              </span>
-            </div>
-            <SectionHeader
-              title={name}
-              subtitle={description}
-              align="left"
-              theme="dark"
-            />
-          </div>
+          <h1
+            className="font-heading font-light text-charcoal"
+            style={{ fontSize: 'clamp(2.5rem, 7vw, 5rem)', lineHeight: '1.05' }}
+          >
+            {name}
+          </h1>
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+      {/* Filter bar */}
+      <div className="border-b border-warm-white-dark bg-warm-white px-4 py-3 sm:px-6 lg:px-8">
+        <div className="mx-auto flex max-w-7xl items-center gap-2 overflow-x-auto">
+          {filterLabels.map((label) => (
+            <button
+              key={label}
+              className="flex shrink-0 items-center gap-1.5 rounded-full border border-warm-white-dark bg-warm-white px-4 py-2 text-xs font-medium text-charcoal transition-colors hover:border-charcoal"
+            >
+              {label}
+              <ChevronDown size={13} className="text-text-muted" />
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Product grid */}
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <PieceGrid products={products} locale={locale} whatsapp={storeInfo.whatsapp} />
       </div>
     </div>
