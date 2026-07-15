@@ -13,15 +13,19 @@ export function generateStaticParams() {
 export default async function HomePage({ params }: { params: Promise<{ locale: Locale }> }) {
   const { locale } = await params;
 
+  // Featured pieces first, topped up with the rest of the catalogue so the
+  // horizontal strip has enough cells to scroll.
   let products = await getFeaturedProducts();
-  if (products.length < 3) {
-    products = await getProducts();
+  if (products.length < 6) {
+    const all = await getProducts();
+    const seen = new Set(products.map((p) => p.slug));
+    products = [...products, ...all.filter((p) => !seen.has(p.slug))];
   }
 
   return (
     <>
       <SplitHero locale={locale} />
-      <AsymmetricCatalogue locale={locale} products={products.slice(0, 3)} />
+      <AsymmetricCatalogue locale={locale} products={products.slice(0, 8)} />
       <HeritageBand locale={locale} />
       <Manifesto locale={locale} />
     </>

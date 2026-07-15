@@ -82,6 +82,14 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
+/* Horizontal scroller without visible scrollbar (catalogue strip) */
+.scrollbar-none {
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
 /* Ornamental divider — legacy, used by not-yet-redesigned pages */
 .ornament-divider {
   display: flex;
