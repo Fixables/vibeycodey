@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <script src="./image-slot.js"></script>
+  <style>
+    body{margin:0;background:#F1EDE4;color:#141416;font-family:'Plus Jakarta Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+    a{color:inherit;text-decoration:none}
+    a:hover{color:#A85A32}
+    .ks-serif{font-family:'Cormorant Garamond',Georgia,serif}
+    .ks-link{cursor:pointer;transition:color .15s}
+    .ks-link:hover{color:#A85A32}
+    .ks-btn{cursor:pointer;transition:background .18s,color .18s,border-color .18s}
+    .ks-dark-btn:hover{background:#A85A32 !important;color:#F1EDE4 !important}
+    .ks-out-btn:hover{background:#141416 !important;color:#F1EDE4 !important}
+    .ks-card-img{transition:transform .5s ease}
+    .ks-card:hover .ks-card-img{transform:scale(1.04)}
+    input,select,textarea{font-family:inherit}
+    input:focus,select:focus,textarea:focus{outline:none;border-color:#141416 !important}
+    .ks-ph{background:repeating-linear-gradient(45deg,#E7E2D8,#E7E2D8 11px,#EFEBE2 11px,#EFEBE2 22px);display:flex;align-items:center;justify-content:center;color:rgba(20,20,22,.4);font-size:11px;letter-spacing:.04em;text-align:center;padding:0 18px}
+  </style>
+</helmet>
+
+<div style="min-height:100vh;background:#F1EDE4;display:flex;flex-direction:column">
+
+  <!-- ══════════ UTILITY BAR ══════════ -->
+  <div style="background:#141416;color:rgba(246,244,239,.75);display:flex;align-items:center;justify-content:space-between;padding:9px 40px;font-size:11px;font-weight:500;letter-spacing:.08em">
+    <div style="display:flex;gap:7px;align-items:center">
+      <span class="ks-link" onClick="{{ setEn }}" style="{{ enCss }}">EN</span><span style="opacity:.35">|</span><span class="ks-link" onClick="{{ setId }}" style="{{ idCss }}">ID</span>
+    </div>
+    <span style="text-transform:uppercase;letter-spacing:.18em">{{ t.shipbar }}</span>
+    <div style="display:flex;gap:7px;align-items:center">
+      <span class="ks-link" onClick="{{ setIdr }}" style="{{ idrCss }}">IDR</span><span style="opacity:.35">|</span><span class="ks-link" onClick="{{ setUsd }}" style="{{ usdCss }}">USD</span>
+    </div>
+  </div>
+
+  <!-- ══════════ NAV ══════════ -->
+  <div style="position:sticky;top:0;z-index:50;background:#F1EDE4;border-bottom:1px solid #141416">
+    <div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:20px 40px 16px">
+      <div style="display:flex;gap:14px;align-items:center;color:#141416">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+        <span class="ks-link" onClick="{{ goCatalog }}" style="font-size:11px;font-weight:500;letter-spacing:.1em;color:rgba(20,20,22,.65)">{{ t.search }}</span>
+      </div>
+      <div class="ks-link" onClick="{{ goHome }}" style="text-align:center">
+        <div class="ks-serif" style="font-size:30px;font-weight:500;letter-spacing:.22em;color:#141416">KUSUMA SILVER</div>
+        <div style="font-size:9px;font-weight:500;letter-spacing:.42em;color:rgba(20,20,22,.5);margin-top:4px">{{ t.tagline }}</div>
+      </div>
+      <div style="display:flex;gap:18px;align-items:center;justify-content:flex-end;color:#141416">
+        <svg class="ks-link" onClick="{{ goStory }}" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        <div class="ks-link" onClick="{{ goCart }}" style="position:relative;display:flex">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path><path d="M3 6h18"></path><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+          <sc-if value="{{ hasCart }}" hint-placeholder-val="{{ true }}">
+            <span style="position:absolute;right:-9px;top:-7px;background:#141416;color:#F1EDE4;font-size:9px;font-weight:600;height:15px;min-width:15px;display:flex;align-items:center;justify-content:center;padding:0 2px">{{ cartCount }}</span>
+          </sc-if>
+        </div>
+      </div>
+    </div>
+    <nav style="display:flex;justify-content:center;gap:40px;padding:0 40px 16px;font-size:12px;font-weight:500;letter-spacing:.14em;color:#141416">
+      <sc-for list="{{ navItems }}" as="n" hint-placeholder-count="7">
+        <span class="ks-link" onClick="{{ n.onClick }}" style="{{ n.css }}">{{ n.label }}</span>
+      </sc-for>
+    </nav>
+  </div>
+
+  <div style="flex:1">
+
+  <!-- ══════════════════════════ HOME ══════════════════════════ -->
+  <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+    <div>
+      <!-- Split photo hero -->
+      <div style="display:grid;grid-template-columns:58% 42%;background:#F1EDE4;border-bottom:1px solid #141416">
+        <div style="position:relative;height:620px;border-right:1px solid #141416">
+          <image-slot id="ks-hero" shape="rect" placeholder="Drop hero image — model wearing silver necklace"></image-slot>
+        </div>
+        <div style="display:flex;flex-direction:column;justify-content:center;padding:0 64px">
+          <div style="font-size:10px;font-weight:500;letter-spacing:.34em;color:#A85A32">{{ t.heroEyebrow }}</div>
+          <h1 class="ks-serif" style="margin:22px 0 0;font-weight:300;font-size:54px;line-height:1.1;color:#141416">{{ t.heroTitle1 }}<br><em style="font-weight:400">{{ t.heroTitle2 }}</em></h1>
+          <p style="margin:22px 0 0;font-size:14px;line-height:1.75;color:rgba(20,20,22,.65);max-width:360px">{{ t.heroDesc }}</p>
+          <div style="margin-top:36px;display:flex;gap:14px">
+            <span class="ks-btn ks-dark-btn" onClick="{{ goCatalog }}" style="background:#141416;color:#F1EDE4;padding:16px 32px;font-size:12px;font-weight:600;letter-spacing:.16em">{{ t.heroCta1 }}</span>
+            <span class="ks-btn ks-out-btn" onClick="{{ goStory }}" style="border:1px solid #141416;color:#141416;padding:15px 32px;font-size:12px;font-weight:600;letter-spacing:.16em">{{ t.heroCta2 }}</span>
+          </div>
+          <div style="margin-top:36px;font-size:11px;font-weight:400;letter-spacing:.14em;color:rgba(20,20,22,.45)">SINGARAJA · 8°6′ S, 115°5′ E</div>
+        </div>
+      </div>
+
+      <!-- Asymmetric catalogue grid, framed -->
+      <div style="background:#F1EDE4;padding:80px 40px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:36px">
+          <h2 class="ks-serif" style="margin:0;font-weight:400;font-size:34px;color:#141416">{{ t.catalogueHead }}</h2>
+          <span class="ks-link" onClick="{{ goCatalog }}" style="font-size:11px;font-weight:600;letter-spacing:.16em;color:#141416;border-bottom:1px solid #141416;padding-bottom:3px">{{ t.viewAll }}</span>
+        </div>
+        <div style="border:1px solid #141416;display:grid;grid-template-columns:38% 24% 38%">
+          <div class="ks-card ks-link" onClick="{{ hg0.onClick }}" style="border-right:1px solid #141416">
+            <div style="position:relative;height:480px;overflow:hidden"><div class="ks-card-img" style="position:absolute;inset:0"><image-slot id="ks-home-1" shape="rect" placeholder="№ 014 — carved ring, macro"></image-slot></div></div>
+            <div style="padding:18px 24px;border-top:1px solid #141416;display:flex;justify-content:space-between;align-items:baseline">
+              <div><div class="ks-serif" style="font-size:18px;color:#141416">{{ hg0.name }}</div><div style="font-size:11px;color:rgba(20,20,22,.5);margin-top:4px;letter-spacing:.08em">{{ hg0.meta }}</div></div>
+              <div style="font-size:12px;font-weight:500;color:#141416">{{ hg0.price }}</div>
+            </div>
+          </div>
+          <div style="border-right:1px solid #141416;display:flex;flex-direction:column">
+            <div style="padding:24px;border-bottom:1px solid #141416;flex:1;display:flex;flex-direction:column;justify-content:center">
+              <div style="font-size:10px;font-weight:500;letter-spacing:.3em;color:#A85A32">{{ t.techniqueLabel }}</div>
+              <div class="ks-serif" style="margin-top:12px;font-size:22px;line-height:1.3;color:#141416">{{ t.techniqueText }}</div>
+            </div>
+            <div class="ks-card ks-link" onClick="{{ hg1.onClick }}">
+              <div style="position:relative;height:240px;overflow:hidden"><div class="ks-card-img" style="position:absolute;inset:0"><image-slot id="ks-home-2" shape="rect" placeholder="№ 021 — earrings pair"></image-slot></div></div>
+              <div style="padding:14px 24px;border-top:1px solid #141416;display:flex;justify-content:space-between"><span style="font-size:11px;letter-spacing:.08em;color:rgba(20,20,22,.5)">{{ hg1.meta }}</span><span style="font-size:12px;font-weight:500;color:#141416">{{ hg1.price }}</span></div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column">
+            <div class="ks-card ks-link" onClick="{{ hg2.onClick }}">
+              <div style="position:relative;height:360px;overflow:hidden"><div class="ks-card-img" style="position:absolute;inset:0"><image-slot id="ks-home-3" shape="rect" placeholder="№ 008 — crescent necklace on model"></image-slot></div></div>
+              <div style="padding:18px 24px;border-top:1px solid #141416;border-bottom:1px solid #141416;display:flex;justify-content:space-between;align-items:baseline">
+                <div><div class="ks-serif" style="font-size:18px;color:#141416">{{ hg2.name }}</div><div style="font-size:11px;color:rgba(20,20,22,.5);margin-top:4px;letter-spacing:.08em">{{ hg2.meta }}</div></div>
+                <div style="font-size:12px;font-weight:500;color:#141416">{{ hg2.price }}</div>
+              </div>
+            </div>
+            <div style="padding:24px;flex:1;display:flex;flex-direction:column;justify-content:center;min-height:120px">
+              <div style="font-size:10px;font-weight:500;letter-spacing:.3em;color:#A85A32">{{ t.originLabel }}</div>
+              <div class="ks-serif" style="margin-top:10px;font-size:22px;line-height:1.3;color:#141416">Singaraja, Buleleng —<br>8°6′ S, 115°5′ E</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Heritage band -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;background:#141416">
+        <div style="padding:88px 72px;color:#F6F4EF">
+          <div style="font-size:10px;font-weight:500;letter-spacing:.34em;color:#A85A32">{{ t.heritageEyebrow }}</div>
+          <h2 class="ks-serif" style="margin:20px 0 0;font-weight:400;font-size:38px;line-height:1.2">{{ t.heritageTitle }}</h2>
+          <p style="margin:20px 0 0;font-size:14px;line-height:1.8;color:rgba(246,244,239,.6);max-width:400px">{{ t.heritageBody }}</p>
+          <div style="margin-top:40px;display:flex;gap:56px">
+            <div><div class="ks-serif" style="font-size:34px;color:#F6F4EF">925</div><div style="font-size:10px;font-weight:500;letter-spacing:.2em;color:rgba(246,244,239,.5);margin-top:6px">{{ t.statSilver }}</div></div>
+            <div><div class="ks-serif" style="font-size:34px;color:#F6F4EF">3</div><div style="font-size:10px;font-weight:500;letter-spacing:.2em;color:rgba(246,244,239,.5);margin-top:6px">{{ t.statGen }}</div></div>
+            <div><div class="ks-serif" style="font-size:34px;color:#F6F4EF">100%</div><div style="font-size:10px;font-weight:500;letter-spacing:.2em;color:rgba(246,244,239,.5);margin-top:6px">{{ t.statHand }}</div></div>
+          </div>
+        </div>
+        <div style="position:relative;min-height:460px"><image-slot id="ks-artisan" shape="rect" placeholder="Drop artisan image — hands, flame, silver wire"></image-slot></div>
+      </div>
+
+      <!-- Manifesto (from 1a) -->
+      <div style="background:#141416;border-top:1px solid rgba(246,244,239,.12);color:#F6F4EF;padding:96px 40px;text-align:center">
+        <div style="display:flex;align-items:center;justify-content:center;gap:16px">
+          <div style="height:1px;width:40px;background:rgba(168,90,50,.5)"></div>
+          <div style="font-size:10px;font-weight:500;letter-spacing:.4em;color:#A85A32">{{ t.manifestoEyebrow }}</div>
+          <div style="height:1px;width:40px;background:rgba(168,90,50,.5)"></div>
+        </div>
+        <p class="ks-serif" style="margin:26px auto 0;font-weight:300;font-size:34px;line-height:1.4;max-width:760px">{{ t.manifestoQuote }}</p>
+        <div style="margin-top:26px;font-size:11px;font-weight:400;letter-spacing:.2em;color:rgba(241,237,228,.5)">{{ t.manifestoAttr }}</div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ══════════════════════════ CATALOG ══════════════════════════ -->
+  <sc-if value="{{ isCatalog }}" hint-placeholder-val="{{ false }}">
+    <div>
+      <div style="background:#141416;color:#F6F4EF;padding:56px 40px;text-align:center">
+        <div style="font-size:10px;font-weight:500;letter-spacing:.4em;color:#A85A32">{{ t.catEyebrow }}</div>
+        <h1 class="ks-serif" style="margin:16px 0 0;font-weight:300;font-size:46px">{{ t.catTitle }}</h1>
+        <p style="margin:16px auto 0;font-size:14px;line-height:1.7;color:rgba(246,244,239,.6);max-width:520px">{{ t.catSub }}</p>
+      </div>
+      <div style="max-width:1280px;margin:0 auto;padding:36px 40px 0">
+        <div style="position:relative;border:1px solid #141416;background:#fff">
+          <div style="position:absolute;left:16px;top:50%;transform:translateY(-50%);color:#71717A;display:flex"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg></div>
+          <input type="text" value="{{ query }}" onChange="{{ onQuery }}" placeholder="{{ t.searchPlaceholder }}" style="box-sizing:border-box;width:100%;border:none;background:transparent;padding:15px 18px 15px 46px;font-size:14px;color:#141416">
+        </div>
+        <div style="margin-top:16px;display:flex;flex-wrap:wrap;gap:8px">
+          <sc-for list="{{ catTabs }}" as="tab" hint-placeholder-count="6">
+            <span class="ks-btn" onClick="{{ tab.onClick }}" style="border:1px solid #141416;padding:8px 18px;font-size:11px;font-weight:600;letter-spacing:.12em;background:{{ tab.bg }};color:{{ tab.color }}">{{ tab.label }}</span>
+          </sc-for>
+        </div>
+        <div style="margin-top:14px;font-size:11px;letter-spacing:.1em;color:rgba(20,20,22,.5)">{{ resultLabel }}</div>
+      </div>
+      <div style="max-width:1280px;margin:0 auto;padding:28px 40px 80px">
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px">
+          <sc-for list="{{ catalogProducts }}" as="p" hint-placeholder-count="8">
+            <div class="ks-card" style="border:1px solid #141416;background:#fff;display:flex;flex-direction:column">
+              <div class="ks-link" onClick="{{ p.onClick }}" style="position:relative;aspect-ratio:1/1;overflow:hidden;border-bottom:1px solid #141416">
+                <div class="ks-card-img" style="position:absolute;inset:0"><image-slot id="ks-cat-{{ p.slug }}" shape="rect" placeholder="{{ p.meta }}"></image-slot></div>
+                <div style="position:absolute;left:0;top:0;background:#141416;color:#F1EDE4;font-size:9px;font-weight:600;letter-spacing:.14em;padding:5px 9px">{{ p.meta }}</div>
+              </div>
+              <div style="padding:16px 16px 18px;display:flex;flex-direction:column;flex:1">
+                <div class="ks-link" onClick="{{ p.onClick }}" class="ks-serif" style="font-family:'Cormorant Garamond',serif;font-size:17px;color:#141416;line-height:1.3">{{ p.name }}</div>
+                <div style="font-size:10px;letter-spacing:.14em;color:rgba(20,20,22,.45);margin-top:5px;text-transform:uppercase">{{ p.catLabel }}</div>
+                <div style="margin-top:auto;padding-top:14px;font-size:13px;font-weight:600;color:#141416">{{ p.price }}</div>
+                <div class="ks-btn ks-dark-btn" onClick="{{ p.onAdd }}" style="margin-top:12px;background:#141416;color:#F1EDE4;text-align:center;padding:10px 0;font-size:11px;font-weight:600;letter-spacing:.14em">{{ t.addToBag }}</div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        <sc-if value="{{ catalogEmpty }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:80px 0;text-align:center;color:rgba(20,20,22,.5);font-size:14px">{{ t.noResults }}</div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ══════════════════════════ PRODUCT DETAIL ══════════════════════════ -->
+  <sc-if value="{{ isProduct }}" hint-placeholder-val="{{ false }}">
+    <div style="max-width:1280px;margin:0 auto;padding:24px 40px 80px">
+      <nav style="display:flex;align-items:center;gap:9px;font-size:11px;letter-spacing:.06em;color:rgba(20,20,22,.5);padding:8px 0 24px">
+        <span class="ks-link" onClick="{{ goCatalog }}">{{ t.navStoreShort }}</span><span>/</span>
+        <span class="ks-link" onClick="{{ goCatalog }}" style="text-transform:uppercase">{{ active.catLabel }}</span><span>/</span>
+        <span style="color:#141416;font-weight:500">{{ active.name }}</span>
+      </nav>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px">
+        <div>
+          <div style="position:relative;aspect-ratio:1/1;border:1px solid #141416"><image-slot id="ks-pd-main" shape="rect" placeholder="Product photograph — main view"></image-slot></div>
+          <div style="margin-top:12px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+            <div style="position:relative;aspect-ratio:1/1;border:1px solid #141416"><image-slot id="ks-pd-1" shape="rect" placeholder="detail 1"></image-slot></div>
+            <div style="position:relative;aspect-ratio:1/1;border:1px solid #141416"><image-slot id="ks-pd-2" shape="rect" placeholder="detail 2"></image-slot></div>
+            <div style="position:relative;aspect-ratio:1/1;border:1px solid #141416"><image-slot id="ks-pd-3" shape="rect" placeholder="on the hand"></image-slot></div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-start">
+          <div style="font-size:10px;font-weight:600;letter-spacing:.2em;color:#A85A32">{{ active.meta }} · {{ active.catLabel }}</div>
+          <h1 class="ks-serif" style="margin:14px 0 0;font-weight:500;font-size:40px;line-height:1.15;color:#141416">{{ active.name }}</h1>
+          <div class="ks-serif" style="margin-top:14px;font-size:26px;font-weight:500;color:#141416">{{ active.price }}</div>
+          <p style="margin:22px 0 0;font-size:14px;line-height:1.75;color:rgba(20,20,22,.65)">{{ active.desc }}</p>
+
+          <div style="margin-top:26px;width:100%">
+            <div style="font-size:10px;font-weight:600;letter-spacing:.18em;color:rgba(20,20,22,.55);text-transform:uppercase">{{ t.sizeLabel }}</div>
+            <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:8px">
+              <sc-for list="{{ sizeOptions }}" as="s" hint-placeholder-count="5">
+                <span class="ks-btn" onClick="{{ s.onClick }}" style="min-width:44px;text-align:center;border:1px solid #141416;padding:10px 14px;font-size:12px;font-weight:600;background:{{ s.bg }};color:{{ s.color }}">{{ s.label }}</span>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="margin-top:26px;display:flex;gap:12px;width:100%">
+            <div style="display:flex;align-items:center;border:1px solid #141416">
+              <span class="ks-link" onClick="{{ decQty }}" style="padding:12px 16px;font-size:16px;line-height:1">−</span>
+              <span style="padding:0 6px;min-width:28px;text-align:center;font-size:14px;font-weight:600">{{ qty }}</span>
+              <span class="ks-link" onClick="{{ incQty }}" style="padding:12px 16px;font-size:16px;line-height:1">+</span>
+            </div>
+            <div class="ks-btn ks-dark-btn" onClick="{{ addActiveToCart }}" style="flex:1;background:#141416;color:#F1EDE4;text-align:center;padding:14px 0;font-size:12px;font-weight:600;letter-spacing:.16em">{{ t.addToBag }}</div>
+          </div>
+          <div class="ks-btn ks-out-btn" onClick="{{ buyNow }}" style="margin-top:12px;width:100%;box-sizing:border-box;border:1px solid #141416;color:#141416;text-align:center;padding:13px 0;font-size:12px;font-weight:600;letter-spacing:.16em">{{ t.buyNow }}</div>
+
+          <div style="margin-top:28px;width:100%;border-top:1px solid #141416">
+            <sc-for list="{{ active.specs }}" as="sp" hint-placeholder-count="4">
+              <div style="display:flex;justify-content:space-between;padding:13px 0;border-bottom:1px solid rgba(20,20,22,.15)">
+                <span style="font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:rgba(20,20,22,.55)">{{ sp.label }}</span>
+                <span style="font-size:13px;font-weight:500;color:#141416">{{ sp.value }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ══════════════════════════ CART ══════════════════════════ -->
+  <sc-if value="{{ isCart }}" hint-placeholder-val="{{ false }}">
+    <div style="max-width:1080px;margin:0 auto;padding:48px 40px 80px">
+      <h1 class="ks-serif" style="margin:0 0 8px;font-weight:400;font-size:40px;color:#141416">{{ t.cartTitle }}</h1>
+      <div style="font-size:12px;letter-spacing:.1em;color:rgba(20,20,22,.5)">{{ cartCountLabel }}</div>
+
+      <sc-if value="{{ hasCart }}" hint-placeholder-val="{{ true }}">
+        <div style="margin-top:32px;display:grid;grid-template-columns:1fr 340px;gap:40px;align-items:start">
+          <div style="border-top:1px solid #141416">
+            <sc-for list="{{ cartLines }}" as="c" hint-placeholder-count="2">
+              <div style="display:grid;grid-template-columns:96px 1fr auto;gap:20px;padding:20px 0;border-bottom:1px solid rgba(20,20,22,.15)">
+                <div style="width:96px;height:96px;border:1px solid #141416;position:relative"><image-slot id="ks-cart-{{ c.slug }}" shape="rect" placeholder="{{ c.meta }}"></image-slot></div>
+                <div>
+                  <div class="ks-serif" style="font-size:19px;color:#141416">{{ c.name }}</div>
+                  <div style="font-size:11px;letter-spacing:.1em;color:rgba(20,20,22,.5);margin-top:5px;text-transform:uppercase">{{ c.meta }} · {{ c.sizeLabel }}</div>
+                  <div style="margin-top:14px;display:flex;align-items:center;border:1px solid #141416;width:max-content">
+                    <span class="ks-link" onClick="{{ c.onDec }}" style="padding:7px 13px;font-size:15px;line-height:1">−</span>
+                    <span style="padding:0 4px;min-width:24px;text-align:center;font-size:13px;font-weight:600">{{ c.qty }}</span>
+                    <span class="ks-link" onClick="{{ c.onInc }}" style="padding:7px 13px;font-size:15px;line-height:1">+</span>
+                  </div>
+                </div>
+                <div style="text-align:right;display:flex;flex-direction:column;justify-content:space-between;align-items:flex-end">
+                  <div class="ks-serif" style="font-size:18px;font-weight:500;color:#141416">{{ c.lineTotal }}</div>
+                  <span class="ks-link" onClick="{{ c.onRemove }}" style="font-size:11px;letter-spacing:.1em;color:rgba(20,20,22,.5);text-decoration:underline;text-underline-offset:3px">{{ t.remove }}</span>
+                </div>
+              </div>
+            </sc-for>
+            <div style="margin-top:22px"><span class="ks-link" onClick="{{ goCatalog }}" style="font-size:12px;font-weight:600;letter-spacing:.14em;border-bottom:1px solid #141416;padding-bottom:3px">← {{ t.continueShopping }}</span></div>
+          </div>
+
+          <div style="border:1px solid #141416;background:#fff;padding:28px">
+            <div class="ks-serif" style="font-size:22px;color:#141416">{{ t.orderSummary }}</div>
+            <div style="margin-top:20px;display:flex;justify-content:space-between;font-size:13px;color:rgba(20,20,22,.7)"><span>{{ t.subtotal }}</span><span style="font-weight:500;color:#141416">{{ subtotal }}</span></div>
+            <div style="margin-top:12px;display:flex;justify-content:space-between;font-size:13px;color:rgba(20,20,22,.7)"><span>{{ t.shipping }}</span><span style="font-weight:500;color:#141416">{{ shipping }}</span></div>
+            <div style="margin-top:20px;padding-top:16px;border-top:1px solid #141416;display:flex;justify-content:space-between;align-items:baseline">
+              <span style="font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase">{{ t.total }}</span>
+              <span class="ks-serif" style="font-size:26px;font-weight:500;color:#141416">{{ total }}</span>
+            </div>
+            <div class="ks-btn ks-dark-btn" onClick="{{ goCheckout }}" style="margin-top:24px;background:#141416;color:#F1EDE4;text-align:center;padding:15px 0;font-size:12px;font-weight:600;letter-spacing:.16em">{{ t.checkout }}</div>
+            <div style="margin-top:16px;display:flex;align-items:center;gap:8px;font-size:11px;color:rgba(20,20,22,.5)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              {{ t.securePay }}
+            </div>
+          </div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ cartEmpty }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:48px;border:1px solid #141416;padding:80px 40px;text-align:center">
+          <div class="ks-serif" style="font-size:26px;color:#141416">{{ t.cartEmptyTitle }}</div>
+          <p style="margin:12px auto 0;font-size:14px;color:rgba(20,20,22,.6);max-width:360px">{{ t.cartEmptyBody }}</p>
+          <div class="ks-btn ks-dark-btn" onClick="{{ goCatalog }}" style="margin:28px auto 0;width:max-content;background:#141416;color:#F1EDE4;padding:14px 32px;font-size:12px;font-weight:600;letter-spacing:.16em">{{ t.heroCta1 }}</div>
+        </div>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <!-- ══════════════════════════ CHECKOUT ══════════════════════════ -->
+  <sc-if value="{{ isCheckout }}" hint-placeholder-val="{{ false }}">
+    <div style="max-width:1080px;margin:0 auto;padding:48px 40px 80px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <span class="ks-link" onClick="{{ goCart }}" style="font-size:12px;letter-spacing:.1em;color:rgba(20,20,22,.5)">← {{ t.cartTitle }}</span>
+      </div>
+      <h1 class="ks-serif" style="margin:0 0 32px;font-weight:400;font-size:40px;color:#141416">{{ t.checkout }}</h1>
+      <div style="display:grid;grid-template-columns:1fr 360px;gap:40px;align-items:start">
+        <div>
+          <div style="font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#A85A32">{{ t.contactHead }}</div>
+          <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <input placeholder="{{ t.fName }}" value="{{ f.name }}" onChange="{{ onF.name }}" style="grid-column:span 2;box-sizing:border-box;border:1px solid #141416;background:#fff;padding:13px 14px;font-size:13px">
+            <input placeholder="{{ t.fEmail }}" value="{{ f.email }}" onChange="{{ onF.email }}" style="box-sizing:border-box;border:1px solid #141416;background:#fff;padding:13px 14px;font-size:13px">
+            <input placeholder="{{ t.fPhone }}" value="{{ f.phone }}" onChange="{{ onF.phone }}" style="box-sizing:border-box;border:1px solid #141416;background:#fff;padding:13px 14px;font-size:13px">
+          </div>
+          <div style="margin-top:28px;font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#A85A32">{{ t.shipHead }}</div>
+          <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <input placeholder="{{ t.fAddress }}" value="{{ f.address }}" onChange="{{ onF.address }}" style="grid-column:span 2;box-sizing:border-box;border:1px solid #141416;background:#fff;padding:13px 14px;font-size:13px">
+            <input placeholder="{{ t.fCity }}" value="{{ f.city }}" onChange="{{ onF.city }}" style="box-sizing:border-box;border:1px solid #141416;background:#fff;padding:13px 14px;font-size:13px">
+            <input placeholder="{{ t.fZip }}" value="{{ f.zip }}" onChange="{{ onF.zip }}" style="box-sizing:border-box;border:1px solid #141416;background:#fff;padding:13px 14px;font-size:13px">
+            <input placeholder="{{ t.fCountry }}" value="{{ f.country }}" onChange="{{ onF.country }}" style="grid-column:span 2;box-sizing:border-box;border:1px solid #141416;background:#fff;padding:13px 14px;font-size:13px">
+          </div>
+          <div style="margin-top:28px;font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#A85A32">{{ t.payHead }}</div>
+          <div style="margin-top:16px;display:flex;flex-direction:column;gap:10px">
+            <sc-for list="{{ payOptions }}" as="pay" hint-placeholder-count="3">
+              <div class="ks-link" onClick="{{ pay.onClick }}" style="display:flex;align-items:center;gap:12px;border:1px solid #141416;padding:15px 16px;background:{{ pay.bg }}">
+                <span style="width:15px;height:15px;border:1px solid #141416;border-radius:50%;display:flex;align-items:center;justify-content:center"><span style="width:7px;height:7px;border-radius:50%;background:{{ pay.dot }}"></span></span>
+                <span style="font-size:13px;font-weight:500;color:#141416">{{ pay.label }}</span>
+                <span style="margin-left:auto;font-size:11px;color:rgba(20,20,22,.5)">{{ pay.note }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="border:1px solid #141416;background:#fff;padding:28px">
+          <div class="ks-serif" style="font-size:22px;color:#141416">{{ t.orderSummary }}</div>
+          <div style="margin-top:18px;border-top:1px solid rgba(20,20,22,.15)">
+            <sc-for list="{{ cartLines }}" as="c" hint-placeholder-count="2">
+              <div style="display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid rgba(20,20,22,.12)">
+                <span style="font-size:12px;color:rgba(20,20,22,.7)">{{ c.name }} <span style="color:rgba(20,20,22,.45)">× {{ c.qty }}</span></span>
+                <span style="font-size:12px;font-weight:500;color:#141416;white-space:nowrap">{{ c.lineTotal }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <div style="margin-top:16px;display:flex;justify-content:space-between;font-size:13px;color:rgba(20,20,22,.7)"><span>{{ t.subtotal }}</span><span style="font-weight:500;color:#141416">{{ subtotal }}</span></div>
+          <div style="margin-top:10px;display:flex;justify-content:space-between;font-size:13px;color:rgba(20,20,22,.7)"><span>{{ t.shipping }}</span><span style="font-weight:500;color:#141416">{{ shipping }}</span></div>
+          <div style="margin-top:18px;padding-top:16px;border-top:1px solid #141416;display:flex;justify-content:space-between;align-items:baseline">
+            <span style="font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase">{{ t.total }}</span>
+            <span class="ks-serif" style="font-size:26px;font-weight:500;color:#141416">{{ total }}</span>
+          </div>
+          <div class="ks-btn ks-dark-btn" onClick="{{ placeOrder }}" style="margin-top:24px;background:#141416;color:#F1EDE4;text-align:center;padding:15px 0;font-size:12px;font-weight:600;letter-spacing:.16em">{{ t.placeOrder }}</div>
+          <div style="margin-top:14px;font-size:11px;line-height:1.6;color:rgba(20,20,22,.5);text-align:center">{{ t.checkoutNote }}</div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ══════════════════════════ CONFIRMATION ══════════════════════════ -->
+  <sc-if value="{{ isConfirm }}" hint-placeholder-val="{{ false }}">
+    <div style="max-width:640px;margin:0 auto;padding:96px 40px 120px;text-align:center">
+      <div style="margin:0 auto;width:64px;height:64px;border:1px solid #141416;display:flex;align-items:center;justify-content:center">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#141416" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+      </div>
+      <div style="margin-top:24px;font-size:10px;font-weight:600;letter-spacing:.4em;color:#A85A32">{{ t.confirmEyebrow }}</div>
+      <h1 class="ks-serif" style="margin:16px 0 0;font-weight:300;font-size:44px;color:#141416">{{ t.confirmTitle }}</h1>
+      <p style="margin:18px auto 0;font-size:14px;line-height:1.75;color:rgba(20,20,22,.65);max-width:420px">{{ t.confirmBody }}</p>
+      <div style="margin-top:28px;font-size:12px;letter-spacing:.14em;color:rgba(20,20,22,.5)">{{ t.orderNo }} <span style="color:#141416;font-weight:600">{{ orderNo }}</span></div>
+      <div class="ks-btn ks-dark-btn" onClick="{{ goHome }}" style="margin:36px auto 0;width:max-content;background:#141416;color:#F1EDE4;padding:14px 34px;font-size:12px;font-weight:600;letter-spacing:.16em">{{ t.backHome }}</div>
+    </div>
+  </sc-if>
+
+  <!-- ══════════════════════════ BESPOKE / CUSTOM ORDER ══════════════════════════ -->
+  <sc-if value="{{ isBespoke }}" hint-placeholder-val="{{ false }}">
+    <div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;background:#141416;border-bottom:1px solid #141416">
+        <div style="padding:88px 72px;color:#F6F4EF;display:flex;flex-direction:column;justify-content:center">
+          <div style="font-size:10px;font-weight:600;letter-spacing:.4em;color:#A85A32">{{ t.bespokeEyebrow }}</div>
+          <h1 class="ks-serif" style="margin:18px 0 0;font-weight:300;font-size:52px;line-height:1.1">{{ t.bespokeTitle1 }}<br><em style="font-weight:400">{{ t.bespokeTitle2 }}</em></h1>
+          <p style="margin:22px 0 0;font-size:14px;line-height:1.8;color:rgba(246,244,239,.6);max-width:400px">{{ t.bespokeIntro }}</p>
+          <div class="ks-btn" onClick="{{ scrollBespokeForm }}" style="margin-top:34px;width:max-content;background:#A85A32;color:#141416;padding:15px 34px;font-size:12px;font-weight:600;letter-spacing:.16em">{{ t.bespokeStart }}</div>
+        </div>
+        <div style="position:relative;min-height:520px"><image-slot id="ks-bespoke-hero" shape="rect" placeholder="Drop image — sketchbook, calipers, wax model"></image-slot></div>
+      </div>
+
+      <div style="max-width:1280px;margin:0 auto;padding:80px 40px 40px">
+        <div style="text-align:center">
+          <div style="font-size:10px;font-weight:600;letter-spacing:.34em;color:#A85A32">{{ t.bespokeProcessEyebrow }}</div>
+          <h2 class="ks-serif" style="margin:14px 0 0;font-weight:400;font-size:34px;color:#141416">{{ t.bespokeProcessTitle }}</h2>
+        </div>
+        <div style="margin-top:44px;border:1px solid #141416;display:grid;grid-template-columns:repeat(4,1fr)">
+          <sc-for list="{{ bespokeSteps }}" as="st" hint-placeholder-count="4">
+            <div style="padding:32px 26px;border-right:1px solid #141416">
+              <div class="ks-serif" style="font-size:40px;font-weight:300;color:rgba(20,20,22,.25);line-height:1">{{ st.num }}</div>
+              <div class="ks-serif" style="margin-top:18px;font-size:20px;color:#141416">{{ st.title }}</div>
+              <p style="margin:10px 0 0;font-size:13px;line-height:1.65;color:rgba(20,20,22,.6)">{{ st.body }}</p>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="max-width:1280px;margin:0 auto;padding:40px 40px 88px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start">
+          <div>
+            <div style="position:relative;aspect-ratio:4/5;border:1px solid #141416"><image-slot id="ks-bespoke-side" shape="rect" placeholder="Drop image — finished custom ring in hand"></image-slot></div>
+          </div>
+          <div id="ks-bespoke-form">
+            <div style="font-size:10px;font-weight:600;letter-spacing:.34em;color:#A85A32">{{ t.bespokeFormEyebrow }}</div>
+            <h2 class="ks-serif" style="margin:12px 0 0;font-weight:400;font-size:32px;color:#141416">{{ t.bespokeFormTitle }}</h2>
+            <p style="margin:12px 0 0;font-size:13px;line-height:1.7;color:rgba(20,20,22,.6);max-width:440px">{{ t.bespokeFormSub }}</p>
+            <sc-if value="{{ bespokeSent }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-top:24px;border:1px solid #141416;background:#fff;padding:28px;text-align:center">
+                <div class="ks-serif" style="font-size:22px;color:#141416">{{ t.bespokeThanksTitle }}</div>
+                <p style="margin:10px 0 0;font-size:13px;line-height:1.7;color:rgba(20,20,22,.6)">{{ t.bespokeThanksBody }}</p>
+              </div>
+            </sc-if>
+            <sc-if value="{{ bespokeOpen }}" hint-placeholder-val="{{ true }}">
+              <div style="margin-top:22px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <input placeholder="{{ t.fName }}" value="{{ bf.name }}" onChange="{{ onBf.name }}" style="grid-column:span 2;box-sizing:border-box;border:1px solid #141416;background:#fff;padding:13px 14px;font-size:13px">
+                <input placeholder="{{ t.fEmail }}" value="{{ bf.email }}" onChange="{{ onBf.email }}" style="box-sizing:border-box;border:1px solid #141416;background:#fff;padding:13px 14px;font-size:13px">
+                <input placeholder="{{ t.fPhone }}" value="{{ bf.phone }}" onChange="{{ onBf.phone }}" style="box-sizing:border-box;border:1px solid #141416;background:#fff;padding:13px 14px;font-size:13px">
+                <select value="{{ bf.type }}" onChange="{{ onBf.type }}" style="grid-column:span 2;box-sizing:border-box;border:1px solid #141416;background:#fff;padding:13px 14px;font-size:13px;color:#141416">
+                  <sc-for list="{{ bespokeTypeOptions }}" as="o" hint-placeholder-count="5"><option value="{{ o.value }}">{{ o.label }}</option></sc-for>
+                </select>
+                <select value="{{ bf.budget }}" onChange="{{ onBf.budget }}" style="grid-column:span 2;box-sizing:border-box;border:1px solid #141416;background:#fff;padding:13px 14px;font-size:13px;color:#141416">
+                  <sc-for list="{{ bespokeBudgetOptions }}" as="o" hint-placeholder-count="4"><option value="{{ o.value }}">{{ o.label }}</option></sc-for>
+                </select>
+                <textarea placeholder="{{ t.bespokeMsgPlaceholder }}" value="{{ bf.message }}" onChange="{{ onBf.message }}" rows="4" style="grid-column:span 2;box-sizing:border-box;border:1px solid #141416;background:#fff;padding:13px 14px;font-size:13px;resize:vertical"></textarea>
+              </div>
+              <div class="ks-btn ks-dark-btn" onClick="{{ sendBespoke }}" style="margin-top:14px;background:#141416;color:#F1EDE4;text-align:center;padding:15px 0;font-size:12px;font-weight:600;letter-spacing:.16em">{{ t.bespokeSubmit }}</div>
+              <div style="margin-top:12px;font-size:11px;line-height:1.6;color:rgba(20,20,22,.5)">{{ t.bespokeFormNote }}</div>
+            </sc-if>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ══════════════════════════ OUR STORY ══════════════════════════ -->
+  <sc-if value="{{ isStory }}" hint-placeholder-val="{{ false }}">
+    <div>
+      <div style="position:relative;height:520px;border-bottom:1px solid #141416">
+        <image-slot id="ks-story-hero" shape="rect" placeholder="Drop image — atelier / North Bali landscape"></image-slot>
+        <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(20,20,22,.72),rgba(20,20,22,.15));pointer-events:none;display:flex;flex-direction:column;justify-content:flex-end;padding:56px 40px">
+          <div style="max-width:1280px;margin:0 auto;width:100%">
+            <div style="font-size:10px;font-weight:600;letter-spacing:.4em;color:#E8C9A0">{{ t.storyEyebrow }}</div>
+            <h1 class="ks-serif" style="margin:16px 0 0;font-weight:300;font-size:56px;line-height:1.05;color:#F6F4EF;max-width:720px">{{ t.storyTitle }}</h1>
+          </div>
+        </div>
+      </div>
+
+      <div style="max-width:820px;margin:0 auto;padding:80px 40px 40px">
+        <p class="ks-serif" style="margin:0;font-weight:300;font-size:26px;line-height:1.5;color:#141416">{{ t.storyLede }}</p>
+        <p style="margin:28px 0 0;font-size:15px;line-height:1.85;color:rgba(20,20,22,.7)">{{ t.storyP1 }}</p>
+        <p style="margin:20px 0 0;font-size:15px;line-height:1.85;color:rgba(20,20,22,.7)">{{ t.storyP2 }}</p>
+      </div>
+
+      <div style="max-width:1280px;margin:0 auto;padding:40px 40px 0">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div style="position:relative;aspect-ratio:1/1;border:1px solid #141416"><image-slot id="ks-story-1" shape="rect" placeholder="Drop image — hands at the forge"></image-slot></div>
+          <div style="position:relative;aspect-ratio:1/1;border:1px solid #141416"><image-slot id="ks-story-2" shape="rect" placeholder="Drop image — finished pieces on linen"></image-slot></div>
+        </div>
+      </div>
+
+      <div style="max-width:820px;margin:0 auto;padding:56px 40px 20px">
+        <p style="margin:0;font-size:15px;line-height:1.85;color:rgba(20,20,22,.7)">{{ t.storyP3 }}</p>
+      </div>
+
+      <div style="background:#141416;color:#F6F4EF;margin-top:60px;padding:72px 40px">
+        <div style="max-width:1280px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:40px">
+          <sc-for list="{{ storyValues }}" as="v" hint-placeholder-count="3">
+            <div>
+              <div class="ks-serif" style="font-size:22px;color:#F6F4EF">{{ v.title }}</div>
+              <p style="margin:12px 0 0;font-size:13px;line-height:1.7;color:rgba(246,244,239,.6)">{{ v.body }}</p>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="max-width:1280px;margin:0 auto;padding:72px 40px;text-align:center">
+        <h2 class="ks-serif" style="margin:0;font-weight:400;font-size:32px;color:#141416">{{ t.storyCtaTitle }}</h2>
+        <div style="margin-top:24px;display:flex;gap:12px;justify-content:center">
+          <span class="ks-btn ks-dark-btn" onClick="{{ goCatalog }}" style="background:#141416;color:#F1EDE4;padding:15px 32px;font-size:12px;font-weight:600;letter-spacing:.16em">{{ t.heroCta1 }}</span>
+          <span class="ks-btn ks-out-btn" onClick="{{ goBespoke }}" style="border:1px solid #141416;color:#141416;padding:14px 32px;font-size:12px;font-weight:600;letter-spacing:.16em">{{ t.nav_bespoke }}</span>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ══════════════════════════ CONTACT ══════════════════════════ -->
+  <sc-if value="{{ isContact }}" hint-placeholder-val="{{ false }}">
+    <div>
+      <div style="background:#141416;color:#F6F4EF;padding:56px 40px;text-align:center">
+        <div style="font-size:10px;font-weight:600;letter-spacing:.4em;color:#A85A32">{{ t.contactEyebrow }}</div>
+        <h1 class="ks-serif" style="margin:16px 0 0;font-weight:300;font-size:46px">{{ t.contactTitle }}</h1>
+        <p style="margin:16px auto 0;font-size:14px;line-height:1.7;color:rgba(246,244,239,.6);max-width:480px">{{ t.contactSub }}</p>
+      </div>
+      <div style="max-width:1280px;margin:0 auto;padding:56px 40px 88px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start">
+          <div>
+            <div style="border:1px solid #141416">
+              <sc-for list="{{ contactInfo }}" as="ci" hint-placeholder-count="4">
+                <div style="display:flex;gap:16px;padding:22px 24px;border-bottom:1px solid rgba(20,20,22,.15)">
+                  <div style="color:#A85A32;flex-shrink:0;margin-top:2px">{{ ci.icon }}</div>
+                  <div>
+                    <div style="font-size:10px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:rgba(20,20,22,.5)">{{ ci.label }}</div>
+                    <div style="margin-top:6px;font-size:14px;line-height:1.6;color:#141416">{{ ci.value }}</div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="margin-top:16px;position:relative;height:240px;border:1px solid #141416"><image-slot id="ks-contact-map" shape="rect" placeholder="Drop map / storefront image — Singaraja"></image-slot></div>
+          </div>
+          <div>
+            <div style="font-size:10px;font-weight:600;letter-spacing:.34em;color:#A85A32">{{ t.contactFormEyebrow }}</div>
+            <h2 class="ks-serif" style="margin:12px 0 0;font-weight:400;font-size:30px;color:#141416">{{ t.contactFormTitle }}</h2>
+            <sc-if value="{{ contactSent }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-top:22px;border:1px solid #141416;background:#fff;padding:28px;text-align:center">
+                <div class="ks-serif" style="font-size:22px;color:#141416">{{ t.contactThanksTitle }}</div>
+                <p style="margin:10px 0 0;font-size:13px;line-height:1.7;color:rgba(20,20,22,.6)">{{ t.contactThanksBody }}</p>
+              </div>
+            </sc-if>
+            <sc-if value="{{ contactOpen }}" hint-placeholder-val="{{ true }}">
+              <div style="margin-top:22px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <input placeholder="{{ t.fName }}" value="{{ cf.name }}" onChange="{{ onCf.name }}" style="grid-column:span 2;box-sizing:border-box;border:1px solid #141416;background:#fff;padding:13px 14px;font-size:13px">
+                <input placeholder="{{ t.fEmail }}" value="{{ cf.email }}" onChange="{{ onCf.email }}" style="box-sizing:border-box;border:1px solid #141416;background:#fff;padding:13px 14px;font-size:13px">
+                <input placeholder="{{ t.fPhone }}" value="{{ cf.phone }}" onChange="{{ onCf.phone }}" style="box-sizing:border-box;border:1px solid #141416;background:#fff;padding:13px 14px;font-size:13px">
+                <textarea placeholder="{{ t.contactMsgPlaceholder }}" value="{{ cf.message }}" onChange="{{ onCf.message }}" rows="5" style="grid-column:span 2;box-sizing:border-box;border:1px solid #141416;background:#fff;padding:13px 14px;font-size:13px;resize:vertical"></textarea>
+              </div>
+              <div class="ks-btn ks-dark-btn" onClick="{{ sendContact }}" style="margin-top:14px;background:#141416;color:#F1EDE4;text-align:center;padding:15px 0;font-size:12px;font-weight:600;letter-spacing:.16em">{{ t.contactSubmit }}</div>
+              <a href="#" style="margin-top:12px;display:flex;align-items:center;justify-content:center;gap:9px;border:1px solid #141416;color:#141416;text-align:center;padding:13px 0;font-size:12px;font-weight:600;letter-spacing:.14em" class="ks-btn ks-out-btn">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"></path></svg>
+                {{ t.contactWhatsApp }}
+              </a>
+            </sc-if>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  </div>
+
+  <!-- ══════════ FOOTER ══════════ -->
+  <footer style="background:#141416;color:#F6F4EF;border-top:1px solid #141416">
+    <div style="max-width:1280px;margin:0 auto;padding:64px 40px 0;display:grid;grid-template-columns:1.4fr 1fr 1fr 1.2fr;gap:40px">
+      <div>
+        <div class="ks-serif" style="font-size:22px;letter-spacing:.2em">KUSUMA SILVER</div>
+        <div style="font-size:9px;font-weight:500;letter-spacing:.42em;color:rgba(246,244,239,.5);margin-top:6px">{{ t.tagline }}</div>
+        <p style="margin:18px 0 0;font-size:13px;line-height:1.7;color:rgba(246,244,239,.55);max-width:280px">{{ t.footerBlurb }}</p>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#A85A32">{{ t.footerShop }}</div>
+        <div style="margin-top:16px;display:flex;flex-direction:column;gap:11px;font-size:13px;color:rgba(246,244,239,.6)">
+          <span class="ks-link" onClick="{{ goCatalog }}">{{ t.nav_ring }}</span>
+          <span class="ks-link" onClick="{{ goCatalog }}">{{ t.nav_necklace }}</span>
+          <span class="ks-link" onClick="{{ goCatalog }}">{{ t.nav_bracelet }}</span>
+          <span class="ks-link" onClick="{{ goCatalog }}">{{ t.nav_earring }}</span>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#A85A32">{{ t.footerAbout }}</div>
+        <div style="margin-top:16px;display:flex;flex-direction:column;gap:11px;font-size:13px;color:rgba(246,244,239,.6)">
+          <span class="ks-link" onClick="{{ goStory }}">{{ t.nav_story }}</span>
+          <span class="ks-link" onClick="{{ goBespoke }}">{{ t.nav_bespoke }}</span>
+          <span class="ks-link" onClick="{{ goContact }}">{{ t.footerContact }}</span>
+          <a class="ks-link" href="https://instagram.com/kusumasilver" target="_blank" rel="noopener noreferrer">Instagram</a>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#A85A32">{{ t.footerContact }}</div>
+        <div style="margin-top:16px;display:flex;flex-direction:column;gap:11px;font-size:13px;color:rgba(246,244,239,.6);line-height:1.6">
+          <span>Jl. Ahmad Yani, Singaraja,<br>Buleleng, Bali 81116</span>
+          <a class="ks-link" href="#">+62 812-3456-7890</a>
+          <a class="ks-link" href="mailto:hello@kusumasilver.com">hello@kusumasilver.com</a>
+        </div>
+      </div>
+    </div>
+    <div style="max-width:1280px;margin:48px auto 0;padding:22px 40px;border-top:1px solid rgba(246,244,239,.15);display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:11px;letter-spacing:.1em;color:rgba(246,244,239,.4)">© 2026 Kusuma Silver · Singaraja, Bali Utara</span>
+      <span style="font-size:11px;letter-spacing:.1em;color:rgba(246,244,239,.4)">{{ t.footerRights }}</span>
+    </div>
+  </footer>
+
+  <!-- WhatsApp float -->
+  <a href="#" aria-label="WhatsApp" style="position:fixed;bottom:24px;right:24px;z-index:60;display:flex;height:54px;width:54px;align-items:center;justify-content:center;background:#141416;border:1px solid #F1EDE4">
+    <svg viewBox="0 0 24 24" fill="#F1EDE4" style="height:26px;width:26px"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"></path></svg>
+  </a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  state = {
+    lang: 'en', currency: 'idr', view: 'home',
+    productId: 'buleleng-carved-ring',
+    cart: [], qty: 1, size: null,
+    catFilter: 'all', query: '',
+    pay: 'card',
+    form: { name:'', email:'', phone:'', address:'', city:'', zip:'', country:'' },
+    orderNo: null,
+    bform: { name:'', email:'', phone:'', type:'ring', budget:'2-5', message:'' }, bespokeSent:false,
+    cform: { name:'', email:'', phone:'', message:'' }, contactSent:false,
+  };
+
+  RATE = 16000;
+
+  products = [
+    { slug:'buleleng-carved-ring', cat:'ring', meta:'№ 014', idr:350000,
+      en:'Buleleng Carved Ring', id:'Cincin Ukir Buleleng',
+      enDesc:'A 925 sterling silver band hand-carved with traditional North Balinese motifs, forged over open flame in our Singaraja atelier.',
+      idDesc:'Cincin perak 925 dengan ukiran motif tradisional Bali Utara, ditempa di atas api terbuka di bengkel kami di Singaraja.',
+      sizes:['6','7','8','9','10'] },
+    { slug:'crescent-moon-necklace', cat:'necklace', meta:'№ 008', idr:450000,
+      en:'Crescent Moon Necklace', id:'Kalung Bulan Sabit',
+      enDesc:'A delicate crescent pendant on a fine sterling chain, its surface finished by hand to a soft satin lustre.',
+      idDesc:'Liontin bulan sabit halus pada rantai perak murni, dipoles tangan hingga berkilau lembut.',
+      sizes:['40cm','45cm','50cm'] },
+    { slug:'woven-bali-bracelet', cat:'bracelet', meta:'№ 031', idr:280000,
+      en:'Woven Bali Bracelet', id:'Gelang Anyaman Bali',
+      enDesc:'Sterling silver wire woven in the traditional Balinese basket technique — supple, substantial, and entirely hand-made.',
+      idDesc:'Kawat perak murni yang dianyam dengan teknik keranjang khas Bali — lentur, berbobot, dan sepenuhnya buatan tangan.',
+      sizes:['S','M','L'] },
+    { slug:'frangipani-earrings', cat:'earring', meta:'№ 021', idr:320000,
+      en:'Frangipani Earrings', id:'Anting Bunga Kamboja',
+      enDesc:'The frangipani — Bali\u2019s temple flower — rendered in granulated silver, light enough for everyday wear.',
+      idDesc:'Bunga kamboja — bunga pura Bali — dibuat dari perak granulasi, ringan untuk dipakai sehari-hari.',
+      sizes:['One size'] },
+    { slug:'barong-pendant', cat:'pendant', meta:'№ 017', idr:390000,
+      en:'Barong Motif Pendant', id:'Liontin Motif Barong',
+      enDesc:'A protective Barong mask in fine relief, each detail chased by hand into solid 925 silver.',
+      idDesc:'Topeng Barong pelindung dengan relief halus, setiap detail dipahat tangan pada perak 925 padat.',
+      sizes:['One size'] },
+    { slug:'granulation-ring', cat:'ring', meta:'№ 006', idr:425000,
+      en:'Classic Granulation Ring', id:'Cincin Granulasi Klasik',
+      enDesc:'Rows of tiny silver granules fused by heat alone — the oldest technique in the North Balinese repertoire.',
+      idDesc:'Barisan butiran perak kecil yang disatukan hanya dengan panas — teknik tertua dalam khazanah Bali Utara.',
+      sizes:['6','7','8','9','10'] },
+    { slug:'temple-gate-cuff', cat:'bracelet', meta:'№ 042', idr:520000,
+      en:'Temple Gate Cuff', id:'Gelang Gapura Pura',
+      enDesc:'A bold open cuff inspired by the split temple gates of Bali\u2019s north coast, weighty and architectural.',
+      idDesc:'Gelang terbuka yang terinspirasi gapura candi bentar pesisir utara Bali, berbobot dan arsitektural.',
+      sizes:['S','M','L'] },
+    { slug:'lotus-drop-earrings', cat:'earring', meta:'№ 025', idr:300000,
+      en:'Lotus Drop Earrings', id:'Anting Tetes Teratai',
+      enDesc:'Faceted lotus drops that catch the light with every movement, hand-finished in 925 sterling silver.',
+      idDesc:'Tetesan teratai bersegi yang menangkap cahaya di setiap gerakan, dipoles tangan dari perak 925.',
+      sizes:['One size'] },
+  ];
+
+  T = {
+    en: {
+      shipbar:'Free worldwide shipping over $150', search:'SEARCH', tagline:'NORTH BALI · EST. SINGARAJA',
+      heroEyebrow:'925 STERLING · NORTH BALI', heroTitle1:'Silver, forged the', heroTitle2:'North Balinese way',
+      heroDesc:'A working atelier in Singaraja. Every piece catalogued, numbered, and forged by hand — 925 sterling silver, nothing plated.',
+      heroCta1:'ENTER THE CATALOGUE', heroCta2:'OUR STORY',
+      catalogueHead:'The Catalogue', viewAll:'VIEW ALL PIECES',
+      techniqueLabel:'TECHNIQUE', techniqueText:'Filigree, granulation, open-flame forging', originLabel:'ORIGIN',
+      heritageEyebrow:'HERITAGE', heritageTitle:'Forged above the Lovina coastline',
+      heritageBody:'Away from the tourist workshops of the south, our family atelier in Singaraja keeps the old North Balinese techniques alive — hand-drawn filigree, granulation, and open-flame forging.',
+      statSilver:'STERLING SILVER', statGen:'GENERATIONS', statHand:'HAND-FORGED',
+      manifestoEyebrow:'MANIFESTO', manifestoQuote:'\u201CWe don\u2019t make jewelry for a season. We forge it for generations.\u201D', manifestoAttr:'— THE KUSUMA FAMILY, SINGARAJA',
+      catEyebrow:'THE CATALOGUE', catTitle:'Every Piece, Numbered', catSub:'Browse the full atelier — each design forged by hand from 925 sterling silver in Singaraja, North Bali.',
+      searchPlaceholder:'Search the catalogue…', addToBag:'ADD TO BAG', noResults:'No pieces match your search.',
+      resultOne:'piece', resultMany:'pieces', found:'found',
+      navStoreShort:'CATALOGUE', sizeLabel:'Size', buyNow:'BUY NOW',
+      cartTitle:'Your Bag', orderSummary:'Order Summary', subtotal:'Subtotal', shipping:'Shipping', total:'Total',
+      checkout:'Checkout', securePay:'Secure payment · encrypted checkout', remove:'Remove', continueShopping:'Continue shopping',
+      cartEmptyTitle:'Your bag is empty', cartEmptyBody:'Nothing here yet. Explore the catalogue and add a piece to begin.',
+      contactHead:'Contact', shipHead:'Shipping address', payHead:'Payment', 
+      fName:'Full name', fEmail:'Email address', fPhone:'Phone (WhatsApp)', fAddress:'Street address', fCity:'City', fZip:'Postal code', fCountry:'Country',
+      placeOrder:'PLACE ORDER', checkoutNote:'By placing your order you agree to our terms. Taxes calculated at fulfilment.',
+      payCard:'Credit / Debit Card', payCardNote:'Visa · Mastercard', payBank:'Bank Transfer', payBankNote:'BCA · Mandiri', payWa:'WhatsApp Order', payWaNote:'Pay on confirmation',
+      confirmEyebrow:'ORDER PLACED', confirmTitle:'Terima kasih', confirmBody:'Your order has been received. Our atelier will confirm the details with you shortly via email and WhatsApp.',
+      orderNo:'ORDER', backHome:'BACK TO HOME',
+      footerBlurb:'Hand-forged 925 sterling silver from the hills of Singaraja, North Bali — three generations of craft.',
+      footerShop:'Shop', footerAbout:'Atelier', footerContact:'Contact', footerRights:'All rights reserved',
+      nav_ring:'Rings', nav_necklace:'Necklaces', nav_bracelet:'Bracelets', nav_earring:'Earrings', nav_pendant:'Pendants', nav_bespoke:'Bespoke', nav_story:'Our Story',
+      cat_all:'All', cat_ring:'Rings', cat_necklace:'Necklaces', cat_bracelet:'Bracelets', cat_earring:'Earrings', cat_pendant:'Pendants',
+      specMaterial:'Material', specMaterialV:'925 Sterling Silver', specOrigin:'Origin', specOriginV:'Singaraja, North Bali',
+      specTechnique:'Technique', specTechniqueV:'Hand-forged', specLead:'Lead time', specLeadV:'3–5 working days',
+      bespokeEyebrow:'BESPOKE', bespokeTitle1:'One design,', bespokeTitle2:'forged for you',
+      bespokeIntro:'From engagement rings to heirloom gifts, our atelier turns a single idea into a piece made to last generations — designed with you, forged by hand in North Bali.',
+      bespokeStart:'START YOUR COMMISSION',
+      bespokeProcessEyebrow:'THE PROCESS', bespokeProcessTitle:'Four steps, four to six weeks',
+      bespokeFormEyebrow:'BEGIN', bespokeFormTitle:'Tell us what you have in mind',
+      bespokeFormSub:'Share a few details and our silversmith will reply within two working days with ideas and an estimate.',
+      bespokeMsgPlaceholder:'Describe your idea — occasion, style, any reference pieces…',
+      bespokeSubmit:'SEND ENQUIRY', bespokeFormNote:'No commitment. We\u2019ll reply by email and WhatsApp with sketches and a quote.',
+      bespokeThanksTitle:'Enquiry received', bespokeThanksBody:'Thank you — our silversmith will be in touch within two working days.',
+      bespokeType:'What are you dreaming of?', bespokeBudget:'Approximate budget',
+      bt_ring:'A ring', bt_necklace:'A necklace', bt_bracelet:'A bracelet', bt_earring:'Earrings', bt_other:'Something else',
+      bb_1:'Under Rp 1,000,000', bb_2:'Rp 1–5,000,000', bb_3:'Rp 5–15,000,000', bb_4:'Rp 15,000,000+',
+      storyEyebrow:'OUR STORY', storyTitle:'Three generations of North Balinese silver',
+      storyLede:'Kusuma Silver began at a single workbench in Singaraja, on the quiet north coast of Bali — far from the tourist trade of the south.',
+      storyP1:'Our grandfather learned to forge silver over an open flame the way it had always been done in Buleleng: by hand, by eye, and by patience. He passed the craft to his children, who pass it now to theirs. Three generations later, every Kusuma piece is still made in that same workshop above the Lovina coastline.',
+      storyP2:'We work only in 925 sterling silver — never plated — using the old North Balinese techniques of hand-drawn filigree and granulation, where tiny beads of silver are fused with heat alone. It is slow work, and we would not have it any other way.',
+      storyP3:'When you wear a Kusuma piece, you carry a little of North Bali with you: its temples, its flowers, its mountains, and the hands of the family who forged it. That is what we mean when we say we make jewelry for generations.',
+      storyValues:'', storyCtaTitle:'Own a piece of North Bali',
+      sv1t:'Hand-forged', sv1b:'Every piece is shaped over open flame in our Singaraja atelier — no casting lines, no shortcuts.',
+      sv2t:'925, never plated', sv2b:'Certified sterling silver throughout, so your piece can be polished and passed on for decades.',
+      sv3t:'Rooted in Buleleng', sv3b:'Motifs drawn from North Bali\u2019s temples, frangipani, and coastline — a place, not a trend.',
+      contactEyebrow:'CONTACT', contactTitle:'Come find us',
+      contactSub:'Visit the atelier in Singaraja, or reach us by phone, email, or WhatsApp — we reply quickly.',
+      ci_visit:'Visit', ci_visitV:'Jl. Ahmad Yani, Singaraja,\nBuleleng, Bali 81116', ci_call:'Call / WhatsApp', ci_callV:'+62 812-3456-7890',
+      ci_email:'Email', ci_emailV:'hello@kusumasilver.com', ci_hours:'Hours', ci_hoursV:'Mon–Sat · 09.00–18.00 WITA',
+      contactFormEyebrow:'MESSAGE US', contactFormTitle:'Send a message',
+      contactMsgPlaceholder:'How can we help?', contactSubmit:'SEND MESSAGE', contactWhatsApp:'CHAT ON WHATSAPP',
+      contactThanksTitle:'Message sent', contactThanksBody:'Thank you for reaching out — we\u2019ll reply within one working day.',
+    },
+    id: {
+      shipbar:'Gratis ongkir ke seluruh dunia di atas $150', search:'CARI', tagline:'BALI UTARA · SEJAK SINGARAJA',
+      heroEyebrow:'PERAK 925 · BALI UTARA', heroTitle1:'Perak, ditempa dengan', heroTitle2:'cara Bali Utara',
+      heroDesc:'Bengkel kerja di Singaraja. Setiap karya dicatat, diberi nomor, dan ditempa tangan — perak murni 925, tanpa lapisan.',
+      heroCta1:'LIHAT KATALOG', heroCta2:'CERITA KAMI',
+      catalogueHead:'Katalog', viewAll:'LIHAT SEMUA',
+      techniqueLabel:'TEKNIK', techniqueText:'Filigri, granulasi, tempa api terbuka', originLabel:'ASAL',
+      heritageEyebrow:'WARISAN', heritageTitle:'Ditempa di atas pesisir Lovina',
+      heritageBody:'Jauh dari bengkel wisata di selatan, bengkel keluarga kami di Singaraja menjaga teknik lama Bali Utara tetap hidup — filigri gambar tangan, granulasi, dan tempa api terbuka.',
+      statSilver:'PERAK MURNI', statGen:'GENERASI', statHand:'TEMPA TANGAN',
+      manifestoEyebrow:'MANIFESTO', manifestoQuote:'\u201CKami tidak membuat perhiasan untuk semusim. Kami menempanya untuk generasi.\u201D', manifestoAttr:'— KELUARGA KUSUMA, SINGARAJA',
+      catEyebrow:'KATALOG', catTitle:'Setiap Karya, Bernomor', catSub:'Jelajahi seluruh bengkel — setiap desain ditempa tangan dari perak 925 di Singaraja, Bali Utara.',
+      searchPlaceholder:'Cari di katalog…', addToBag:'TAMBAH KE TAS', noResults:'Tidak ada karya yang cocok.',
+      resultOne:'karya', resultMany:'karya', found:'ditemukan',
+      navStoreShort:'KATALOG', sizeLabel:'Ukuran', buyNow:'BELI SEKARANG',
+      cartTitle:'Tas Anda', orderSummary:'Ringkasan Pesanan', subtotal:'Subtotal', shipping:'Pengiriman', total:'Total',
+      checkout:'Pembayaran', securePay:'Pembayaran aman · terenkripsi', remove:'Hapus', continueShopping:'Lanjut belanja',
+      cartEmptyTitle:'Tas Anda kosong', cartEmptyBody:'Belum ada apa-apa. Jelajahi katalog dan tambahkan sebuah karya untuk mulai.',
+      contactHead:'Kontak', shipHead:'Alamat pengiriman', payHead:'Pembayaran',
+      fName:'Nama lengkap', fEmail:'Alamat email', fPhone:'Telepon (WhatsApp)', fAddress:'Alamat jalan', fCity:'Kota', fZip:'Kode pos', fCountry:'Negara',
+      placeOrder:'BUAT PESANAN', checkoutNote:'Dengan memesan, Anda menyetujui ketentuan kami. Pajak dihitung saat pemenuhan.',
+      payCard:'Kartu Kredit / Debit', payCardNote:'Visa · Mastercard', payBank:'Transfer Bank', payBankNote:'BCA · Mandiri', payWa:'Pesan via WhatsApp', payWaNote:'Bayar saat konfirmasi',
+      confirmEyebrow:'PESANAN DIBUAT', confirmTitle:'Terima kasih', confirmBody:'Pesanan Anda telah kami terima. Bengkel kami akan segera mengonfirmasi detailnya melalui email dan WhatsApp.',
+      orderNo:'PESANAN', backHome:'KEMBALI KE BERANDA',
+      footerBlurb:'Perak murni 925 tempa tangan dari perbukitan Singaraja, Bali Utara — tiga generasi keahlian.',
+      footerShop:'Belanja', footerAbout:'Bengkel', footerContact:'Kontak', footerRights:'Hak cipta dilindungi',
+      nav_ring:'Cincin', nav_necklace:'Kalung', nav_bracelet:'Gelang', nav_earring:'Anting', nav_pendant:'Liontin', nav_bespoke:'Custom', nav_story:'Cerita Kami',
+      cat_all:'Semua', cat_ring:'Cincin', cat_necklace:'Kalung', cat_bracelet:'Gelang', cat_earring:'Anting', cat_pendant:'Liontin',
+      specMaterial:'Material', specMaterialV:'Perak Murni 925', specOrigin:'Asal', specOriginV:'Singaraja, Bali Utara',
+      specTechnique:'Teknik', specTechniqueV:'Tempa Tangan', specLead:'Waktu kerja', specLeadV:'3–5 hari kerja',
+      bespokeEyebrow:'CUSTOM', bespokeTitle1:'Satu desain,', bespokeTitle2:'ditempa untuk Anda',
+      bespokeIntro:'Dari cincin tunangan hingga hadiah pusaka, bengkel kami mengubah satu ide menjadi karya yang bertahan lintas generasi — dirancang bersama Anda, ditempa tangan di Bali Utara.',
+      bespokeStart:'MULAI PESANAN ANDA',
+      bespokeProcessEyebrow:'PROSESNYA', bespokeProcessTitle:'Empat langkah, empat hingga enam minggu',
+      bespokeFormEyebrow:'MULAI', bespokeFormTitle:'Ceritakan yang Anda bayangkan',
+      bespokeFormSub:'Bagikan beberapa detail dan pandai perak kami akan membalas dalam dua hari kerja dengan ide dan perkiraan biaya.',
+      bespokeMsgPlaceholder:'Jelaskan ide Anda — acara, gaya, referensi karya…',
+      bespokeSubmit:'KIRIM PERMINTAAN', bespokeFormNote:'Tanpa keterikatan. Kami membalas via email dan WhatsApp dengan sketsa dan penawaran.',
+      bespokeThanksTitle:'Permintaan diterima', bespokeThanksBody:'Terima kasih — pandai perak kami akan menghubungi Anda dalam dua hari kerja.',
+      bespokeType:'Apa yang Anda impikan?', bespokeBudget:'Perkiraan anggaran',
+      bt_ring:'Cincin', bt_necklace:'Kalung', bt_bracelet:'Gelang', bt_earring:'Anting', bt_other:'Lainnya',
+      bb_1:'Di bawah Rp 1.000.000', bb_2:'Rp 1–5.000.000', bb_3:'Rp 5–15.000.000', bb_4:'Rp 15.000.000+',
+      storyEyebrow:'CERITA KAMI', storyTitle:'Tiga generasi perak Bali Utara',
+      storyLede:'Kusuma Silver bermula dari satu meja kerja di Singaraja, di pesisir utara Bali yang tenang — jauh dari keramaian wisata di selatan.',
+      storyP1:'Kakek kami belajar menempa perak di atas api terbuka seperti yang selalu dilakukan di Buleleng: dengan tangan, dengan mata, dan dengan kesabaran. Ia mewariskan keahlian itu kepada anak-anaknya, yang kini mewariskannya lagi. Tiga generasi kemudian, setiap karya Kusuma masih dibuat di bengkel yang sama di atas pesisir Lovina.',
+      storyP2:'Kami hanya bekerja dengan perak murni 925 — tanpa lapisan — menggunakan teknik lama Bali Utara: filigri gambar tangan dan granulasi, di mana butiran perak kecil disatukan hanya dengan panas. Ini pekerjaan yang lambat, dan kami tak ingin melakukannya dengan cara lain.',
+      storyP3:'Saat Anda mengenakan karya Kusuma, Anda membawa sedikit Bali Utara bersama Anda: pura, bunga, pegunungan, dan tangan keluarga yang menempanya. Itulah maksud kami saat berkata kami membuat perhiasan untuk generasi.',
+      storyValues:'', storyCtaTitle:'Miliki sepotong Bali Utara',
+      sv1t:'Tempa tangan', sv1b:'Setiap karya dibentuk di atas api terbuka di bengkel Singaraja kami — tanpa garis cetakan, tanpa jalan pintas.',
+      sv2t:'925, tanpa lapisan', sv2b:'Perak murni bersertifikat sepenuhnya, sehingga karya Anda bisa dipoles dan diwariskan berpuluh tahun.',
+      sv3t:'Berakar di Buleleng', sv3b:'Motif dari pura, kamboja, dan pesisir Bali Utara — sebuah tempat, bukan tren.',
+      contactEyebrow:'KONTAK', contactTitle:'Temui kami',
+      contactSub:'Kunjungi bengkel di Singaraja, atau hubungi kami via telepon, email, atau WhatsApp — kami membalas dengan cepat.',
+      ci_visit:'Kunjungi', ci_visitV:'Jl. Ahmad Yani, Singaraja,\nBuleleng, Bali 81116', ci_call:'Telepon / WhatsApp', ci_callV:'+62 812-3456-7890',
+      ci_email:'Email', ci_emailV:'hello@kusumasilver.com', ci_hours:'Jam buka', ci_hoursV:'Sen–Sab · 09.00–18.00 WITA',
+      contactFormEyebrow:'HUBUNGI KAMI', contactFormTitle:'Kirim pesan',
+      contactMsgPlaceholder:'Ada yang bisa kami bantu?', contactSubmit:'KIRIM PESAN', contactWhatsApp:'CHAT DI WHATSAPP',
+      contactThanksTitle:'Pesan terkirim', contactThanksBody:'Terima kasih telah menghubungi — kami akan membalas dalam satu hari kerja.',
+    },
+  };
+
+  fmt(idr) {
+    if (this.state.currency === 'usd') return '$' + Math.round(idr / this.RATE).toLocaleString('en-US');
+    return 'Rp ' + idr.toLocaleString('id-ID');
+  }
+  prod(slug) { return this.products.find(p => p.slug === slug); }
+  pname(p) { return this.state.lang === 'id' ? p.id : p.en; }
+  catLabel(cat) { const t = this.T[this.state.lang]; return t['cat_' + cat] || cat; }
+
+  addToCart(slug, qty, size) {
+    const p = this.prod(slug);
+    const sz = size || (p.sizes ? p.sizes[0] : '—');
+    this.setState(s => {
+      const cart = s.cart.slice();
+      const ex = cart.find(c => c.slug === slug && c.size === sz);
+      if (ex) ex.qty += qty; else cart.push({ slug, qty, size: sz });
+      return { cart };
+    });
+  }
+  setLine(slug, size, delta) {
+    this.setState(s => {
+      let cart = s.cart.map(c => (c.slug === slug && c.size === size) ? { ...c, qty: c.qty + delta } : c).filter(c => c.qty > 0);
+      return { cart };
+    });
+  }
+  removeLine(slug, size) { this.setState(s => ({ cart: s.cart.filter(c => !(c.slug === slug && c.size === size)) })); }
+
+  go(view) { this.setState({ view }); if (typeof window !== 'undefined') window.scrollTo(0, 0); }
+
+  renderVals() {
+    const s = this.state;
+    const t = this.T[s.lang];
+    const cur = s.currency;
+
+    // toggle styles
+    const on = 'color:#F6F4EF;font-weight:600', off = 'color:rgba(246,244,239,.45)';
+    const onD = 'color:#141416;font-weight:600', offD = 'color:rgba(20,20,22,.4)';
+
+    // nav
+    const cats = ['ring','necklace','bracelet','earring','pendant'];
+    const navItems = [
+      ...cats.map(c => ({ label: t['nav_' + c], css:'', onClick: () => this.setState({ view:'catalog', catFilter:c, query:'' }) })),
+      { label: t.nav_bespoke, css:'color:#A85A32', onClick: () => this.go('bespoke') },
+      { label: t.nav_story, css:'', onClick: () => this.go('story') },
+    ];
+
+    // bespoke / story / contact data
+    const bespokeSteps = [
+      { num:'01', title: s.lang==='id'?'Konsultasi':'Consult', body: s.lang==='id'?'Ceritakan visi Anda lewat formulir atau WhatsApp.':'Tell us your vision by form or WhatsApp.' },
+      { num:'02', title: s.lang==='id'?'Desain':'Design', body: s.lang==='id'?'Pandai perak kami membuat sketsa dan penawaran.':'Our silversmith prepares sketches and a quote.' },
+      { num:'03', title: s.lang==='id'?'Tempa':'Forge', body: s.lang==='id'?'Karya dikerjakan tangan di atas api terbuka.':'Your piece is hand-forged over open flame.' },
+      { num:'04', title: s.lang==='id'?'Kirim':'Deliver', body: s.lang==='id'?'Dikemas dengan indah dan diantar ke Anda.':'Beautifully packaged and delivered to you.' },
+    ];
+    const bespokeTypeOptions = [['ring','bt_ring'],['necklace','bt_necklace'],['bracelet','bt_bracelet'],['earring','bt_earring'],['other','bt_other']].map(([v,k])=>({value:v,label:t[k]}));
+    const bespokeBudgetOptions = [['1','bb_1'],['2-5','bb_2'],['5-15','bb_3'],['15+','bb_4']].map(([v,k])=>({value:v,label:t[k]}));
+    const storyValues = [
+      { title:t.sv1t, body:t.sv1b }, { title:t.sv2t, body:t.sv2b }, { title:t.sv3t, body:t.sv3b },
+    ];
+    const cIcon = (p) => React.createElement('svg', { width:20, height:20, viewBox:'0 0 24 24', fill:'none', stroke:'currentColor', strokeWidth:1.5, strokeLinecap:'round', strokeLinejoin:'round', dangerouslySetInnerHTML:{ __html:p } });
+    const contactInfo = [
+      { label:t.ci_visit, value:t.ci_visitV, icon:cIcon('<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>') },
+      { label:t.ci_call, value:t.ci_callV, icon:cIcon('<path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"/>') },
+      { label:t.ci_email, value:t.ci_emailV, icon:cIcon('<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>') },
+      { label:t.ci_hours, value:t.ci_hoursV, icon:cIcon('<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>') },
+    ];
+    const onBf = {}; ['name','email','phone','type','budget','message'].forEach(k => { onBf[k] = (e)=>this.setState(st=>({ bform:{...st.bform,[k]:e.target.value} })); });
+    const onCf = {}; ['name','email','phone','message'].forEach(k => { onCf[k] = (e)=>this.setState(st=>({ cform:{...st.cform,[k]:e.target.value} })); });
+
+    // home asymmetric grid trio
+    const hgOf = (slug) => { const p = this.prod(slug); return {
+      name: this.pname(p), meta: p.meta + ' · ' + this.catLabel(p.cat).toUpperCase(), price: this.fmt(p.idr),
+      onClick: () => this.setState({ view:'product', productId:slug, qty:1, size:null }) }; };
+
+    // catalog
+    const catTabs = [{ slug:'all', label:t.cat_all }, ...cats.map(c => ({ slug:c, label:t['cat_'+c] }))].map(tab => ({
+      label: tab.label,
+      bg: s.catFilter === tab.slug ? '#141416' : 'transparent',
+      color: s.catFilter === tab.slug ? '#F1EDE4' : '#141416',
+      onClick: () => this.setState({ catFilter: tab.slug }),
+    }));
+    let filtered = this.products.filter(p => s.catFilter === 'all' || p.cat === s.catFilter);
+    if (s.query.trim()) { const q = s.query.toLowerCase(); filtered = filtered.filter(p => this.pname(p).toLowerCase().includes(q) || p.meta.toLowerCase().includes(q)); }
+    const catalogProducts = filtered.map(p => ({
+      slug:p.slug, name:this.pname(p), meta:p.meta, catLabel:this.catLabel(p.cat), price:this.fmt(p.idr),
+      onClick: () => this.setState({ view:'product', productId:p.slug, qty:1, size:null }),
+      onAdd: () => this.addToCart(p.slug, 1, null),
+    }));
+
+    // active product
+    const ap = this.prod(s.productId);
+    const activeSize = s.size || (ap.sizes ? ap.sizes[0] : '—');
+    const sizeOptions = (ap.sizes || []).map(sz => ({
+      label: sz, bg: sz === activeSize ? '#141416' : 'transparent', color: sz === activeSize ? '#F1EDE4' : '#141416',
+      onClick: () => this.setState({ size: sz }),
+    }));
+    const active = {
+      name:this.pname(ap), meta:ap.meta, catLabel:this.catLabel(ap.cat), price:this.fmt(ap.idr),
+      desc: s.lang === 'id' ? ap.idDesc : ap.enDesc,
+      specs: [
+        { label:t.specMaterial, value:t.specMaterialV },
+        { label:t.specOrigin, value:t.specOriginV },
+        { label:t.specTechnique, value:t.specTechniqueV },
+        { label:t.specLead, value:t.specLeadV },
+      ],
+    };
+
+    // cart
+    const cartLines = s.cart.map(c => { const p = this.prod(c.slug); return {
+      slug:c.slug, name:this.pname(p), meta:p.meta, sizeLabel:(t.sizeLabel + ' ' + c.size),
+      qty:c.qty, lineTotal:this.fmt(p.idr * c.qty),
+      onInc: () => this.setLine(c.slug, c.size, 1), onDec: () => this.setLine(c.slug, c.size, -1),
+      onRemove: () => this.removeLine(c.slug, c.size),
+    }; });
+    const cartCount = s.cart.reduce((n, c) => n + c.qty, 0);
+    const subtotalIdr = s.cart.reduce((n, c) => n + this.prod(c.slug).idr * c.qty, 0);
+    const shipFree = cur === 'usd' ? subtotalIdr/this.RATE >= 150 : subtotalIdr >= 2000000;
+    const shippingIdr = (cartCount === 0 || shipFree) ? 0 : (cur === 'usd' ? 15*this.RATE : 45000);
+    const shippingStr = shippingIdr === 0 ? (s.lang==='id'?'Gratis':'Free') : this.fmt(shippingIdr);
+
+    // payment
+    const payDefs = [
+      { key:'card', label:t.payCard, note:t.payCardNote },
+      { key:'bank', label:t.payBank, note:t.payBankNote },
+      { key:'wa', label:t.payWa, note:t.payWaNote },
+    ];
+    const payOptions = payDefs.map(p => ({
+      label:p.label, note:p.note,
+      bg: s.pay === p.key ? 'rgba(168,90,50,.08)' : '#fff',
+      dot: s.pay === p.key ? '#141416' : 'transparent',
+      onClick: () => this.setState({ pay: p.key }),
+    }));
+
+    const onF = {}; ['name','email','phone','address','city','zip','country'].forEach(k => {
+      onF[k] = (e) => this.setState(st => ({ form: { ...st.form, [k]: e.target.value } }));
+    });
+
+    const resultLabel = filtered.length + ' ' + (filtered.length === 1 ? t.resultOne : t.resultMany) + ' ' + t.found;
+
+    return {
+      t,
+      enCss: s.lang==='en'?on:off, idCss: s.lang==='id'?on:off,
+      idrCss: cur==='idr'?on:off, usdCss: cur==='usd'?on:off,
+      setEn:()=>this.setState({lang:'en'}), setId:()=>this.setState({lang:'id'}),
+      setIdr:()=>this.setState({currency:'idr'}), setUsd:()=>this.setState({currency:'usd'}),
+
+      isHome:s.view==='home', isCatalog:s.view==='catalog', isProduct:s.view==='product',
+      isCart:s.view==='cart', isCheckout:s.view==='checkout', isConfirm:s.view==='confirm',
+      isBespoke:s.view==='bespoke', isStory:s.view==='story', isContact:s.view==='contact',
+      goHome:()=>this.go('home'), goCatalog:()=>this.go('catalog'), goCart:()=>this.go('cart'),
+      goCheckout:()=>this.go('checkout'), goStory:()=>this.go('story'),
+      goBespoke:()=>this.go('bespoke'), goContact:()=>this.go('contact'),
+
+      bespokeSteps, bespokeTypeOptions, bespokeBudgetOptions, storyValues, contactInfo,
+      bf:s.bform, onBf, bespokeSent:s.bespokeSent, bespokeOpen:!s.bespokeSent,
+      cf:s.cform, onCf, contactSent:s.contactSent, contactOpen:!s.contactSent,
+      scrollBespokeForm:()=>{ if(typeof document!=='undefined'){ const el=document.getElementById('ks-bespoke-form'); if(el) window.scrollTo({top: el.getBoundingClientRect().top + window.scrollY - 80, behavior:'smooth'}); } },
+      sendBespoke:()=>this.setState({bespokeSent:true}),
+      sendContact:()=>this.setState({contactSent:true}),
+
+      navItems,
+      hasCart: cartCount > 0, cartCount,
+      cartCountLabel: cartCount + ' ' + (cartCount === 1 ? t.resultOne : t.resultMany),
+
+      hg0:hgOf('buleleng-carved-ring'), hg1:hgOf('frangipani-earrings'), hg2:hgOf('crescent-moon-necklace'),
+
+      catTabs, catalogProducts, catalogEmpty: filtered.length === 0, resultLabel,
+      query:s.query, onQuery:(e)=>this.setState({query:e.target.value}),
+
+      active, sizeOptions, qty:s.qty,
+      incQty:()=>this.setState(st=>({qty:st.qty+1})), decQty:()=>this.setState(st=>({qty:Math.max(1,st.qty-1)})),
+      addActiveToCart:()=>{ this.addToCart(s.productId, s.qty, activeSize); },
+      buyNow:()=>{ this.addToCart(s.productId, s.qty, activeSize); this.go('checkout'); },
+
+      cartLines, cartEmpty: cartCount === 0,
+      subtotal:this.fmt(subtotalIdr), shipping:shippingStr, total:this.fmt(subtotalIdr + shippingIdr),
+
+      payOptions, f:s.form, onF,
+      placeOrder:()=>{ this.setState({ view:'confirm', cart:[], orderNo:'KS-' + Math.floor(100000 + Math.random()*899999) }); if(typeof window!=='undefined') window.scrollTo(0,0); },
+      orderNo:s.orderNo,
+    };
+  }
+}
+</script>
+</body>
+</html>

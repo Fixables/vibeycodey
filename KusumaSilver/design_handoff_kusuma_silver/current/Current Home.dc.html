@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <style>
+    body { margin: 0; background: #FAF9F7; color: #18181B; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+    a { color: #18181B; text-decoration: none; }
+    a:hover { color: #C47A52; }
+  </style>
+</helmet>
+
+<div style="min-height: 100vh; background: #FAF9F7;">
+
+  <!-- ============ NAVBAR ============ -->
+  <header data-screen-label="Navbar" style="position: sticky; top: 0; z-index: 50; border-bottom: 1px solid #EDEBE5; background: rgba(250,249,247,0.98); backdrop-filter: blur(12px);">
+    <div style="position: relative; margin: 0 auto; display: flex; max-width: 1280px; align-items: center; justify-content: space-between; padding: 14px 32px;">
+      <button aria-label="Open menu" style="display: flex; height: 36px; width: 36px; align-items: center; justify-content: center; color: #18181B; background: none; border: none; cursor: pointer;" style-hover="opacity: 0.6;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg>
+      </button>
+      <a href="#" style="position: absolute; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; line-height: 1;">
+        <span style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 20px; font-weight: 600; letter-spacing: -0.02em; color: #18181B;">Kusuma Silver</span>
+        <span style="font-size: 8px; font-weight: 500; letter-spacing: 0.35em; text-transform: uppercase; color: rgba(24,24,27,0.55);">Silver</span>
+      </a>
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <button aria-label="Search" style="color: rgba(24,24,27,0.7); background: none; border: none; cursor: pointer; padding: 0; display: flex;" style-hover="opacity: 0.6;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+        </button>
+        <div style="display: flex; align-items: center; gap: 4px; border-radius: 8px; border: 1px solid rgba(113,113,122,0.3); padding: 4px;">
+          <button style="border-radius: 4px; padding: 2px 8px; font-size: 12px; font-weight: 600; background: #18181B; color: #FAF9F7; border: none; cursor: pointer; font-family: inherit;">ID</button>
+          <button style="border-radius: 4px; padding: 2px 8px; font-size: 12px; font-weight: 600; background: none; color: #71717A; border: none; cursor: pointer; font-family: inherit;" style-hover="color: #18181B;">EN</button>
+        </div>
+        <button aria-label="Cart" style="position: relative; color: rgba(24,24,27,0.7); background: none; border: none; cursor: pointer; padding: 0; display: flex;" style-hover="opacity: 0.6;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path><path d="M3 6h18"></path><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+          <span style="position: absolute; right: -6px; top: -6px; display: flex; height: 16px; width: 16px; align-items: center; justify-content: center; border-radius: 9999px; background: #18181B; font-size: 9px; font-weight: 600; color: #FAF9F7;">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============ HERO ============ -->
+  <section data-screen-label="Hero" style="position: relative; display: flex; min-height: 100vh; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; background: #18181B;">
+    <div style="position: absolute; inset: 0; background-color: #18181B; background-image: radial-gradient(ellipse 80px 80px at 15% 20%, rgba(212,212,216,0.06) 0%, transparent 70%), radial-gradient(ellipse 60px 90px at 40% 55%, rgba(212,212,216,0.04) 0%, transparent 70%), radial-gradient(ellipse 100px 70px at 70% 30%, rgba(212,212,216,0.05) 0%, transparent 70%), radial-gradient(ellipse 50px 80px at 85% 70%, rgba(212,212,216,0.04) 0%, transparent 70%), radial-gradient(ellipse 70px 50px at 30% 80%, rgba(212,212,216,0.04) 0%, transparent 70%);"></div>
+    <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.75), rgba(0,0,0,0.3), rgba(0,0,0,0.4));"></div>
+    <div style="position: absolute; top: 24px; left: 0; right: 0; display: flex; justify-content: center;">
+      <div style="display: flex; align-items: center; gap: 12px; padding: 0 16px;">
+        <div style="height: 1px; width: 32px; background: rgba(161,161,170,0.3);"></div>
+        <span style="font-size: 9px; font-weight: 500; letter-spacing: 0.3em; text-transform: uppercase; color: rgba(161,161,170,0.6);">Perhiasan Perak 925 Asli dari Bali</span>
+        <div style="height: 1px; width: 32px; background: rgba(161,161,170,0.3);"></div>
+      </div>
+    </div>
+    <div style="position: relative; z-index: 10; margin: 0 auto; max-width: 672px; padding: 0 24px; text-align: center;">
+      <h1 style="margin: 0; font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 300; letter-spacing: -0.02em; color: #FAF9F7; font-size: clamp(2.6rem, 8vw, 5rem); line-height: 1.08;">Keindahan Bali dalam Setiap Perhiasan</h1>
+      <p style="margin: 20px 0 0; font-size: 14px; line-height: 1.6; color: rgba(250,249,247,0.65);">Dibuat tangan oleh pengrajin Bali berpengalaman. Setiap karya adalah perpaduan tradisi dan keanggunan modern.</p>
+      <button aria-label="Play video" style="margin: 36px auto 0; display: flex; height: 64px; width: 64px; align-items: center; justify-content: center; border-radius: 9999px; border: 1px solid rgba(250,249,247,0.3); background: rgba(250,249,247,0.1); backdrop-filter: blur(4px); cursor: pointer;" style-hover="background: rgba(250,249,247,0.2);">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transform: translateX(2px);"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
+      </button>
+      <p style="margin: 8px 0 0; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(250,249,247,0.45);">Play</p>
+      <div style="margin-top: 32px; display: flex; align-items: center; justify-content: center; gap: 12px;">
+        <a href="current/Current Koleksi.dc.html" style="border-radius: 9999px; border: 1px solid rgba(250,249,247,0.5); padding: 12px 32px; font-size: 14px; font-weight: 500; color: #FAF9F7;" style-hover="background: rgba(250,249,247,0.1); color: #FAF9F7;">Lihat Koleksi</a>
+        <a href="#" style="display: flex; align-items: center; gap: 8px; border-radius: 9999px; background: #FAF9F7; padding: 12px 32px; font-size: 14px; font-weight: 600; color: #18181B;" style-hover="background: #D4D4D8; color: #18181B;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"></path></svg>
+          Hubungi Kami
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FEATURED COLLECTIONS ============ -->
+  <section data-screen-label="Koleksi Kami" style="background: #FAF9F7; padding: 112px 0;">
+    <div style="margin: 0 auto; max-width: 1280px; padding: 0 32px;">
+      <h2 style="margin: 0; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 36px; font-weight: 300; color: #18181B; text-align: center;">Koleksi Kami</h2>
+      <div style="margin-top: 16px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+        <div style="height: 1px; width: 40px; background: rgba(161,161,170,0.6);"></div>
+        <div style="height: 4px; width: 4px; border-radius: 9999px; background: #71717A;"></div>
+        <div style="height: 1px; width: 40px; background: rgba(161,161,170,0.6);"></div>
+      </div>
+      <div style="margin-top: 48px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
+        <sc-for list="{{ homeCategories }}" as="cat" hint-placeholder-count="4">
+          <a href="current/Current Koleksi.dc.html" style="position: relative; display: block; overflow: hidden; border-radius: 16px; background: #18181B;">
+            <div style="position: relative; aspect-ratio: 3/4;">
+              <div style="display: flex; height: 100%; align-items: center; justify-content: center; background: #3F3F46;">
+                <span style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 48px; font-weight: 300; color: rgba(212,212,216,0.2); user-select: none;">{{ cat.abbrev }}</span>
+              </div>
+              <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.7), transparent 50%);"></div>
+            </div>
+            <div style="position: absolute; bottom: 0; left: 0; right: 0; display: flex; align-items: center; justify-content: space-between; padding: 12px 16px;">
+              <span style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 14px; font-weight: 600; color: #FAF9F7;">{{ cat.name }}</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(250,249,247,0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+            </div>
+          </a>
+        </sc-for>
+      </div>
+      <div style="margin-top: 32px; text-align: center;">
+        <a href="current/Current Koleksi.dc.html" style="display: inline-flex; align-items: center; gap: 8px; border-radius: 9999px; border: 1px solid #18181B; padding: 10px 28px; font-size: 14px; font-weight: 500; color: #18181B;" style-hover="background: #18181B; color: #FAF9F7;">Lihat Semua Koleksi</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CRAFTSMANSHIP STORY ============ -->
+  <section data-screen-label="Keahlian Tangan Bali" style="background: #F3F1EC; padding: 128px 0;">
+    <div style="margin: 0 auto; max-width: 1280px; padding: 0 32px;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;">
+        <div>
+          <div style="margin-bottom: 24px; display: flex; align-items: center; gap: 12px;">
+            <div style="height: 1px; width: 40px; background: #A1A1AA;"></div>
+            <span style="font-size: 12px; font-weight: 500; color: #71717A; letter-spacing: 0.15em; text-transform: uppercase;">Cerita Kami</span>
+          </div>
+          <h2 style="margin: 0; font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 300; line-height: 1.375; color: #18181B; font-size: clamp(1.9rem, 4vw, 3rem);">Keahlian Tangan Bali</h2>
+          <div style="margin-top: 12px; display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 14px; font-weight: 500; color: #71717A; letter-spacing: 0.05em;">925</span>
+            <span style="height: 4px; width: 4px; border-radius: 9999px; background: rgba(113,113,122,0.4);"></span>
+            <span style="font-size: 14px; font-weight: 500; color: #71717A; letter-spacing: 0.05em;">Sterling Silver</span>
+            <span style="height: 4px; width: 4px; border-radius: 9999px; background: rgba(113,113,122,0.4);"></span>
+            <span style="font-size: 14px; font-weight: 500; color: #71717A; letter-spacing: 0.05em;">Bali</span>
+          </div>
+          <p style="margin: 24px 0 0; font-size: 16px; line-height: 1.6; color: #71717A;">Setiap perhiasan Kusuma Silver lahir dari tangan pengrajin Bali yang telah mewarisi keahlian selama generasi. Kami menggunakan perak 925 berkualitas tinggi dan teknik tradisional Bali yang dikombinasikan dengan desain kontemporer.</p>
+          <a href="current/Current About.dc.html" style="margin-top: 32px; display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: #18181B;" style-hover="color: #C47A52;">
+            Pelajari Lebih Lanjut
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+          </a>
+        </div>
+        <div style="border-radius: 16px; background: #18181B; padding: 40px;">
+          <div>
+            <sc-for list="{{ specs }}" as="spec" hint-placeholder-count="4">
+              <div style="display: flex; align-items: baseline; justify-content: space-between; padding: 20px 0; border-bottom: 1px solid rgba(250,249,247,0.08);">
+                <span style="font-size: 12px; font-weight: 500; color: #A1A1AA; letter-spacing: 0.12em; text-transform: uppercase;">{{ spec.label }}</span>
+                <span style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 16px; color: #FAF9F7;">{{ spec.value }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <div style="margin-top: 32px; padding-top: 28px; display: flex; align-items: flex-end; justify-content: space-between;">
+            <span style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 60px; font-weight: 300; line-height: 1; color: rgba(212,212,216,0.15); user-select: none;">925</span>
+            <span style="font-size: 12px; color: rgba(250,249,247,0.25); letter-spacing: 0.05em; text-transform: uppercase;">Tersertifikasi</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FEATURED PIECES ============ -->
+  <section data-screen-label="Perhiasan Pilihan" style="background: #FAF9F7; padding: 112px 0;">
+    <div style="margin: 0 auto; max-width: 1280px; padding: 0 32px;">
+      <div style="text-align: center;">
+        <h2 style="margin: 0; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 36px; font-weight: 300; color: #18181B;">Perhiasan Pilihan</h2>
+        <div style="margin-top: 16px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+          <div style="height: 1px; width: 40px; background: rgba(161,161,170,0.6);"></div>
+          <div style="height: 4px; width: 4px; border-radius: 9999px; background: #71717A;"></div>
+          <div style="height: 1px; width: 40px; background: rgba(161,161,170,0.6);"></div>
+        </div>
+        <p style="margin: 20px auto 0; max-width: 672px; font-size: 16px; line-height: 1.6; color: #71717A;">Pilihan terbaik dari koleksi kami</p>
+      </div>
+      <div style="margin-top: 48px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;">
+        <sc-for list="{{ featuredPieces }}" as="p" hint-placeholder-count="3">
+          <div style="overflow: hidden; border-radius: 16px; border: 1px solid #EDEBE5; background: #FFFFFF; transition: box-shadow 0.3s;" style-hover="box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);">
+            <a href="current/Current Piece Detail.dc.html" style="position: relative; display: block; aspect-ratio: 4/5; overflow: hidden; background: #18181B;">
+              <div style="display: flex; height: 100%; align-items: center; justify-content: center; background: #3F3F46;">
+                <div style="height: 48px; width: 48px; border-radius: 9999px; background: rgba(161,161,170,0.2);"></div>
+              </div>
+              <div style="position: absolute; left: 12px; top: 12px;">
+                <span style="border-radius: 9999px; background: rgba(250,249,247,0.9); padding: 4px 10px; font-size: 10px; font-weight: 500; color: #18181B; backdrop-filter: blur(4px);">Buatan Bali</span>
+              </div>
+            </a>
+            <div style="padding: 16px;">
+              <a href="current/Current Piece Detail.dc.html">
+                <h3 style="margin: 0; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 16px; font-weight: 600; color: #18181B; line-height: 1.375;" style-hover="color: #C47A52;">{{ p.name }}</h3>
+              </a>
+              <div style="margin-top: 8px; display: flex; align-items: center; justify-content: space-between;">
+                <span style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 16px; font-weight: 600; color: #18181B;">{{ p.price }}</span>
+                <a href="#" style="font-size: 12px; font-weight: 500; color: #C47A52;" style-hover="opacity: 0.7; color: #C47A52;">Pesan →</a>
+              </div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="margin-top: 40px; text-align: center;">
+        <a href="current/Current Koleksi.dc.html" style="display: inline-flex; align-items: center; gap: 8px; border-radius: 8px; background: #18181B; padding: 14px 28px; font-size: 14px; font-weight: 600; color: #FAF9F7;" style-hover="background: #27272A; color: #FAF9F7;">
+          Lihat Semua Koleksi
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CUSTOM ORDER HIGHLIGHT ============ -->
+  <section data-screen-label="Custom Order" style="background: #FAF9F7; padding: 112px 0;">
+    <div style="margin: 0 auto; max-width: 1280px; padding: 0 32px;">
+      <div style="text-align: center;">
+        <h2 style="margin: 0; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 36px; font-weight: 300; color: #18181B;">Custom Order</h2>
+        <div style="margin-top: 16px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+          <div style="height: 1px; width: 40px; background: rgba(161,161,170,0.6);"></div>
+          <div style="height: 4px; width: 4px; border-radius: 9999px; background: #71717A;"></div>
+          <div style="height: 1px; width: 40px; background: rgba(161,161,170,0.6);"></div>
+        </div>
+        <p style="margin: 20px auto 0; max-width: 576px; font-size: 14px; color: #71717A; line-height: 1.6;">Kami menerima pesanan khusus untuk perhiasan perak 925. Dari cincin tunangan hingga aksesoris pernikahan, kami siap mewujudkan visi Anda.</p>
+      </div>
+      <div style="margin-top: 56px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+        <sc-for list="{{ orderSteps }}" as="step" hint-placeholder-count="4">
+          <div style="border-radius: 16px; border: 1px solid #EDEBE5; background: #F3F1EC; padding: 20px; text-align: left;">
+            <div style="display: flex; align-items: flex-start; justify-content: space-between;">
+              <span style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 12px; font-weight: 600; color: #71717A; font-variant-numeric: tabular-nums;">{{ step.num }}</span>
+            </div>
+            <div style="margin-top: 12px; display: flex; height: 48px; width: 48px; align-items: center; justify-content: center; border-radius: 12px; background: rgba(24,24,27,0.05); color: #18181B;">{{ step.icon }}</div>
+            <div style="margin-top: 12px; font-size: 14px; font-weight: 600; color: #18181B;">{{ step.title }}</div>
+            <div style="margin-top: 4px; font-size: 12px; color: #71717A; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ step.description }}</div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="margin-top: 40px; text-align: center;">
+        <a href="current/Current Custom Order.dc.html" style="display: inline-flex; align-items: center; gap: 8px; border-radius: 9999px; border: 1px solid #18181B; padding: 10px 28px; font-size: 14px; font-weight: 500; color: #18181B;" style-hover="background: #18181B; color: #FAF9F7;">
+          Mulai Custom Order
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ WHY KUSUMA ============ -->
+  <section data-screen-label="Mengapa Kusuma Silver" style="background: #F3F1EC; padding: 112px 0;">
+    <div style="margin: 0 auto; max-width: 1280px; padding: 0 32px;">
+      <h2 style="margin: 0; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 36px; font-weight: 300; color: #18181B; text-align: center;">Mengapa Kusuma Silver?</h2>
+      <div style="margin-top: 16px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+        <div style="height: 1px; width: 40px; background: rgba(161,161,170,0.6);"></div>
+        <div style="height: 4px; width: 4px; border-radius: 9999px; background: #71717A;"></div>
+        <div style="height: 1px; width: 40px; background: rgba(161,161,170,0.6);"></div>
+      </div>
+      <div style="margin-top: 56px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;">
+        <sc-for list="{{ whyItems }}" as="item" hint-placeholder-count="4">
+          <div style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+            <div style="display: flex; height: 56px; width: 56px; align-items: center; justify-content: center; border-radius: 9999px; border: 1px solid rgba(196,122,82,0.2); background: rgba(196,122,82,0.05); color: #C47A52;">{{ item.icon }}</div>
+            <h3 style="margin: 16px 0 0; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 16px; font-weight: 600; color: #18181B; line-height: 1.25;">{{ item.title }}</h3>
+            <p style="margin: 8px 0 0; font-size: 12px; line-height: 1.6; color: #71717A;">{{ item.body }}</p>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TESTIMONIALS ============ -->
+  <section data-screen-label="Testimoni" style="background: #EDEBE5; padding: 112px 0;">
+    <div style="margin: 0 auto; max-width: 1280px; padding: 0 32px;">
+      <h2 style="margin: 0; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 36px; font-weight: 300; color: #18181B; text-align: center;">Apa Kata Pelanggan Kami</h2>
+      <div style="margin-top: 16px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+        <div style="height: 1px; width: 40px; background: rgba(161,161,170,0.6);"></div>
+        <div style="height: 4px; width: 4px; border-radius: 9999px; background: #71717A;"></div>
+        <div style="height: 1px; width: 40px; background: rgba(161,161,170,0.6);"></div>
+      </div>
+      <div style="margin-top: 48px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;">
+        <sc-for list="{{ testimonials }}" as="t" hint-placeholder-count="3">
+          <div style="border-radius: 16px; border: 1px solid rgba(161,161,170,0.2); background: #FAF9F7; padding: 24px; box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);">
+            <div style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 36px; font-weight: 300; line-height: 1; color: #A1A1AA; user-select: none;">&ldquo;</div>
+            <div style="margin-top: 4px; display: flex; gap: 2px;">{{ t.stars }}</div>
+            <p style="margin: 12px 0 0; font-size: 14px; line-height: 1.6; color: #71717A;">{{ t.content }}</p>
+            <div style="margin-top: 16px; border-top: 1px solid #EDEBE5; padding-top: 16px;">
+              <div style="font-size: 14px; font-weight: 600; color: #18181B;">{{ t.name }}</div>
+              <div style="font-size: 12px; color: #71717A;">{{ t.location }}</div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ INSTAGRAM ============ -->
+  <section data-screen-label="Instagram" style="background: #F3F1EC; padding: 64px 0;">
+    <div style="margin: 0 auto; max-width: 1280px; padding: 0 32px; text-align: center;">
+      <div style="margin-bottom: 24px; display: flex; align-items: center; justify-content: center; gap: 16px;">
+        <div style="height: 1px; width: 64px; background: rgba(161,161,170,0.4);"></div>
+        <div style="height: 6px; width: 6px; border-radius: 9999px; background: #A1A1AA;"></div>
+        <div style="height: 1px; width: 64px; background: rgba(161,161,170,0.4);"></div>
+      </div>
+      <div style="margin: 0 auto 20px; display: flex; height: 56px; width: 56px; align-items: center; justify-content: center; border-radius: 16px; background: linear-gradient(to bottom right, #f9ce34, #ee2a7b, #6228d7);">
+        <svg viewBox="0 0 24 24" fill="white" style="height: 28px; width: 28px;" aria-hidden="true"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"></path></svg>
+      </div>
+      <h2 style="margin: 0; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 30px; font-weight: 300; color: #18181B;">Ikuti Perjalanan Kami</h2>
+      <a href="https://instagram.com/kusumasilver" target="_blank" rel="noopener noreferrer" style="margin-top: 20px; display: inline-flex; align-items: center; gap: 8px; border-radius: 8px; background: #18181B; padding: 12px 24px; font-size: 14px; font-weight: 600; color: #FAF9F7;" style-hover="background: #27272A; color: #FAF9F7;">Ikuti @KusumaSilver</a>
+    </div>
+  </section>
+
+  <!-- ============ CTA BANNER ============ -->
+  <section data-screen-label="CTA Banner" style="position: relative; overflow: hidden; background: #18181B; padding: 112px 0;">
+    <div style="position: absolute; left: 32px; top: 0; height: 100%; width: 1px; background: linear-gradient(to bottom, transparent, rgba(161,161,170,0.1), transparent);"></div>
+    <div style="position: absolute; right: 32px; top: 0; height: 100%; width: 1px; background: linear-gradient(to bottom, transparent, rgba(161,161,170,0.1), transparent);"></div>
+    <div style="position: relative; margin: 0 auto; max-width: 768px; padding: 0 32px; text-align: center;">
+      <div style="margin-bottom: 32px; display: flex; align-items: center; justify-content: center; gap: 16px;">
+        <div style="height: 1px; width: 40px; background: rgba(161,161,170,0.3);"></div>
+        <div style="display: flex; gap: 6px;">
+          <span style="height: 4px; width: 4px; border-radius: 9999px; background: rgba(161,161,170,0.5);"></span>
+          <span style="height: 4px; width: 4px; border-radius: 9999px; background: rgba(212,212,216,0.7);"></span>
+          <span style="height: 4px; width: 4px; border-radius: 9999px; background: rgba(161,161,170,0.5);"></span>
+        </div>
+        <div style="height: 1px; width: 40px; background: rgba(161,161,170,0.3);"></div>
+      </div>
+      <h2 style="margin: 0; font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 300; color: #D4D4D8; font-size: clamp(1.8rem, 4vw, 2.75rem);">Siap Memesan Perhiasan Anda?</h2>
+      <p style="margin: 16px 0 0; font-size: 14px; color: rgba(250,249,247,0.55);">Hubungi kami melalui WhatsApp untuk konsultasi gratis dan pemesanan.</p>
+      <div style="margin-top: 40px; display: flex; align-items: center; justify-content: center; gap: 12px;">
+        <a href="#" style="display: flex; align-items: center; gap: 8px; border-radius: 8px; background: #D4D4D8; padding: 14px 28px; font-size: 14px; font-weight: 600; color: #18181B;" style-hover="background: #A1A1AA; color: #18181B;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"></path></svg>
+          Pesan via WhatsApp
+        </a>
+        <a href="current/Current Koleksi.dc.html" style="display: flex; align-items: center; gap: 8px; border-radius: 8px; border: 1px solid rgba(250,249,247,0.2); padding: 14px 28px; font-size: 14px; font-weight: 600; color: rgba(250,249,247,0.8);" style-hover="border-color: rgba(250,249,247,0.4); color: #FAF9F7;">Lihat Koleksi</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer data-screen-label="Footer" style="background: #18181B; color: #FAF9F7;">
+    <div style="margin: 0 auto; max-width: 1280px; padding: 56px 32px;">
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="display: flex; height: 36px; width: 36px; align-items: center; justify-content: center; border-radius: 8px; background: rgba(250,249,247,0.1);">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 13L2 9Z"></path><path d="M11 3 8 9l4 13 4-13-3-6"></path><path d="M2 9h20"></path></svg>
+            </div>
+            <div style="display: flex; flex-direction: column;">
+              <span style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 18px; font-weight: 600; line-height: 1;">Kusuma Silver</span>
+              <span style="font-size: 10px; color: #A1A1AA; letter-spacing: 0.15em; text-transform: uppercase; line-height: 1.25;">Bali Silver</span>
+            </div>
+          </div>
+          <p style="margin: 16px 0 0; font-size: 14px; color: rgba(250,249,247,0.55); line-height: 1.6;">Perhiasan Perak 925 Asli dari Bali</p>
+          <div style="margin-top: 20px; display: flex; gap: 10px;">
+            <a href="https://instagram.com/kusumasilver" target="_blank" rel="noopener noreferrer" aria-label="Instagram" style="display: flex; height: 36px; width: 36px; align-items: center; justify-content: center; border-radius: 8px; background: rgba(250,249,247,0.1); color: rgba(250,249,247,0.6);" style-hover="background: rgba(250,249,247,0.2); color: #FAF9F7;">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line></svg>
+            </a>
+            <a href="#" aria-label="WhatsApp" style="display: flex; height: 36px; width: 36px; align-items: center; justify-content: center; border-radius: 8px; background: rgba(250,249,247,0.1); color: rgba(250,249,247,0.6);" style-hover="background: rgba(250,249,247,0.2); color: #FAF9F7;">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"></path></svg>
+            </a>
+          </div>
+        </div>
+        <div>
+          <h3 style="margin: 0; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; color: #A1A1AA;">Navigasi</h3>
+          <ul style="margin: 16px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px;">
+            <li><a href="current/Current Home.dc.html" style="font-size: 14px; color: rgba(250,249,247,0.6);" style-hover="color: #FAF9F7;">Beranda</a></li>
+            <li><a href="current/Current Koleksi.dc.html" style="font-size: 14px; color: rgba(250,249,247,0.6);" style-hover="color: #FAF9F7;">Koleksi</a></li>
+            <li><a href="current/Current Custom Order.dc.html" style="font-size: 14px; color: rgba(250,249,247,0.6);" style-hover="color: #FAF9F7;">Custom Order</a></li>
+            <li><a href="current/Current About.dc.html" style="font-size: 14px; color: rgba(250,249,247,0.6);" style-hover="color: #FAF9F7;">Tentang Kami</a></li>
+            <li><a href="current/Current Contact.dc.html" style="font-size: 14px; color: rgba(250,249,247,0.6);" style-hover="color: #FAF9F7;">Kontak</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 style="margin: 0; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; color: #A1A1AA;">Hubungi Kami</h3>
+          <ul style="margin: 16px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px; font-size: 14px; color: rgba(250,249,247,0.6);">
+            <li>Jl. Raya Celuk No. 1, Sukawati, Gianyar, Bali</li>
+            <li><a href="#" style="color: rgba(250,249,247,0.6);" style-hover="color: #FAF9F7;">+62 812-3456-7890</a></li>
+            <li><a href="mailto:info@kusumasilver.com" style="color: rgba(250,249,247,0.6);" style-hover="color: #FAF9F7;">info@kusumasilver.com</a></li>
+            <li style="color: rgba(250,249,247,0.4);">Senin – Sabtu: 09.00 – 18.00</li>
+          </ul>
+        </div>
+      </div>
+      <div style="margin-top: 48px; display: flex; align-items: center; gap: 16px;">
+        <div style="flex: 1; height: 1px; background: linear-gradient(to right, transparent, rgba(113,113,122,0.4), transparent);"></div>
+        <div style="display: flex; gap: 6px;">
+          <span style="height: 4px; width: 4px; border-radius: 9999px; background: rgba(113,113,122,0.5);"></span>
+          <span style="height: 4px; width: 4px; border-radius: 9999px; background: rgba(161,161,170,0.7);"></span>
+          <span style="height: 4px; width: 4px; border-radius: 9999px; background: rgba(113,113,122,0.5);"></span>
+        </div>
+        <div style="flex: 1; height: 1px; background: linear-gradient(to right, transparent, rgba(113,113,122,0.4), transparent);"></div>
+      </div>
+      <div style="margin-top: 24px; text-align: center; font-size: 12px; color: rgba(250,249,247,0.3);">© 2025 Kusuma Silver. Semua hak dilindungi.</div>
+    </div>
+  </footer>
+
+  <!-- Sticky WhatsApp button -->
+  <a href="#" aria-label="WhatsApp" style="position: fixed; bottom: 24px; right: 24px; z-index: 50; display: flex; height: 56px; width: 56px; align-items: center; justify-content: center; border-radius: 9999px; background: #25D366; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1); transition: transform 0.15s;" style-hover="transform: scale(1.1);">
+    <svg viewBox="0 0 24 24" fill="white" style="height: 28px; width: 28px;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"></path></svg>
+  </a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const icon = (paths, size) => React.createElement('svg', {
+      width: size, height: size, viewBox: '0 0 24 24', fill: 'none',
+      stroke: 'currentColor', strokeWidth: 1.5, strokeLinecap: 'round', strokeLinejoin: 'round',
+      dangerouslySetInnerHTML: { __html: paths }
+    });
+    const star = (filled, key) => React.createElement('svg', {
+      key, width: 13, height: 13, viewBox: '0 0 24 24',
+      fill: filled ? '#D4D4D8' : 'none', stroke: filled ? '#D4D4D8' : '#71717A', strokeWidth: 2,
+      dangerouslySetInnerHTML: { __html: '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>' }
+    });
+    const stars = (n) => Array.from({ length: 5 }, (_, i) => star(i < n, i));
+
+    return {
+      homeCategories: [
+        { name: 'Cincin', abbrev: 'CI' },
+        { name: 'Kalung', abbrev: 'KA' },
+        { name: 'Gelang', abbrev: 'GE' },
+        { name: 'Anting', abbrev: 'AN' },
+      ],
+      specs: [
+        { label: 'Material', value: '925 Sterling Silver' },
+        { label: 'Asal', value: 'Bali, Indonesia' },
+        { label: 'Teknik', value: 'Tempa Tangan' },
+        { label: 'Finishing', value: 'Poles Pengrajin' },
+      ],
+      featuredPieces: [
+        { name: 'Cincin Ukir Bali', price: 'Rp 350.000' },
+        { name: 'Kalung Bulan Sabit', price: 'Rp 450.000' },
+        { name: 'Gelang Anyaman Bali', price: 'Rp 280.000' },
+      ],
+      orderSteps: [
+        { num: '01', title: 'Konsultasi', description: 'Diskusikan desain dan spesifikasi yang Anda inginkan melalui WhatsApp kami.', icon: icon('<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M13 8H7"/><path d="M17 12H7"/>', 22) },
+        { num: '02', title: 'Desain', description: 'Tim kami akan membuat sketsa dan menyesuaikan sesuai masukan Anda.', icon: icon('<path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"/>', 22) },
+        { num: '03', title: 'Pembuatan', description: 'Pengrajin kami mulai bekerja dengan penuh perhatian dan keahlian.', icon: icon('<path d="m15 12-8.373 8.373a1 1 0 1 1-3-3L12 9"/><path d="m18 15 4-4"/><path d="m21.5 11.5-1.914-1.914A2 2 0 0 1 19 8.172V7l-2.26-2.26a6 6 0 0 0-4.202-1.756L9 2.96l.92.82A6.18 6.18 0 0 1 12 8.4V10l2 2h1.172a2 2 0 0 1 1.414.586L18.5 14.5"/>', 22) },
+        { num: '04', title: 'Pengiriman', description: 'Perhiasan dikemas dengan indah dan dikirim langsung ke Anda.', icon: icon('<path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="M3.3 7 12 12l8.7-5"/><path d="M12 22V12"/>', 22) },
+      ],
+      whyItems: [
+        { title: 'Perak 925 Asli', body: 'Semua perhiasan menggunakan perak sterling 925 yang telah tersertifikasi dan terjamin keasliannya.', icon: icon('<path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13 4-13-3-6"/><path d="M2 9h20"/>', 24) },
+        { title: 'Buatan Tangan Bali', body: 'Dibuat oleh pengrajin Bali berpengalaman yang mewarisi keahlian generasi.', icon: icon('<path d="m15 12-8.373 8.373a1 1 0 1 1-3-3L12 9"/><path d="m18 15 4-4"/><path d="m21.5 11.5-1.914-1.914A2 2 0 0 1 19 8.172V7l-2.26-2.26a6 6 0 0 0-4.202-1.756L9 2.96l.92.82A6.18 6.18 0 0 1 12 8.4V10l2 2h1.172a2 2 0 0 1 1.414.586L18.5 14.5"/>', 24) },
+        { title: 'Custom Order', body: 'Kami menerima pesanan khusus sesuai keinginan Anda dengan konsultasi personal.', icon: icon('<path d="M12 20h9"/><path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z"/>', 24) },
+        { title: 'Garansi Kualitas', body: 'Setiap perhiasan dilengkapi garansi kualitas dan layanan purna jual.', icon: icon('<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/>', 24) },
+      ],
+      testimonials: [
+        { name: 'Ni Made Ayu', location: 'Denpasar', content: 'Cincin custom untuk tunangan saya hasilnya luar biasa. Ukirannya halus dan pengerjaannya cepat.', stars: stars(5) },
+        { name: 'Sarah Mitchell', location: 'Australia', content: 'Beautiful craftsmanship. The necklace arrived beautifully packaged and looks even better in person.', stars: stars(5) },
+        { name: 'Budi Santoso', location: 'Jakarta', content: 'Pelayanan ramah, kualitas perak 925 asli. Sudah tiga kali pesan dan tidak pernah kecewa.', stars: stars(5) },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>
