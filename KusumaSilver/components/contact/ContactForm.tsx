@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { MessageCircle } from 'lucide-react';
 import { getT } from '@/lib/i18n';
 import { getWhatsAppLink } from '@/lib/sanity-data';
 import type { Locale } from '@/types';
@@ -11,63 +10,83 @@ interface ContactFormProps {
   whatsapp: string;
 }
 
-export function ContactForm({ locale, whatsapp }: ContactFormProps) {
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [message, setMessage] = useState('');
-  const t = getT(locale);
+const inputClass =
+  'w-full border border-ink bg-card px-3.5 py-3 text-sm text-ink outline-none transition-colors placeholder:text-ink/35 focus:border-accent';
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    const text =
+function Field({ id, label, children }: { id: string; label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <label
+        htmlFor={id}
+        className="mb-1.5 block text-[10px] font-medium uppercase tracking-[0.14em] text-ink/55"
+      >
+        {label}
+      </label>
+      {children}
+    </div>
+  );
+}
+
+/**
+ * Contact form. Messages have no backend — submitting opens a pre-composed
+ * WhatsApp conversation and swaps the form for a thank-you panel.
+ */
+export function ContactForm({ locale, whatsapp }: ContactFormProps) {
+  const t = getT(locale);
+  const [sent, setSent] = useState(false);
+
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const intro =
       locale === 'en'
-        ? `Hello, my name is ${name} (${phone}). ${message}`
-        : `Halo, nama saya ${name} (${phone}). ${message}`;
-    const link = getWhatsAppLink(whatsapp, text);
-    window.open(link, '_blank');
+        ? `Hello Kusuma Silver, my name is ${form.get('name')} (${form.get('phone')}).`
+        : `Halo Kusuma Silver, nama saya ${form.get('name')} (${form.get('phone')}).`;
+    const text = `${intro}\n\n${form.get('message')}`;
+    window.open(getWhatsAppLink(whatsapp, text), '_blank', 'noopener,noreferrer');
+    setSent(true);
   }
 
-  const inputClass =
-    'w-full rounded-xl border border-warm-white-dark bg-warm-white px-4 py-3 text-sm text-text outline-none transition-colors focus:border-charcoal placeholder:text-silver-dark';
+  if (sent) {
+    return (
+      <div className="border border-ink bg-card px-8 py-14 text-center">
+        <h3 className="font-heading text-[26px] font-normal text-ink">
+          {t.contactV3.thanksTitle}
+        </h3>
+        <p className="mx-auto mt-3 max-w-[380px] text-sm leading-relaxed text-ink/65">
+          {t.contactV3.thanksBody}
+        </p>
+      </div>
+    );
+  }
 
   return (
-    <div className="rounded-2xl border border-warm-white-dark bg-white p-6 shadow-sm">
-      <h2 className="font-heading text-xl font-semibold text-charcoal mb-4">
-        {locale === 'en' ? 'Send Us a Message' : 'Kirim Pesan'}
-      </h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder={t.contact.namePlaceholder}
-          required
-          className={inputClass}
-        />
-        <input
-          type="tel"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          placeholder={t.contact.phonePlaceholder}
-          required
-          className={inputClass}
-        />
-        <textarea
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          placeholder={t.contact.messagePlaceholder}
-          required
-          rows={5}
-          className={inputClass}
-        />
+    <form onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-2">
+      <div className="sm:col-span-2">
+        <Field id="cf-name" label={t.contactV3.nameLabel}>
+          <input id="cf-name" name="name" required maxLength={200} autoComplete="name" className={inputClass} />
+        </Field>
+      </div>
+      <Field id="cf-email" label={t.contactV3.emailFieldLabel}>
+        <input id="cf-email" name="email" type="email" maxLength={200} autoComplete="email" className={inputClass} />
+      </Field>
+      <Field id="cf-phone" label={t.contactV3.phoneLabel}>
+        <input id="cf-phone" name="phone" required inputMode="tel" maxLength={24} autoComplete="tel" className={inputClass} />
+      </Field>
+      <div className="sm:col-span-2">
+        <Field id="cf-message" label={t.contactV3.messageLabel}>
+          <textarea id="cf-message" name="message" required rows={5} maxLength={600} className={inputClass} />
+        </Field>
+      </div>
+      <div className="sm:col-span-2">
         <button
           type="submit"
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] py-3.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#20b958]"
+          className="flex w-full cursor-pointer items-center justify-center bg-ink px-8 py-4 text-xs font-semibold tracking-[0.16em] text-paper transition-colors hover:bg-accent"
         >
-          <MessageCircle size={18} />
-          {t.contact.sendButton}
+          {t.contactV3.send}
         </button>
-      </form>
-    </div>
+        <p className="mt-2 text-[11px] text-ink/45">{t.contactV3.sendNote}</p>
+      </div>
+    </form>
   );
 }

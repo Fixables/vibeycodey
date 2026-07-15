@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { PortableText } from 'next-sanity';
 import { getStoreInfo } from '@/lib/sanity-data';
 import { SUPPORTED_LOCALES, getT } from '@/lib/i18n';
+import { ImageSlot } from '@/components/ui/ImageSlot';
 import type { Locale } from '@/types';
 
 export function generateStaticParams() {
@@ -20,136 +21,105 @@ const defaultAboutEn = [
   'Our vision is to bring the beauty of Balinese silver craftsmanship to the world, while continuing to support local Balinese artisans.',
 ];
 
-const values = (locale: Locale) => [
-  {
-    num: '01',
-    title: locale === 'en' ? 'Quality' : 'Kualitas',
-    desc: locale === 'en' ? 'Certified 925 silver in every piece' : 'Perak 925 tersertifikasi di setiap karya',
-  },
-  {
-    num: '02',
-    title: locale === 'en' ? 'Integrity' : 'Integritas',
-    desc: locale === 'en' ? 'Honest craftsmanship, transparent pricing' : 'Keahlian jujur, harga transparan',
-  },
-  {
-    num: '03',
-    title: locale === 'en' ? 'Artistry' : 'Seni',
-    desc: locale === 'en' ? 'Traditional Balinese art in every design' : 'Seni Bali tradisional di setiap desain',
-  },
-  {
-    num: '04',
-    title: locale === 'en' ? 'Heritage' : 'Warisan',
-    desc: locale === 'en' ? 'Preserving Balinese craft traditions' : 'Melestarikan tradisi kerajinan Bali',
-  },
-];
-
 export default async function TentangKamiPage({ params }: { params: Promise<{ locale: Locale }> }) {
   const { locale } = await params;
   const storeInfo = await getStoreInfo();
   const t = getT(locale);
 
-  const contentBlocks = locale === 'en'
-    ? storeInfo.aboutContentEn || storeInfo.aboutContent
-    : storeInfo.aboutContent;
+  const contentBlocks =
+    locale === 'en' ? storeInfo.aboutContentEn || storeInfo.aboutContent : storeInfo.aboutContent;
+  const paragraphs = locale === 'en' ? defaultAboutEn : defaultAboutId;
+
+  const values = [
+    { head: t.storyV3.valuesHead1, body: t.storyV3.valuesBody1 },
+    { head: t.storyV3.valuesHead2, body: t.storyV3.valuesBody2 },
+    { head: t.storyV3.valuesHead3, body: t.storyV3.valuesBody3 },
+  ];
 
   return (
-    <div className="bg-warm-white min-h-screen">
-      {/* Page hero */}
-      <div className="relative bg-charcoal py-24 sm:py-32">
-        <div className="absolute left-8 top-0 h-full w-px bg-gradient-to-b from-transparent via-silver-mid/12 to-transparent hidden lg:block" />
-        <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 text-center">
-          <div className="mb-5 flex items-center justify-center gap-3">
-            <div className="h-px w-10 bg-silver-mid/40" />
-            <span className="text-[10px] font-medium text-silver-mid/70 tracking-[0.25em] uppercase">
-              Kusuma Silver
-            </span>
-            <div className="h-px w-10 bg-silver-mid/40" />
-          </div>
-          <h1
-            className="font-heading font-light text-warm-white"
-            style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', lineHeight: '1.1' }}
-          >
-            {t.about.title}
-          </h1>
-          <div className="mt-6 flex items-center justify-center gap-3">
-            <div className="h-px w-10 bg-silver-mid/30" />
-            <div className="h-px w-2 bg-silver-bright/50" />
-            <div className="h-px w-10 bg-silver-mid/30" />
-          </div>
-          <p className="mt-6 text-base text-warm-white/55 leading-relaxed">{t.about.subtitle}</p>
-        </div>
-      </div>
-
-      <div className="mx-auto max-w-3xl px-4 py-20 sm:px-6 lg:px-8">
-        {/* Story */}
-        <div>
-          <div className="mb-8 flex items-center gap-3">
-            <div className="h-px w-8 bg-silver-mid" />
-            <h2 className="font-heading text-2xl font-light text-charcoal">
-              {locale === 'en' ? 'Our Story' : 'Cerita Kami'}
-            </h2>
-          </div>
-          <div className="space-y-5 text-base leading-relaxed text-text-muted">
-            {contentBlocks ? (
-              <PortableText value={contentBlocks as Parameters<typeof PortableText>[0]['value']} />
-            ) : (
-              (locale === 'en' ? defaultAboutEn : defaultAboutId).map((p, i) => (
-                <p key={i}>{p}</p>
-              ))
-            )}
+    <div>
+      {/* Image hero with scrim */}
+      <section className="relative h-[420px] border-b border-ink lg:h-[520px]">
+        <ImageSlot alt={t.storyV3.heroImageAlt} className="h-full" />
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              'linear-gradient(to top, rgba(20,20,22,.72) 0%, rgba(20,20,22,.15) 60%)',
+          }}
+        />
+        <div className="absolute inset-x-0 bottom-0">
+          <div className="mx-auto max-w-[1280px] px-5 pb-12 sm:px-10">
+            <p className="text-[10px] font-medium tracking-[0.34em] text-gold-warm">
+              {t.storyV3.eyebrow}
+            </p>
+            <h1 className="mt-4 max-w-[640px] font-heading text-[36px] font-light leading-[1.12] text-ink-soft sm:text-[56px]">
+              {t.storyV3.title}
+            </h1>
           </div>
         </div>
+      </section>
 
-        {/* Divider */}
-        <div className="my-14 flex items-center gap-4">
-          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-silver-dark/30 to-transparent" />
-          <div className="flex gap-1.5">
-            <span className="h-1 w-1 rounded-full bg-silver-dark/40" />
-            <span className="h-1 w-1 rounded-full bg-silver-mid/60" />
-            <span className="h-1 w-1 rounded-full bg-silver-dark/40" />
-          </div>
-          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-silver-dark/30 to-transparent" />
+      {/* Narrative */}
+      <section className="mx-auto max-w-[820px] px-5 py-16 sm:px-10 lg:py-20">
+        <p className="font-heading text-[22px] font-light leading-[1.5] text-ink sm:text-[26px]">
+          {t.storyV3.lede}
+        </p>
+        <div className="mt-8 space-y-6 text-[15px] leading-[1.85] text-ink/70">
+          {contentBlocks ? (
+            <PortableText value={contentBlocks as Parameters<typeof PortableText>[0]['value']} />
+          ) : (
+            paragraphs.slice(0, 2).map((paragraph, i) => <p key={i}>{paragraph}</p>)
+          )}
         </div>
+      </section>
 
-        {/* Values — manifesto layout */}
-        <div>
-          <div className="mb-8 flex items-center gap-3">
-            <div className="h-px w-8 bg-silver-mid" />
-            <h2 className="font-heading text-2xl font-light text-charcoal">
-              {locale === 'en' ? 'Our Values' : 'Nilai-Nilai Kami'}
-            </h2>
-          </div>
-          <div className="divide-y divide-warm-white-dark">
-            {values(locale).map((v) => (
-              <div key={v.num} className="flex gap-8 py-7 first:pt-0 last:pb-0">
-                <span className="font-heading text-sm font-medium text-silver-dark mt-0.5 w-6 shrink-0 tabular-nums">
-                  {v.num}
-                </span>
-                <div>
-                  <h3 className="font-heading text-base font-semibold text-charcoal">{v.title}</h3>
-                  <p className="mt-1.5 text-sm text-text-muted leading-relaxed">{v.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+      {/* Two-up gallery */}
+      <section className="mx-auto max-w-[1280px] px-5 sm:px-10">
+        <div className="grid gap-5 sm:grid-cols-2">
+          <ImageSlot alt={t.storyV3.galleryAlt1} className="aspect-square border border-ink" />
+          <ImageSlot alt={t.storyV3.galleryAlt2} className="aspect-square border border-ink" />
         </div>
+      </section>
 
-        {/* CTA */}
-        <div className="mt-14 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+      {!contentBlocks && (
+        <section className="mx-auto max-w-[820px] px-5 pt-14 sm:px-10">
+          <p className="text-[15px] leading-[1.85] text-ink/70">{paragraphs[2]}</p>
+        </section>
+      )}
+
+      {/* Values band */}
+      <section className="mt-16 border-y border-ink bg-ink lg:mt-20">
+        <div className="mx-auto grid max-w-[1280px] gap-px sm:grid-cols-3">
+          {values.map((value) => (
+            <div key={value.head} className="px-8 py-12 sm:px-10">
+              <h2 className="font-heading text-[22px] font-normal text-ink-soft">{value.head}</h2>
+              <p className="mt-3 text-[13px] leading-relaxed text-ink-soft/60">{value.body}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="px-5 py-16 text-center sm:px-10 lg:py-20">
+        <h2 className="font-heading text-[28px] font-normal text-ink lg:text-[34px]">
+          {t.storyV3.ctaTitle}
+        </h2>
+        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link
             href={`/${locale}/koleksi`}
-            className="rounded-lg bg-charcoal px-7 py-3.5 text-sm font-semibold text-warm-white transition-colors duration-200 hover:bg-charcoal-mid"
+            className="bg-ink px-8 py-4 text-xs font-semibold tracking-[0.16em] text-paper transition-colors hover:bg-accent"
           >
-            {t.collections.title}
+            {t.storyV3.ctaCatalogue}
           </Link>
           <Link
-            href={`/${locale}/kontak`}
-            className="rounded-lg border border-charcoal px-7 py-3.5 text-sm font-semibold text-charcoal transition-all duration-200 hover:bg-charcoal hover:text-warm-white"
+            href={`/${locale}/custom-order`}
+            className="border border-ink px-8 py-4 text-xs font-semibold tracking-[0.16em] text-ink transition-colors hover:border-accent hover:text-accent"
           >
-            {t.nav.contact}
+            {t.storyV3.ctaBespoke}
           </Link>
         </div>
-      </div>
+      </section>
     </div>
   );
 }

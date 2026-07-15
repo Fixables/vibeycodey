@@ -35,7 +35,11 @@ The site is being redesigned to the spec in `design_handoff_kusuma_silver/README
   - Checkout page degrades gracefully to WhatsApp-only when Midtrans keys are absent
   - Env vars documented in `.env.example`; **production requirements: private Sanity dataset + sandbox Midtrans keys until launch approval**
   - Verified: lint/tsc/build clean; browser E2E (add-to-bag → cart → checkout → order created → status page); 11 unit checks on signature/mapping/transitions pass
-- **E — bespoke / story / contact:** NOT STARTED
+- **E — bespoke / story / contact:** COMPLETE (2026-07-15)
+  - Bespoke (`custom-order`): dark split hero with anchor-scroll CTA, bordered 4-col process grid, 2-col enquiry form (`BespokeForm`) — submit opens a pre-composed WhatsApp message (no backend), then shows a thank-you panel
+  - Our Story (`tentang-kami`): image hero with dark scrim, narrative column, two-up gallery, dark values band (3 col), catalogue/bespoke CTA
+  - Contact (`kontak`): dark centered header, bordered info list (visit/call/email/hours) + map embed, message form (`ContactForm`, same WhatsApp-submit pattern) + WhatsApp CTA button
+  - All three restyled to V3 tokens (sharp corners, hairlines, paper/ink/accent), bilingual (`bespokeV3`/`storyV3`/`contactV3` translation blocks), verified in both locales via browser
 - **F — polish, a11y, regression:** NOT STARTED (known nit: `catalogV3.found` lacks singular/plural handling)
 
 **Commerce decisions approved by owner (2026-07-15):**
