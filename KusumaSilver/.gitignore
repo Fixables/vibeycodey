@@ -19,3 +19,11 @@ npm-debug.log*
 
 # Vercel
 .vercel
+
+# Ruflo / claude-flow local state
+.claude-flow/
+.swarm/
+ruvector.db
+
+# TypeScript incremental build state
+tsconfig.tsbuildinfo

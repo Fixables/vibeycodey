@@ -10,7 +10,9 @@
       "Bash(ls:*)",
       "Bash(grep:*)",
       "Bash(taskkill:*)",
-      "Bash(cmd /c \"taskkill /F /IM node.exe\" 2>&1 || true)"
+      "Bash(cmd /c \"taskkill /F /IM node.exe\" 2>&1 || true)",
+      "Bash(sort -k2)",
+      "Bash(git -C \"C:\\\\Users\\\\andyk\\\\Documents\\\\GitHub\\\\vibeycodey\\\\KusumaSilver\" diff --stat HEAD)"
     ]
   }
 }

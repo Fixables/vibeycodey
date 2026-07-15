@@ -1,2 +1,0 @@
-# BaliGreenHouse
-Website for baligreenhouse
