@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { Menu, X, Search, ShoppingBag } from 'lucide-react';
+import { useCart } from '@/components/providers/CartProvider';
 import { getT } from '@/lib/i18n';
 import type { Locale } from '@/types';
 
@@ -15,10 +16,7 @@ interface NavbarProps {
 export function Navbar({ locale, whatsappLink, storeName }: NavbarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const t = getT(locale);
-
-  // Cart count is wired to real cart state in the commerce milestone;
-  // until then the badge stays hidden (design: badge only when non-empty).
-  const cartCount = 0;
+  const { count: cartCount } = useCart();
 
   const categoryLinks = [
     { href: `/${locale}/koleksi/cincin`, label: t.chrome.navRings },

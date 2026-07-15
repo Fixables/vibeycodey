@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { getProductBySlug, getAllProductSlugs, getStoreInfo, getWhatsAppLink } from '@/lib/sanity-data';
 import { ImageSlot } from '@/components/ui/ImageSlot';
 import { PriceDisplay } from '@/components/ui/PriceDisplay';
-import { SizeSelector } from '@/components/product/SizeSelector';
+import { PurchasePanel } from '@/components/product/PurchasePanel';
 import { categoryLabel, parseSizes } from '@/lib/catalog';
 import { SUPPORTED_LOCALES, getT } from '@/lib/i18n';
 import type { Locale } from '@/types';
@@ -90,19 +90,15 @@ export default async function PieceDetailPage({
           <PriceDisplay amountIdr={product.price} className="mt-4 font-heading text-[26px] text-ink" />
           <p className="mt-5 text-sm leading-[1.75] text-ink/65">{description}</p>
 
-          <SizeSelector sizes={parseSizes(product.sizes)} label={t.pieceV3.sizeLabel} />
-
-          <div className="mt-8 w-full">
-            <a
-              href={waLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex w-full items-center justify-center bg-ink px-8 py-4 text-xs font-semibold tracking-[0.16em] text-paper transition-colors hover:bg-accent"
-            >
-              {t.pieceV3.orderWhatsApp}
-            </a>
-            <p className="mt-2 text-[11px] text-ink/45">{t.pieceV3.orderNote}</p>
-          </div>
+          <PurchasePanel
+            locale={locale}
+            productId={product.id}
+            slug={product.slug}
+            category={kategori}
+            sizes={parseSizes(product.sizes)}
+            inStock={product.inStock}
+            whatsappLink={waLink}
+          />
 
           <dl className="mt-8 w-full divide-y divide-ink/15 border-t border-ink/15">
             {specs.map((spec) => (

@@ -28,7 +28,13 @@ The site is being redesigned to the spec in `design_handoff_kusuma_silver/README
 - **A — tokens + chrome (utility bar, nav, mobile nav, footer):** COMPLETE, committed 2026-07-15 (also fixed broken ESLint flat config; `.claude/`, handoff folder ignored)
 - **B — home page** (SplitHero, AsymmetricCatalogue, HeritageBand, Manifesto): COMPLETE, committed — old V2 home components deleted
 - **C — catalogue + product detail** (dark headers, chip filters, bordered cards, size selector, spec table; WhatsApp CTA remains the order path): COMPLETE, committed — `CategoryGrid`/`SearchFilter` deleted
-- **D — cart, checkout, orders, Midtrans sandbox, webhooks, order-status:** NOT STARTED — architecture approved (see decisions below); requires the 22-item design pack presentation before implementation
+- **D — cart, checkout, orders, Midtrans sandbox, webhooks, order-status:** COMPLETE (2026-07-15)
+  - Cart: `CartProvider` + localStorage `ks_cart` (IDs/size/qty/timestamps ONLY — never prices or customer data); Navbar badge live; `PurchasePanel` on piece pages (size chips + ADD TO BAG + WA fallback; `SizeSelector` folded in and deleted)
+  - Server: `lib/commerce/{midtrans,orders,status,shipping}.ts`; `POST /api/checkout` (server-authoritative revalidation + totals, Snap REST or WhatsApp path); `POST /api/webhooks/midtrans` (sha512 signature verify → server-side status re-query → guarded idempotent transitions); `GET /api/cart/products` (catalogue data for cart IDs)
+  - Orders stored as Sanity `order` documents (schema registered); order number `KS-xxxxxx` + separate 128-bit hex status token; `/[locale]/order/[token]` is force-dynamic and shows NO customer PII
+  - Checkout page degrades gracefully to WhatsApp-only when Midtrans keys are absent
+  - Env vars documented in `.env.example`; **production requirements: private Sanity dataset + sandbox Midtrans keys until launch approval**
+  - Verified: lint/tsc/build clean; browser E2E (add-to-bag → cart → checkout → order created → status page); 11 unit checks on signature/mapping/transitions pass
 - **E — bespoke / story / contact:** NOT STARTED
 - **F — polish, a11y, regression:** NOT STARTED (known nit: `catalogV3.found` lacks singular/plural handling)
 

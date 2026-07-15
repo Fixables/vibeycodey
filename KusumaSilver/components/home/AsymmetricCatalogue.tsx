@@ -288,11 +288,11 @@ export function AsymmetricCatalogue({ locale, products }: AsymmetricCataloguePro
   // then alternating tall/staggered columns for the rest of the strip.
   const renderSet = (shadow: boolean) =>
     products.map((product, i) => {
-      const props = { product, locale, t, shadow, key: product.slug };
-      if (i === 1) return <TechniqueStack {...props} />;
-      if (i === 2) return <OriginStack {...props} />;
-      if (i > 2 && i % 2 === 1) return <InvertedCell {...props} />;
-      return <TallCell {...props} />;
+      const props = { product, locale, t, shadow };
+      if (i === 1) return <TechniqueStack key={product.slug} {...props} />;
+      if (i === 2) return <OriginStack key={product.slug} {...props} />;
+      if (i > 2 && i % 2 === 1) return <InvertedCell key={product.slug} {...props} />;
+      return <TallCell key={product.slug} {...props} />;
     });
 
   return (

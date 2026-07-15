@@ -6,6 +6,10 @@ export const client = createClient({
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET ?? 'production',
   apiVersion: '2024-01-01',
   useCdn: false,
+  // Server-only env var; enables reads when the dataset is private. All page
+  // data flows through server components / build, so this never ships to the
+  // browser bundle.
+  token: process.env.SANITY_API_TOKEN,
 });
 
 const builder = createImageUrlBuilder(client);

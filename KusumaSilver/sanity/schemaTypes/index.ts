@@ -6,6 +6,7 @@ import { customOrderStep } from './customOrderStep';
 import { homePage } from './homePage';
 import { aboutPage } from './aboutPage';
 import { contactPage } from './contactPage';
+import { order } from './order';
 
 export const schemaTypes = [
   category,
@@ -16,4 +17,5 @@ export const schemaTypes = [
   homePage,
   aboutPage,
   contactPage,
+  order,
 ];
