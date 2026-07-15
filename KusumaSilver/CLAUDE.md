@@ -1,14 +1,38 @@
-# Kusuma Silver V2 — Claude Context
+# Kusuma Silver — Claude Context
 
 > **For Claude:** Update this file at the end of every session where milestones are completed or conventions change.
 
 ## Project Overview
 
-Customer-facing e-commerce website for **Kusuma Silver**, a premium Balinese 925 sterling silver jewelry brand. **Bilingual: Indonesian (id) + English (en)**. Tagline: "Perhiasan Perak 925 Asli dari Bali" / "Authentic 925 Silver Jewelry from Bali".
+Customer-facing e-commerce website for **Kusuma Silver**, a premium **North Balinese** (Singaraja, Buleleng) 925 sterling silver jewelry brand. **Bilingual: Indonesian (id) + English (en)**.
 
 **Do not hardcode text strings in components** — always use `getT(locale)` from `lib/i18n.ts`.
-**Do not use emojis anywhere** — use text abbreviations or geometric/icon alternatives.
+**Do not use emojis anywhere** — use lucide-react icons or text.
 **Reseller page has been removed entirely** — do not re-add it anywhere.
+
+---
+
+## V3 "Editorial Atelier" Redesign (current, 2026-07)
+
+The site is being redesigned to the spec in `design_handoff_kusuma_silver/README.md` (**authoritative design source** — read it before any visual work). Core rules:
+
+- **Sharp corners everywhere — never use `rounded-*`. No `shadow-*`. No gradients.** Depth comes from color blocks and 1px hairlines.
+- Tokens (defined in `app/globals.css` `@theme inline`): `paper` #F1EDE4 (page bg), `ink` #141416 (text/borders/dark bands), `ink-soft` #F6F4EF (light on dark), `accent` #A85A32 (terracotta), `card` #FFFFFF, `gold-warm` #E8C9A0 (story eyebrow only). Legacy V2 aliases (`charcoal`, `silver-*`, `warm-white-*`, `espresso`, etc.) still compile and are remapped to V3 values.
+- Hairlines: `border-ink` on paper, `border-ink-soft/15` on dark.
+- Currency: IDR is authoritative; USD is display-only via `lib/commerce/config.ts` (rate env `NEXT_PUBLIC_EXCHANGE_RATE_IDR_PER_USD`, default 16 000; cookie `ks_currency`; hydration-safe `CurrencyProvider`). Always render prices with `components/ui/PriceDisplay.tsx`.
+- Shared V3 primitives: `components/ui/ImageSlot.tsx` (placeholder-aware image slot), `PriceDisplay`, `lib/catalog.ts` (`categoryLabel`, `parseSizes`).
+- `lib/i18n.ts` `Translation` type is literal-widened (`Widen<typeof id>`) so both locale dicts satisfy it.
+- Translation blocks for V3 surfaces: `chrome`, `footerV3`, `bag`, `homeV3`, `catalogV3`, `pieceV3` — keep `en.ts`/`id.ts` key shapes identical.
+
+**V3 milestone status:**
+- **A — tokens + chrome (utility bar, nav, mobile nav, footer):** COMPLETE (also fixed broken ESLint flat config; `.claude/`, handoff folder ignored)
+- **B — home page** (SplitHero, AsymmetricCatalogue, HeritageBand, Manifesto): COMPLETE — old V2 home components deleted
+- **C — catalogue + product detail** (dark headers, chip filters, bordered cards, size selector, spec table; WhatsApp CTA remains the order path): COMPLETE — `CategoryGrid`/`SearchFilter` deleted
+- **D — cart, checkout, orders, Midtrans sandbox, webhooks, order-status:** NOT STARTED — requires user approval of the commerce design pack first (see Ruflo memory namespace `kusuma-silver`, key `kusuma/investigation/commerce-architecture-proposal`)
+- **E — bespoke / story / contact:** NOT STARTED
+- **F — polish, a11y, regression:** NOT STARTED (known nit: `catalogV3.found` lacks singular/plural handling)
+
+Pre-V3 sections below describe the V2 state; where they conflict with this section, **this section wins**.
 
 ---
 

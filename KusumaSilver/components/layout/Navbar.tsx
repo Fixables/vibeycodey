@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { Menu, X, Search, ShoppingBag } from 'lucide-react';
-import { LocaleSwitcher } from '@/components/ui/LocaleSwitcher';
 import { getT } from '@/lib/i18n';
 import type { Locale } from '@/types';
 
@@ -17,90 +16,130 @@ export function Navbar({ locale, whatsappLink, storeName }: NavbarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const t = getT(locale);
 
-  const links = [
-    { href: `/${locale}`, label: t.nav.home },
-    { href: `/${locale}/koleksi`, label: t.nav.collections },
-    { href: `/${locale}/custom-order`, label: t.nav.customOrder },
-    { href: `/${locale}/tentang-kami`, label: t.nav.about },
-    { href: `/${locale}/kontak`, label: t.nav.contact },
+  // Cart count is wired to real cart state in the commerce milestone;
+  // until then the badge stays hidden (design: badge only when non-empty).
+  const cartCount = 0;
+
+  const categoryLinks = [
+    { href: `/${locale}/koleksi/cincin`, label: t.chrome.navRings },
+    { href: `/${locale}/koleksi/kalung`, label: t.chrome.navNecklaces },
+    { href: `/${locale}/koleksi/gelang`, label: t.chrome.navBracelets },
+    { href: `/${locale}/koleksi/anting`, label: t.chrome.navEarrings },
+    { href: `/${locale}/koleksi/liontin`, label: t.chrome.navPendants },
+  ];
+
+  const navLinks = [
+    ...categoryLinks,
+    { href: `/${locale}/custom-order`, label: t.chrome.navBespoke, accent: true },
+    { href: `/${locale}/tentang-kami`, label: t.chrome.navStory },
   ];
 
   return (
-    <header className="sticky top-0 z-50 border-b border-warm-white-dark bg-warm-white/98 backdrop-blur-md">
-      <div className="relative mx-auto flex max-w-7xl items-center justify-between px-4 py-3.5 sm:px-6 lg:px-8">
-        {/* Left: hamburger */}
-        <button
-          className="flex h-9 w-9 items-center justify-center text-charcoal transition-opacity hover:opacity-60"
-          onClick={() => setMobileOpen((v) => !v)}
-          aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
-        >
-          {mobileOpen ? <X size={22} /> : <Menu size={22} strokeWidth={1.5} />}
-        </button>
+    <header className="sticky top-0 z-50 border-b border-ink bg-paper">
+      {/* Row 1 — search / wordmark / bag */}
+      <div className="grid grid-cols-[1fr_auto_1fr] items-center px-5 pb-3 pt-4 sm:px-10 lg:pb-4 lg:pt-5">
+        {/* Left: mobile hamburger, desktop search */}
+        <div className="flex items-center">
+          <button
+            className="-ml-2 flex h-11 w-11 cursor-pointer items-center justify-center text-ink lg:hidden"
+            onClick={() => setMobileOpen((v) => !v)}
+            aria-expanded={mobileOpen}
+            aria-label={mobileOpen ? t.chrome.menuClose : t.chrome.menuOpen}
+          >
+            {mobileOpen ? <X size={22} strokeWidth={1.5} /> : <Menu size={22} strokeWidth={1.5} />}
+          </button>
+          <Link
+            href={`/${locale}/koleksi`}
+            className="hidden items-center gap-3.5 text-ink transition-colors hover:text-accent lg:flex"
+          >
+            <Search size={18} strokeWidth={1.5} />
+            <span className="text-[11px] font-medium tracking-[0.1em] text-ink/65">
+              {t.chrome.search}
+            </span>
+          </Link>
+        </div>
 
-        {/* Center: logo — absolute centered */}
-        <Link
-          href={`/${locale}`}
-          className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center leading-none"
-        >
-          <span className="font-heading text-xl font-semibold tracking-tight text-charcoal">
-            {storeName}
+        {/* Center: wordmark */}
+        <Link href={`/${locale}`} className="text-center">
+          <span className="font-heading block text-xl font-medium tracking-[0.22em] text-ink sm:text-2xl lg:text-3xl">
+            {storeName.toUpperCase()}
           </span>
-          <span className="text-[8px] font-medium tracking-[0.35em] uppercase text-charcoal/55">
-            Silver
+          <span className="mt-1 hidden text-[9px] font-medium tracking-[0.42em] text-ink/50 sm:block">
+            {t.chrome.wordmarkSub}
           </span>
         </Link>
 
-        {/* Right: search + locale + cart */}
-        <div className="flex items-center gap-3">
-          <button
-            aria-label="Search"
-            className="text-charcoal/70 transition-opacity hover:opacity-60"
+        {/* Right: bag */}
+        <div className="flex items-center justify-end">
+          <Link
+            href={`/${locale}/keranjang`}
+            aria-label={t.chrome.cartLabel}
+            className="relative -mr-2 flex h-11 w-11 items-center justify-center text-ink transition-colors hover:text-accent"
           >
-            <Search size={20} strokeWidth={1.5} />
-          </button>
-          <LocaleSwitcher currentLocale={locale} />
-          <button
-            aria-label="Cart"
-            className="relative text-charcoal/70 transition-opacity hover:opacity-60"
-          >
-            <ShoppingBag size={20} strokeWidth={1.5} />
-            <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-charcoal text-[9px] font-semibold text-warm-white">
-              0
-            </span>
-          </button>
+            <ShoppingBag size={19} strokeWidth={1.5} />
+            {cartCount > 0 && (
+              <span className="absolute right-0 top-0.5 flex h-[15px] min-w-[15px] items-center justify-center bg-ink px-0.5 text-[9px] font-semibold text-paper">
+                {cartCount}
+              </span>
+            )}
+          </Link>
         </div>
       </div>
 
-      {/* Full-width slide-down drawer */}
+      {/* Row 2 — category nav (desktop) */}
+      <nav className="hidden justify-center gap-10 px-10 pb-4 text-xs font-medium tracking-[0.14em] lg:flex">
+        {navLinks.map((link) => (
+          <Link
+            key={link.href}
+            href={link.href}
+            className={`transition-colors hover:text-accent ${
+              'accent' in link && link.accent ? 'text-accent' : 'text-ink'
+            }`}
+          >
+            {link.label}
+          </Link>
+        ))}
+      </nav>
+
+      {/* Mobile slide-down menu */}
       {mobileOpen && (
-        <div className="border-t border-warm-white-dark bg-warm-white">
-          <nav className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
-            <ul className="space-y-1">
-              {links.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    onClick={() => setMobileOpen(false)}
-                    className="flex items-center justify-between rounded-xl px-4 py-3 text-sm font-medium text-text-muted transition-colors hover:bg-warm-white-dark hover:text-charcoal"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-            <div className="mt-5 border-t border-warm-white-dark pt-4">
-              <a
-                href={whatsappLink}
-                target="_blank"
-                rel="noopener noreferrer"
+        <nav className="border-t border-ink bg-paper lg:hidden">
+          <ul>
+            {navLinks.map((link) => (
+              <li key={link.href} className="border-b border-ink/15">
+                <Link
+                  href={link.href}
+                  onClick={() => setMobileOpen(false)}
+                  className={`block px-5 py-3.5 text-sm font-medium tracking-[0.14em] transition-colors hover:text-accent ${
+                    'accent' in link && link.accent ? 'text-accent' : 'text-ink'
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+            <li className="border-b border-ink/15">
+              <Link
+                href={`/${locale}/kontak`}
                 onClick={() => setMobileOpen(false)}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-charcoal py-3 text-sm font-semibold text-warm-white transition-colors hover:bg-charcoal-mid"
+                className="block px-5 py-3.5 text-sm font-medium tracking-[0.14em] text-ink transition-colors hover:text-accent"
               >
-                {t.nav.orderNow}
-              </a>
-            </div>
-          </nav>
-        </div>
+                {t.chrome.navContact}
+              </Link>
+            </li>
+          </ul>
+          <div className="px-5 py-4">
+            <a
+              href={whatsappLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setMobileOpen(false)}
+              className="block w-full bg-ink px-8 py-3.5 text-center text-xs font-semibold tracking-[0.16em] text-paper transition-colors hover:bg-accent"
+            >
+              {t.nav.orderNow.toUpperCase()}
+            </a>
+          </div>
+        </nav>
       )}
     </header>
   );

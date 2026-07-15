@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { SearchFilter } from './SearchFilter';
+import { Search } from 'lucide-react';
 import { PieceGrid } from './PieceGrid';
 import { getT } from '@/lib/i18n';
 import type { Product, Category, Locale } from '@/types';
@@ -10,7 +10,6 @@ interface CollectionClientProps {
   products: Product[];
   categories: Category[];
   locale: Locale;
-  whatsapp: string;
   initialCategory?: string;
 }
 
@@ -18,7 +17,6 @@ export function CollectionClient({
   products,
   categories,
   locale,
-  whatsapp,
   initialCategory = 'all',
 }: CollectionClientProps) {
   const [query, setQuery] = useState('');
@@ -43,49 +41,54 @@ export function CollectionClient({
   }, [products, activeCategory, query]);
 
   return (
-    <div>
-      {/* Sticky filter bar */}
-      <div className="sticky top-[65px] z-40 border-b border-warm-white-dark bg-white/95 backdrop-blur-md px-4 py-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl">
-          <SearchFilter value={query} onChange={setQuery} locale={locale} />
+    <div className="mx-auto max-w-[1280px]">
+      <div className="px-5 pt-9 sm:px-10">
+        <div className="flex items-center gap-3 border border-ink bg-card px-4 py-3">
+          <Search size={16} strokeWidth={1.5} className="text-ink/50" />
+          <label htmlFor="catalogue-search" className="sr-only">
+            {t.catalogV3.searchPlaceholder}
+          </label>
+          <input
+            id="catalogue-search"
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={t.catalogV3.searchPlaceholder}
+            className="w-full bg-transparent text-sm text-ink placeholder:text-ink/40 focus:outline-none"
+          />
+        </div>
 
-          {/* Category tabs */}
-          <div className="mt-3 flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+        <div className="mt-4 flex flex-wrap gap-2">
+          <button
+            onClick={() => setActiveCategory('all')}
+            aria-pressed={activeCategory === 'all'}
+            className={`cursor-pointer border border-ink px-4 py-2 text-[11px] font-semibold tracking-[0.12em] transition-colors ${
+              activeCategory === 'all' ? 'bg-ink text-paper' : 'bg-transparent text-ink hover:bg-ink/5'
+            }`}
+          >
+            {t.catalog.allCategories}
+          </button>
+          {categories.map((cat) => (
             <button
-              onClick={() => setActiveCategory('all')}
-              className={`shrink-0 rounded-full px-4 py-1.5 text-xs font-semibold transition-colors ${
-                activeCategory === 'all'
-                  ? 'bg-charcoal text-warm-white'
-                  : 'bg-warm-white-dark text-text-muted hover:text-charcoal'
+              key={cat.slug}
+              onClick={() => setActiveCategory(cat.slug)}
+              aria-pressed={activeCategory === cat.slug}
+              className={`cursor-pointer border border-ink px-4 py-2 text-[11px] font-semibold tracking-[0.12em] transition-colors ${
+                activeCategory === cat.slug ? 'bg-ink text-paper' : 'bg-transparent text-ink hover:bg-ink/5'
               }`}
             >
-              {t.catalog.allCategories}
+              {locale === 'en' ? cat.nameEn || cat.name : cat.name}
             </button>
-            {categories.map((cat) => (
-              <button
-                key={cat.slug}
-                onClick={() => setActiveCategory(cat.slug)}
-                className={`shrink-0 rounded-full px-4 py-1.5 text-xs font-semibold transition-colors ${
-                  activeCategory === cat.slug
-                    ? 'bg-charcoal text-warm-white'
-                    : 'bg-warm-white-dark text-text-muted hover:text-charcoal'
-                }`}
-              >
-                {locale === 'en' ? cat.nameEn || cat.name : cat.name}
-              </button>
-            ))}
-          </div>
+          ))}
+        </div>
 
-          {/* Results count */}
-          <div className="mt-2 text-xs text-text-muted">
-            {filtered.length} {locale === 'en' ? 'pieces found' : 'perhiasan ditemukan'}
-          </div>
+        <div className="mt-3 text-[11px] text-ink/50">
+          {filtered.length} {t.catalogV3.found}
         </div>
       </div>
 
-      {/* Grid */}
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <PieceGrid products={filtered} locale={locale} whatsapp={whatsapp} />
+      <div className="px-5 pb-20 pt-7 sm:px-10">
+        <PieceGrid products={filtered} locale={locale} />
       </div>
     </div>
   );

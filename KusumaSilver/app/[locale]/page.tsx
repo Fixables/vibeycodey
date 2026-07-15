@@ -1,12 +1,8 @@
-import { HeroSection } from '@/components/home/HeroSection';
-import { FeaturedCollections } from '@/components/home/FeaturedCollections';
-import { CraftsmanshipStory } from '@/components/home/CraftsmanshipStory';
-import { FeaturedPieces } from '@/components/home/FeaturedPieces';
-import { CustomOrderHighlight } from '@/components/home/CustomOrderHighlight';
-import { WhyKusumaSection } from '@/components/home/WhyKusumaSection';
-import { Testimonials } from '@/components/home/Testimonials';
-import { InstagramSection } from '@/components/home/InstagramSection';
-import { CTABanner } from '@/components/home/CTABanner';
+import { SplitHero } from '@/components/home/SplitHero';
+import { AsymmetricCatalogue } from '@/components/home/AsymmetricCatalogue';
+import { HeritageBand } from '@/components/home/HeritageBand';
+import { Manifesto } from '@/components/home/Manifesto';
+import { getFeaturedProducts, getProducts } from '@/lib/sanity-data';
 import { SUPPORTED_LOCALES } from '@/lib/i18n';
 import type { Locale } from '@/types';
 
@@ -17,17 +13,17 @@ export function generateStaticParams() {
 export default async function HomePage({ params }: { params: Promise<{ locale: Locale }> }) {
   const { locale } = await params;
 
+  let products = await getFeaturedProducts();
+  if (products.length < 3) {
+    products = await getProducts();
+  }
+
   return (
     <>
-      <HeroSection locale={locale} />
-      <FeaturedCollections locale={locale} />
-      <CraftsmanshipStory locale={locale} />
-      <FeaturedPieces locale={locale} />
-      <CustomOrderHighlight locale={locale} />
-      <WhyKusumaSection locale={locale} />
-      <Testimonials locale={locale} />
-      <InstagramSection locale={locale} />
-      <CTABanner locale={locale} />
+      <SplitHero locale={locale} />
+      <AsymmetricCatalogue locale={locale} products={products.slice(0, 3)} />
+      <HeritageBand locale={locale} />
+      <Manifesto locale={locale} />
     </>
   );
 }
