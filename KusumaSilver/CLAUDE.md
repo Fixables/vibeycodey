@@ -25,12 +25,21 @@ The site is being redesigned to the spec in `design_handoff_kusuma_silver/README
 - Translation blocks for V3 surfaces: `chrome`, `footerV3`, `bag`, `homeV3`, `catalogV3`, `pieceV3` — keep `en.ts`/`id.ts` key shapes identical.
 
 **V3 milestone status:**
-- **A — tokens + chrome (utility bar, nav, mobile nav, footer):** COMPLETE (also fixed broken ESLint flat config; `.claude/`, handoff folder ignored)
-- **B — home page** (SplitHero, AsymmetricCatalogue, HeritageBand, Manifesto): COMPLETE — old V2 home components deleted
-- **C — catalogue + product detail** (dark headers, chip filters, bordered cards, size selector, spec table; WhatsApp CTA remains the order path): COMPLETE — `CategoryGrid`/`SearchFilter` deleted
-- **D — cart, checkout, orders, Midtrans sandbox, webhooks, order-status:** NOT STARTED — requires user approval of the commerce design pack first (see Ruflo memory namespace `kusuma-silver`, key `kusuma/investigation/commerce-architecture-proposal`)
+- **A — tokens + chrome (utility bar, nav, mobile nav, footer):** COMPLETE, committed 2026-07-15 (also fixed broken ESLint flat config; `.claude/`, handoff folder ignored)
+- **B — home page** (SplitHero, AsymmetricCatalogue, HeritageBand, Manifesto): COMPLETE, committed — old V2 home components deleted
+- **C — catalogue + product detail** (dark headers, chip filters, bordered cards, size selector, spec table; WhatsApp CTA remains the order path): COMPLETE, committed — `CategoryGrid`/`SearchFilter` deleted
+- **D — cart, checkout, orders, Midtrans sandbox, webhooks, order-status:** NOT STARTED — architecture approved (see decisions below); requires the 22-item design pack presentation before implementation
 - **E — bespoke / story / contact:** NOT STARTED
 - **F — polish, a11y, regression:** NOT STARTED (known nit: `catalogV3.found` lacks singular/plural handling)
+
+**Commerce decisions approved by owner (2026-07-15):**
+- Shipping: placeholder rule for now — free ≥ Rp 2,000,000, else Rp 45,000 flat, defined once in `lib/commerce/` and identical in both display currencies (final business rule TBD).
+- Sizes: keep free-text `sizes` field + `parseSizes()`; no structured variant migration.
+- Inventory: keep boolean `inStock` (no quantity tracking).
+- Account/wishlist header icons from the design: omitted for launch.
+- Order storage: Sanity `order` document type (written server-side with `SANITY_API_TOKEN`).
+- Midtrans: Snap via direct REST (no SDK install); sandbox only in dev; server key never client-side; orders marked paid only by verified webhook + server-side status re-query, never by success URL.
+- External marketplace research (Firecrawl): dropped for now.
 
 Pre-V3 sections below describe the V2 state; where they conflict with this section, **this section wins**.
 
