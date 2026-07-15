@@ -7,7 +7,7 @@
  * then flow through the same token at build/render time).
  */
 
-import { randomInt, randomBytes } from 'node:crypto';
+import { randomBytes } from 'node:crypto';
 import { createClient } from '@sanity/client';
 import { canTransitionPayment, type FulfillmentStatus, type OrderStatus, type PaymentStatus } from './status';
 
@@ -46,6 +46,7 @@ export interface OrderCustomer {
 
 export interface OrderDoc {
   _id: string;
+  _rev: string;
   orderNumber: string;
   token: string;
   locale: string;
@@ -63,8 +64,12 @@ export interface OrderDoc {
 }
 
 export function generateOrderNumber(): string {
-  // Human-facing display number, distinct from the secret status token.
-  return 'KS-' + String(randomInt(100000, 1000000));
+  // Doubles as the Midtrans order_id and the webhook lookup key, so it must be
+  // globally unique forever. A time component (unique per ms) plus random
+  // bytes (disambiguating same-ms creates) makes collisions negligible.
+  const time = Date.now().toString(36).toUpperCase();
+  const rand = randomBytes(3).toString('hex').toUpperCase();
+  return `KS-${time}-${rand}`;
 }
 
 export function generateOrderToken(): string {
@@ -117,6 +122,7 @@ export async function createOrder(input: {
 
 const ORDER_FIELDS = `
   _id,
+  _rev,
   orderNumber,
   token,
   locale,
@@ -152,31 +158,60 @@ export async function getOrderByNumber(orderNumber: string): Promise<OrderDoc | 
 }
 
 /**
- * Guarded, idempotent payment-status transition. Illegal moves (duplicate or
- * out-of-order webhook deliveries) are ignored and reported as no-ops.
+ * Guarded, idempotent payment-status transition with optimistic locking.
+ *
+ * The legality check and the write must be atomic, otherwise two concurrent
+ * webhook deliveries can both read `payment_pending`, both pass the guard, and
+ * both patch — letting write-ordering (not the transition table) decide the
+ * final state. We patch with `ifRevisionId` so a racing writer causes a
+ * revision conflict; on conflict we re-read and re-evaluate, so duplicate and
+ * out-of-order deliveries collapse to a single correct transition (or a noop).
  */
 export async function applyPaymentStatus(
-  order: Pick<OrderDoc, '_id' | 'paymentStatus'>,
+  order: Pick<OrderDoc, '_id' | '_rev' | 'paymentStatus'>,
   next: PaymentStatus,
   source: string,
   midtrans?: { transactionId?: string; transactionStatus?: string; paymentType?: string }
 ): Promise<'applied' | 'noop'> {
-  if (!canTransitionPayment(order.paymentStatus, next)) return 'noop';
+  let current: Pick<OrderDoc, '_id' | '_rev' | 'paymentStatus'> = order;
 
-  await writeClient
-    .patch(order._id)
-    .set({ paymentStatus: next, ...(midtrans ? { midtrans } : {}) })
-    .append('statusLog', [
-      {
-        _key: `log-${Date.now()}-${Math.floor(Math.random() * 1e6)}`,
-        at: new Date().toISOString(),
-        field: 'paymentStatus',
-        from: order.paymentStatus,
-        to: next,
-        source,
-      },
-    ])
-    .commit();
+  for (let attempt = 0; attempt < 4; attempt++) {
+    if (!canTransitionPayment(current.paymentStatus, next)) return 'noop';
 
-  return 'applied';
+    try {
+      await writeClient
+        .patch(current._id)
+        .ifRevisionId(current._rev)
+        .set({ paymentStatus: next, ...(midtrans ? { midtrans } : {}) })
+        .append('statusLog', [
+          {
+            _key: `log-${Date.now()}-${Math.floor(Math.random() * 1e6)}`,
+            at: new Date().toISOString(),
+            field: 'paymentStatus',
+            from: current.paymentStatus,
+            to: next,
+            source,
+          },
+        ])
+        .commit({ visibility: 'async' });
+      return 'applied';
+    } catch (err) {
+      // Revision conflict → another writer moved the order; re-read and retry.
+      if (!isRevisionConflict(err)) throw err;
+      const fresh = await writeClient.fetch<Pick<OrderDoc, '_id' | '_rev' | 'paymentStatus'> | null>(
+        `*[_type == "order" && _id == $id][0]{ _id, _rev, paymentStatus }`,
+        { id: current._id } as Record<string, string>
+      );
+      if (!fresh) return 'noop';
+      current = fresh;
+    }
+  }
+  return 'noop';
+}
+
+function isRevisionConflict(err: unknown): boolean {
+  if (typeof err !== 'object' || err === null) return false;
+  const statusCode = (err as { statusCode?: number; response?: { statusCode?: number } }).statusCode;
+  const nested = (err as { response?: { statusCode?: number } }).response?.statusCode;
+  return statusCode === 409 || nested === 409;
 }

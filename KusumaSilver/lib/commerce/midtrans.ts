@@ -7,7 +7,7 @@
  * MIDTRANS_IS_PRODUCTION=true.
  */
 
-import { createHash } from 'node:crypto';
+import { createHash, timingSafeEqual } from 'node:crypto';
 
 const IS_PRODUCTION = process.env.MIDTRANS_IS_PRODUCTION === 'true';
 
@@ -139,5 +139,9 @@ export function verifyNotificationSignature(payload: {
   const expected = createHash('sha512')
     .update(payload.order_id + payload.status_code + payload.gross_amount + serverKey())
     .digest('hex');
-  return expected === payload.signature_key;
+  // Constant-time compare to avoid leaking the signature via timing.
+  const expectedBuf = Buffer.from(expected, 'hex');
+  const providedBuf = Buffer.from(payload.signature_key, 'hex');
+  if (expectedBuf.length !== providedBuf.length) return false;
+  return timingSafeEqual(expectedBuf, providedBuf);
 }

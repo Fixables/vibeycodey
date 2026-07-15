@@ -47,7 +47,7 @@ export default async function KategoriPage({
         products={products}
         categories={categories}
         locale={locale}
-        initialCategory={kategori}
+        fixedCategory={kategori}
       />
     </div>
   );

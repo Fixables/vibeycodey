@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Minus, Plus, X } from 'lucide-react';
 import { useCart } from '@/components/providers/CartProvider';
 import { ImageSlot } from '@/components/ui/ImageSlot';
@@ -27,10 +27,19 @@ export interface CartProductInfo {
  * names or prices) and renders line items + the order summary. Totals shown
  * here are advisory — checkout recomputes everything server-side.
  */
+/** Product info plus the id set it was fetched for — so a line whose id isn't
+ *  yet in `requested` is treated as still-loading rather than unavailable. */
+interface CatalogueState {
+  map: Map<string, CartProductInfo>;
+  requested: Set<string>;
+}
+
 export function CartClient({ locale }: { locale: Locale }) {
   const t = getT(locale);
   const { items, setQty, removeItem } = useCart();
-  const [products, setProducts] = useState<Map<string, CartProductInfo> | null>(null);
+  const [catalogue, setCatalogue] = useState<CatalogueState | null>(null);
+  const summaryRef = useRef<HTMLElement>(null);
+  const prevCount = useRef(items.length);
 
   const ids = useMemo(
     () => [...new Set(items.map((line) => line.productId))].sort().join(','),
@@ -40,23 +49,32 @@ export function CartClient({ locale }: { locale: Locale }) {
   useEffect(() => {
     if (!ids) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setProducts(new Map());
+      setCatalogue({ map: new Map(), requested: new Set() });
       return;
     }
+    const requested = new Set(ids.split(','));
     let cancelled = false;
     fetch(`/api/cart/products?ids=${encodeURIComponent(ids)}`)
       .then((res) => (res.ok ? res.json() : { products: [] }))
       .then((data: { products: CartProductInfo[] }) => {
         if (cancelled) return;
-        setProducts(new Map(data.products.map((product) => [product.id, product])));
+        setCatalogue({ map: new Map(data.products.map((p) => [p.id, p])), requested });
       })
       .catch(() => {
-        if (!cancelled) setProducts(new Map());
+        if (!cancelled) setCatalogue({ map: new Map(), requested });
       });
     return () => {
       cancelled = true;
     };
   }, [ids]);
+
+  // Keep keyboard focus in the cart when a line is removed (its button unmounts).
+  useEffect(() => {
+    if (items.length < prevCount.current && items.length > 0) {
+      summaryRef.current?.focus();
+    }
+    prevCount.current = items.length;
+  }, [items.length]);
 
   if (items.length === 0) {
     return (
@@ -75,7 +93,7 @@ export function CartClient({ locale }: { locale: Locale }) {
     );
   }
 
-  if (products === null) {
+  if (catalogue === null) {
     return (
       <div className="mt-10 border border-ink bg-card px-8 py-16 text-center">
         <p className="text-sm text-ink/65">{t.bag.loading}</p>
@@ -83,28 +101,40 @@ export function CartClient({ locale }: { locale: Locale }) {
     );
   }
 
+  // A line is "resolved" once its id has been fetched. Not-yet-fetched lines
+  // (just added, refetch in flight) are pending — never shown as unavailable.
+  const lineState = (productId: string) => {
+    const resolved = catalogue.requested.has(productId);
+    const product = catalogue.map.get(productId);
+    return {
+      product,
+      pending: !resolved,
+      available: resolved && !!product && product.inStock,
+    };
+  };
+
   const subtotalIdr = items.reduce((sum, line) => {
-    const product = products.get(line.productId);
-    return product && product.inStock ? sum + product.priceIdr * line.qty : sum;
+    const { product, available } = lineState(line.productId);
+    return available && product ? sum + product.priceIdr * line.qty : sum;
   }, 0);
   const shippingIdr = shippingForSubtotalIdr(subtotalIdr);
   const hasUnavailable = items.some((line) => {
-    const product = products.get(line.productId);
-    return !product || !product.inStock;
+    const { pending, available } = lineState(line.productId);
+    return !pending && !available;
   });
+  const anyPending = items.some((line) => lineState(line.productId).pending);
 
   return (
     <div className="mt-10 grid items-start gap-8 lg:grid-cols-[1fr_360px]">
       {/* Line items */}
       <ul className="divide-y divide-ink/15 border border-ink bg-card">
         {items.map((line) => {
-          const product = products.get(line.productId);
+          const { product, pending, available } = lineState(line.productId);
           const name = product
             ? locale === 'en'
               ? product.nameEn || product.name
               : product.name
             : line.slug;
-          const available = product?.inStock ?? false;
           return (
             <li key={`${line.productId}:${line.size ?? ''}`} className="flex gap-4 p-4 sm:gap-5">
               <Link
@@ -133,7 +163,7 @@ export function CartClient({ locale }: { locale: Locale }) {
                         {t.bag.sizePrefix} {line.size}
                       </p>
                     )}
-                    {!available && (
+                    {!pending && !available && (
                       <p className="mt-1 text-[12px] font-medium text-error">{t.bag.unavailable}</p>
                     )}
                   </div>
@@ -153,10 +183,10 @@ export function CartClient({ locale }: { locale: Locale }) {
                     <button
                       type="button"
                       onClick={() => setQty(line.productId, line.size, line.qty - 1)}
-                      aria-label={t.bag.decrease}
+                      aria-label={line.qty <= 1 ? t.bag.remove : t.bag.decrease}
                       className="flex h-9 w-9 cursor-pointer items-center justify-center text-ink transition-colors hover:bg-ink/5"
                     >
-                      <Minus size={14} strokeWidth={1.5} />
+                      <Minus size={14} strokeWidth={1.5} aria-hidden="true" />
                     </button>
                     <span className="w-8 text-center text-[13px] font-medium tabular-nums text-ink">
                       {line.qty}
@@ -168,7 +198,7 @@ export function CartClient({ locale }: { locale: Locale }) {
                       aria-label={t.bag.increase}
                       className="flex h-9 w-9 cursor-pointer items-center justify-center text-ink transition-colors hover:bg-ink/5 disabled:cursor-default disabled:opacity-30"
                     >
-                      <Plus size={14} strokeWidth={1.5} />
+                      <Plus size={14} strokeWidth={1.5} aria-hidden="true" />
                     </button>
                   </div>
                   <button
@@ -187,9 +217,14 @@ export function CartClient({ locale }: { locale: Locale }) {
       </ul>
 
       {/* Summary */}
-      <aside className="border border-ink bg-card p-6">
+      <aside
+        ref={summaryRef}
+        tabIndex={-1}
+        aria-label={t.bag.summaryHead}
+        className="border border-ink bg-card p-6 outline-none"
+      >
         <h2 className="font-heading text-[22px] font-normal text-ink">{t.bag.summaryHead}</h2>
-        <dl className="mt-5 space-y-3 text-[13px]">
+        <dl aria-live="polite" className="mt-5 space-y-3 text-[13px]">
           <div className="flex justify-between">
             <dt className="text-ink/60">{t.bag.subtotal}</dt>
             <dd>
@@ -218,6 +253,10 @@ export function CartClient({ locale }: { locale: Locale }) {
         </dl>
         {hasUnavailable ? (
           <p className="mt-6 text-[12px] leading-relaxed text-error">{t.bag.unavailable}</p>
+        ) : anyPending ? (
+          <span className="mt-6 flex w-full cursor-default items-center justify-center bg-ink/40 px-8 py-4 text-xs font-semibold tracking-[0.16em] text-paper">
+            {t.bag.loading}
+          </span>
         ) : (
           <Link
             href={`/${locale}/checkout`}

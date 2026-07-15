@@ -72,8 +72,13 @@ export async function POST(request: NextRequest) {
   } catch {
     return NextResponse.json({ error: 'status_lookup_failed' }, { status: 500 });
   }
+  // A signed notification for a known order whose status isn't queryable yet is
+  // a transient race — ask Midtrans to retry (500) rather than dropping it (404).
   if (!live) {
-    return NextResponse.json({ error: 'unknown_transaction' }, { status: 404 });
+    return NextResponse.json({ error: 'status_not_ready' }, { status: 500 });
+  }
+  if (live.currency && live.currency !== 'IDR') {
+    return NextResponse.json({ error: 'currency_mismatch' }, { status: 400 });
   }
 
   const next = mapMidtransStatus(live.transaction_status, live.fraud_status);

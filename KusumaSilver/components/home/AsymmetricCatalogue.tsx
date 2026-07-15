@@ -29,7 +29,7 @@ function CaptionBar({ product, locale, t }: CellProps) {
   return (
     <div className="flex items-start justify-between gap-4 p-4">
       <div>
-        <h3 className="font-heading text-lg font-normal text-ink">
+        <h3 className="font-heading text-lg font-normal leading-tight text-ink">
           {localizedName(product, locale)}
         </h3>
         <p className="mt-1 text-[11px] uppercase tracking-[0.14em] text-ink/50">
@@ -41,50 +41,58 @@ function CaptionBar({ product, locale, t }: CellProps) {
   );
 }
 
-function CellImage({ product, locale }: { product: Product; locale: Locale }) {
-  return (
+/**
+ * Per-cell layout recipe. Varying width, image height, caption position, and
+ * vertical alignment gives the strip an irregular, editorial rhythm rather
+ * than a uniform row. Alignment leaves whitespace at the opposite end, so the
+ * cells' baselines zigzag.
+ */
+interface CellLayout {
+  width: string;
+  imgHeight: string;
+  invert: boolean;
+  align: 'top' | 'bottom';
+}
+
+const CELL_LAYOUTS: CellLayout[] = [
+  { width: 'w-[300px] sm:w-[440px]', imgHeight: 'h-[360px] sm:h-[460px]', invert: false, align: 'bottom' },
+  { width: 'w-[230px] sm:w-[300px]', imgHeight: 'h-[280px] sm:h-[340px]', invert: true, align: 'top' },
+  { width: 'w-[270px] sm:w-[360px]', imgHeight: 'h-[320px] sm:h-[400px]', invert: false, align: 'top' },
+  { width: 'w-[240px] sm:w-[330px]', imgHeight: 'h-[300px] sm:h-[380px]', invert: true, align: 'bottom' },
+  { width: 'w-[290px] sm:w-[410px]', imgHeight: 'h-[340px] sm:h-[430px]', invert: false, align: 'bottom' },
+];
+
+function ProductCell({ product, locale, t, shadow, layout }: CellProps & { layout: CellLayout }) {
+  const image = (
     <ImageSlot
       src={product.imageUrl}
       alt={localizedName(product, locale)}
-      className="min-h-0 flex-1 border-b border-ink"
+      className={`${layout.imgHeight} shrink-0 border-ink ${layout.invert ? 'border-t' : 'border-b'}`}
       imgClassName="transition-transform duration-500 group-hover:scale-[1.04]"
     />
   );
-}
+  const caption = <CaptionBar product={product} locale={locale} t={t} />;
 
-/** Wide column — image fills the height, caption bar at the bottom. */
-function TallCell({ product, locale, t, shadow }: CellProps) {
   return (
     <Link
       href={`/${locale}/koleksi/${product.category}/${product.slug}`}
-      className="group flex w-[290px] shrink-0 flex-col border-r border-ink sm:w-[430px]"
+      className={`group flex ${layout.width} shrink-0 flex-col border-r border-ink ${
+        layout.align === 'bottom' ? 'justify-end' : 'justify-start'
+      }`}
       draggable={false}
       tabIndex={shadow ? -1 : undefined}
     >
-      <CellImage product={product} locale={locale} />
-      <CaptionBar product={product} locale={locale} t={t} />
-    </Link>
-  );
-}
-
-/** Narrow column, staggered — caption on top, image below. */
-function InvertedCell({ product, locale, t, shadow }: CellProps) {
-  return (
-    <Link
-      href={`/${locale}/koleksi/${product.category}/${product.slug}`}
-      className="group flex w-[240px] shrink-0 flex-col border-r border-ink sm:w-[320px]"
-      draggable={false}
-      tabIndex={shadow ? -1 : undefined}
-    >
-      <div className="border-b border-ink">
-        <CaptionBar product={product} locale={locale} t={t} />
-      </div>
-      <ImageSlot
-        src={product.imageUrl}
-        alt={localizedName(product, locale)}
-        className="min-h-0 flex-1"
-        imgClassName="transition-transform duration-500 group-hover:scale-[1.04]"
-      />
+      {layout.invert ? (
+        <>
+          {caption}
+          {image}
+        </>
+      ) : (
+        <>
+          {image}
+          {caption}
+        </>
+      )}
     </Link>
   );
 }
@@ -98,10 +106,10 @@ function PanelText({ label, text }: { label: string; text: string }) {
   );
 }
 
-/** Narrow stacked column — technique panel on top, product below. */
+/** Full-height anchor column — technique panel on top, product filling below. */
 function TechniqueStack({ product, locale, t, shadow }: CellProps) {
   return (
-    <div className="flex w-[240px] shrink-0 flex-col border-r border-ink sm:w-[320px]">
+    <div className="flex w-[250px] shrink-0 flex-col border-r border-ink sm:w-[330px]">
       <div className="border-b border-ink p-6">
         <PanelText label={t.homeV3.techniqueLabel} text={t.homeV3.techniqueText} />
       </div>
@@ -111,24 +119,34 @@ function TechniqueStack({ product, locale, t, shadow }: CellProps) {
         draggable={false}
         tabIndex={shadow ? -1 : undefined}
       >
-        <CellImage product={product} locale={locale} />
+        <ImageSlot
+          src={product.imageUrl}
+          alt={localizedName(product, locale)}
+          className="min-h-0 flex-1 border-b border-ink"
+          imgClassName="transition-transform duration-500 group-hover:scale-[1.04]"
+        />
         <CaptionBar product={product} locale={locale} t={t} />
       </Link>
     </div>
   );
 }
 
-/** Wide stacked column — product on top, origin panel at the bottom. */
+/** Full-height anchor column — product filling the top, origin panel below. */
 function OriginStack({ product, locale, t, shadow }: CellProps) {
   return (
-    <div className="flex w-[290px] shrink-0 flex-col border-r border-ink sm:w-[430px]">
+    <div className="flex w-[300px] shrink-0 flex-col border-r border-ink sm:w-[440px]">
       <Link
         href={`/${locale}/koleksi/${product.category}/${product.slug}`}
         className="group flex min-h-0 flex-1 flex-col"
         draggable={false}
         tabIndex={shadow ? -1 : undefined}
       >
-        <CellImage product={product} locale={locale} />
+        <ImageSlot
+          src={product.imageUrl}
+          alt={localizedName(product, locale)}
+          className="min-h-0 flex-1 border-b border-ink"
+          imgClassName="transition-transform duration-500 group-hover:scale-[1.04]"
+        />
         <CaptionBar product={product} locale={locale} t={t} />
       </Link>
       <div className="border-t border-ink p-6">
@@ -218,6 +236,7 @@ export function AsymmetricCatalogue({ locale, products }: AsymmetricCataloguePro
     };
 
     // Drag-to-scroll for mouse users (touch scrolls natively via overflow).
+    // Only ACTIVE interaction pauses the drift — plain hovering does not.
     let dragging = false;
     let dragStartX = 0;
     let dragStartScroll = 0;
@@ -238,6 +257,7 @@ export function AsymmetricCatalogue({ locale, products }: AsymmetricCataloguePro
       el.scrollLeft = dragStartScroll - dx;
     };
     const endDrag = () => {
+      if (!dragging) return;
       dragging = false;
       resumeSoon();
     };
@@ -250,11 +270,10 @@ export function AsymmetricCatalogue({ locale, products }: AsymmetricCataloguePro
       }
     };
 
-    el.addEventListener('pointerenter', hold);
-    el.addEventListener('pointerleave', resumeSoon);
     el.addEventListener('pointerdown', onPointerDown);
-    el.addEventListener('pointermove', onPointerMove);
-    el.addEventListener('pointerup', endDrag);
+    // Track drag on the window so releasing outside the strip still ends it.
+    window.addEventListener('pointermove', onPointerMove);
+    window.addEventListener('pointerup', endDrag);
     el.addEventListener('pointercancel', endDrag);
     el.addEventListener('click', onClickCapture, true);
     el.addEventListener('wheel', holdThenResume, { passive: true });
@@ -268,11 +287,9 @@ export function AsymmetricCatalogue({ locale, products }: AsymmetricCataloguePro
     return () => {
       cancelAnimationFrame(raf);
       clearTimeout(resumeTimer);
-      el.removeEventListener('pointerenter', hold);
-      el.removeEventListener('pointerleave', resumeSoon);
       el.removeEventListener('pointerdown', onPointerDown);
-      el.removeEventListener('pointermove', onPointerMove);
-      el.removeEventListener('pointerup', endDrag);
+      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('pointerup', endDrag);
       el.removeEventListener('pointercancel', endDrag);
       el.removeEventListener('click', onClickCapture, true);
       el.removeEventListener('wheel', holdThenResume);
@@ -283,16 +300,17 @@ export function AsymmetricCatalogue({ locale, products }: AsymmetricCataloguePro
     };
   }, []);
 
-  // Same asymmetric composition as the original grid — tall opener, technique
-  // panel stacked over the second piece, third piece over the origin panel —
-  // then alternating tall/staggered columns for the rest of the strip.
+  // Composition: wide opener, a full-height technique panel over piece two, a
+  // full-height origin panel under piece three, then staggered product cells
+  // cycling through the layout recipes for an irregular editorial rhythm.
   const renderSet = (shadow: boolean) =>
     products.map((product, i) => {
       const props = { product, locale, t, shadow };
       if (i === 1) return <TechniqueStack key={product.slug} {...props} />;
       if (i === 2) return <OriginStack key={product.slug} {...props} />;
-      if (i > 2 && i % 2 === 1) return <InvertedCell key={product.slug} {...props} />;
-      return <TallCell key={product.slug} {...props} />;
+      return (
+        <ProductCell key={product.slug} {...props} layout={CELL_LAYOUTS[i % CELL_LAYOUTS.length]} />
+      );
     });
 
   return (
@@ -326,7 +344,7 @@ export function AsymmetricCatalogue({ locale, products }: AsymmetricCataloguePro
           tabIndex={0}
           className="scrollbar-none cursor-grab select-none overflow-x-auto border border-ink active:cursor-grabbing"
         >
-          <div className="flex h-[480px] w-max sm:h-[600px]">
+          <div className="flex h-[520px] w-max sm:h-[620px]">
             <div ref={firstSetRef} className="flex">
               {renderSet(false)}
             </div>

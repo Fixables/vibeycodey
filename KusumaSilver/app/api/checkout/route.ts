@@ -204,7 +204,9 @@ export async function POST(request: NextRequest) {
           : []),
       ],
       customer: {
-        firstName: body.customer.name,
+        // Midtrans caps first_name at 50 chars; a longer name would 4xx the
+        // Snap create call and block an otherwise-valid checkout.
+        firstName: body.customer.name.slice(0, 50),
         phone: body.customer.phone,
         email: body.customer.email,
       },

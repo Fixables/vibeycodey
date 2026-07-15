@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Check } from 'lucide-react';
 import { useCart } from '@/components/providers/CartProvider';
 import { getT } from '@/lib/i18n';
@@ -34,11 +34,19 @@ export function PurchasePanel({
   const { addItem } = useCart();
   const [selected, setSelected] = useState<string | null>(sizes[0] ?? null);
   const [added, setAdded] = useState(false);
+  // Bumped on each add so the aria-live region re-announces even on a repeat
+  // add within the confirmation window.
+  const [addCount, setAddCount] = useState(0);
+  const resetTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  useEffect(() => () => clearTimeout(resetTimer.current), []);
 
   function handleAdd() {
     addItem({ productId, slug, category, size: selected });
     setAdded(true);
-    window.setTimeout(() => setAdded(false), 2500);
+    setAddCount((n) => n + 1);
+    clearTimeout(resetTimer.current);
+    resetTimer.current = setTimeout(() => setAdded(false), 2500);
   }
 
   return (
@@ -92,7 +100,7 @@ export function PurchasePanel({
           </button>
         )}
         <div aria-live="polite" className="sr-only">
-          {added ? t.pieceV3.addedToBag : ''}
+          {added ? `${t.pieceV3.addedToBag}${addCount > 1 ? ` (${addCount})` : ''}` : ''}
         </div>
         {added && (
           <Link

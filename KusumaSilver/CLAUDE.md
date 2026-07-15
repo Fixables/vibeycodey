@@ -40,7 +40,19 @@ The site is being redesigned to the spec in `design_handoff_kusuma_silver/README
   - Our Story (`tentang-kami`): image hero with dark scrim, narrative column, two-up gallery, dark values band (3 col), catalogue/bespoke CTA
   - Contact (`kontak`): dark centered header, bordered info list (visit/call/email/hours) + map embed, message form (`ContactForm`, same WhatsApp-submit pattern) + WhatsApp CTA button
   - All three restyled to V3 tokens (sharp corners, hairlines, paper/ink/accent), bilingual (`bespokeV3`/`storyV3`/`contactV3` translation blocks), verified in both locales via browser
-- **F — polish, a11y, regression:** NOT STARTED (known nit: `catalogV3.found` lacks singular/plural handling)
+- **F — polish, a11y, regression:** COMPLETE (2026-07-15)
+  - Home catalogue strip: idle auto-drift no longer pauses on mere hover — only active drag/wheel/touch/keyboard pauses it (resumes after 2.5s); drag tracked on `window` so release outside the strip still ends it
+  - Richer asymmetry: 5 staggered cell layouts (varied width, image height, caption position, top/bottom alignment) plus the two full-height editorial panels; strip scales with product count
+  - **Category pages are now a filter bar, not a category switcher:** `/koleksi/[kategori]` locks the category by route (breadcrumb + `fixedCategory` prop, no category dropdown) and refines within it (Material/Gemstone/Price facets appear only when ≥2 values exist, plus Sort + "Showing X of Y" + View All). The master `/koleksi` keeps Category as a filter. Price facet is currency-aware.
+  - Bug fixes from the two review agents (backend + frontend):
+    - Order number is now globally unique (time+random) — was a 6-digit random reused as the Midtrans order_id/webhook key
+    - Payment-status transitions are atomic via Sanity `ifRevisionId` optimistic locking with retry — concurrent/duplicate webhooks can no longer double-apply
+    - `capture` with no fraud_status now maps to paid; webhook returns retryable 500 (not 404) on transient status-lookup gaps and checks re-queried currency; Midtrans `first_name` truncated to 50; signature compared in constant time
+    - Checkout: WhatsApp tab opened synchronously (survives popup blockers); cart cleared only once payment is actually initiated; waits for snap.js before paying instead of silently skipping
+    - Cart: newly-added lines no longer flash "unavailable"/wrong subtotal (pending vs resolved tracking); focus kept in-cart on line removal; aria-live totals; decrement button announces "remove" at qty 1
+    - CartProvider persists via effect (no side-effects in updater); PurchasePanel clears its timeout and re-announces repeat adds; bespoke WhatsApp line separator fixed; refunded orders show a neutral tone + dedicated note (was mislabelled as an error)
+  - `catalogV3.found` pluralization nit resolved (count line replaced by "Showing X of Y")
+  - Verified: lint/tsc/build clean; 13 commerce unit checks pass; browser-smoked scroll-pause, asymmetry, and filter bar on both catalogue routes
 
 **Commerce decisions approved by owner (2026-07-15):**
 - Shipping: placeholder rule for now — free ≥ Rp 2,000,000, else Rp 45,000 flat, defined once in `lib/commerce/` and identical in both display currencies (final business rule TBD).

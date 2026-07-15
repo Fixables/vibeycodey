@@ -42,7 +42,11 @@ export function mapMidtransStatus(
 ): PaymentStatus | null {
   switch (transactionStatus) {
     case 'capture':
-      return fraudStatus === 'accept' ? 'paid' : fraudStatus === 'deny' ? 'payment_failed' : null;
+      // `challenge` is held for manual review (no state change); `deny` fails;
+      // `accept` or an absent fraud_status means the capture succeeded.
+      if (fraudStatus === 'challenge') return null;
+      if (fraudStatus === 'deny') return 'payment_failed';
+      return 'paid';
     case 'settlement':
       return 'paid';
     case 'pending':

@@ -23,18 +23,42 @@ interface CheckoutClientProps {
 
 type PayMethod = 'midtrans' | 'whatsapp';
 
+type SnapApi = {
+  pay: (
+    token: string,
+    callbacks: {
+      onSuccess?: () => void;
+      onPending?: () => void;
+      onError?: () => void;
+      onClose?: () => void;
+    }
+  ) => void;
+};
+
 interface SnapWindow extends Window {
-  snap?: {
-    pay: (
-      token: string,
-      callbacks: {
-        onSuccess?: () => void;
-        onPending?: () => void;
-        onError?: () => void;
-        onClose?: () => void;
+  snap?: SnapApi;
+}
+
+/** Resolve once snap.js has loaded, or null if it hasn't within the timeout. */
+function waitForSnap(timeoutMs = 6000): Promise<SnapApi | null> {
+  return new Promise((resolve) => {
+    const immediate = (window as SnapWindow).snap;
+    if (immediate) {
+      resolve(immediate);
+      return;
+    }
+    let waited = 0;
+    const interval = setInterval(() => {
+      const snap = (window as SnapWindow).snap;
+      if (snap) {
+        clearInterval(interval);
+        resolve(snap);
+      } else if ((waited += 150) >= timeoutMs) {
+        clearInterval(interval);
+        resolve(null);
       }
-    ) => void;
-  };
+    }, 150);
+  });
 }
 
 const inputClass =
@@ -139,6 +163,12 @@ export function CheckoutClient({
     setError(null);
     setSubmitting(true);
 
+    // For the WhatsApp method, open the tab synchronously NOW — before any
+    // await — so it inherits the click's user activation and isn't blocked as
+    // a popup. We point it at the real URL once the order exists. (No
+    // noopener: that would make window.open return null and drop the handle.)
+    const waWindow = method === 'whatsapp' ? window.open('', '_blank') : null;
+
     const form = new FormData(event.currentTarget);
     const customer = {
       name: form.get('name'),
@@ -149,6 +179,12 @@ export function CheckoutClient({
       province: form.get('province') || undefined,
       postalCode: form.get('postalCode') || undefined,
       notes: form.get('notes') || undefined,
+    };
+
+    const fail = (message: string) => {
+      waWindow?.close();
+      setError(message);
+      setSubmitting(false);
     };
 
     try {
@@ -167,16 +203,8 @@ export function CheckoutClient({
         }),
       });
 
-      if (res.status === 409) {
-        setError(t.checkoutV3.errorUnavailable);
-        setSubmitting(false);
-        return;
-      }
-      if (!res.ok) {
-        setError(t.checkoutV3.errorGeneric);
-        setSubmitting(false);
-        return;
-      }
+      if (res.status === 409) return fail(t.checkoutV3.errorUnavailable);
+      if (!res.ok) return fail(t.checkoutV3.errorGeneric);
 
       const data = (await res.json()) as {
         statusUrl: string;
@@ -184,31 +212,43 @@ export function CheckoutClient({
         whatsappUrl?: string;
       };
 
-      setPlaced(true);
-      clear();
+      const finish = () => {
+        setPlaced(true);
+        clear();
+        router.push(data.statusUrl);
+      };
 
       if (data.whatsappUrl) {
-        window.open(data.whatsappUrl, '_blank', 'noopener,noreferrer');
-        router.push(data.statusUrl);
+        if (waWindow) {
+          waWindow.opener = null;
+          waWindow.location.href = data.whatsappUrl;
+        } else {
+          window.open(data.whatsappUrl, '_blank', 'noopener,noreferrer');
+        }
+        finish();
         return;
       }
 
-      const snap = (window as SnapWindow).snap;
-      if (data.snapToken && snap) {
-        const goToStatus = () => router.push(data.statusUrl);
-        snap.pay(data.snapToken, {
-          onSuccess: goToStatus,
-          onPending: goToStatus,
-          onError: goToStatus,
-          onClose: goToStatus,
-        });
-      } else {
-        // Snap unavailable in the browser — the order exists; show its status.
-        router.push(data.statusUrl);
+      if (data.snapToken) {
+        const snap = await waitForSnap();
+        if (snap) {
+          snap.pay(data.snapToken, {
+            // Cart is cleared only once payment is actually initiated.
+            onSuccess: finish,
+            onPending: finish,
+            // Payment failed at the gateway — the order exists; show its status.
+            onError: () => router.push(data.statusUrl),
+            // Popup dismissed without paying — keep the cart so they can retry.
+            onClose: () => setSubmitting(false),
+          });
+          return;
+        }
       }
+      // No Snap token, or snap.js never loaded — the order exists (pending);
+      // send them to its status page rather than failing silently.
+      finish();
     } catch {
-      setError(t.checkoutV3.errorGeneric);
-      setSubmitting(false);
+      fail(t.checkoutV3.errorGeneric);
     }
   }
 

@@ -44,7 +44,7 @@ export function BespokeForm({ locale, whatsapp }: BespokeFormProps) {
       `${t.bespokeV3.nameLabel}: ${form.get('name')}`,
       `${t.bespokeV3.phoneLabel}: ${form.get('phone')}`,
       form.get('email') ? `${t.bespokeV3.emailLabel}: ${form.get('email')}` : null,
-      `${t.bespokeV3.typeLabel} ${form.get('type')}`,
+      `${t.bespokeV3.typeLabel}: ${form.get('type')}`,
       `${t.bespokeV3.budgetLabel}: ${form.get('budget')}`,
       '',
       String(form.get('message') ?? ''),

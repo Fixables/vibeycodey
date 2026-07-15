@@ -57,20 +57,24 @@ export default async function OrderStatusPage({
   const statusLabel = (key: string): string => t.orderV3[key as StatusKey] ?? key;
 
   const note =
-    order.paymentMethod === 'whatsapp'
-      ? t.orderV3.whatsappNote
-      : order.paymentStatus === 'paid'
-        ? t.orderV3.paidNote
-        : order.paymentStatus === 'payment_pending'
-          ? t.orderV3.pendingNote
-          : t.orderV3.failedNote;
+    order.paymentStatus === 'refunded'
+      ? t.orderV3.refundedNote
+      : order.paymentMethod === 'whatsapp'
+        ? t.orderV3.whatsappNote
+        : order.paymentStatus === 'paid'
+          ? t.orderV3.paidNote
+          : order.paymentStatus === 'payment_pending'
+            ? t.orderV3.pendingNote
+            : t.orderV3.failedNote;
 
   const paymentTone =
     order.paymentStatus === 'paid'
       ? 'text-success'
       : order.paymentStatus === 'payment_pending'
         ? 'text-warning'
-        : 'text-error';
+        : order.paymentStatus === 'refunded'
+          ? 'text-ink'
+          : 'text-error';
 
   const placed = new Date(order.createdAt).toLocaleDateString(
     locale === 'en' ? 'en-GB' : 'id-ID',

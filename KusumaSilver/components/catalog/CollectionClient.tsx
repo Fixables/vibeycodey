@@ -1,8 +1,12 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import { Search } from 'lucide-react';
+import Link from 'next/link';
+import { useMemo, useState } from 'react';
+import { ChevronRight, Search } from 'lucide-react';
 import { PieceGrid } from './PieceGrid';
+import { useCurrency } from '@/components/providers/CurrencyProvider';
+import { formatDisplayPrice } from '@/lib/commerce/config';
+import { categoryLabel } from '@/lib/catalog';
 import { getT } from '@/lib/i18n';
 import type { Product, Category, Locale } from '@/types';
 
@@ -10,23 +14,144 @@ interface CollectionClientProps {
   products: Product[];
   categories: Category[];
   locale: Locale;
-  initialCategory?: string;
+  /**
+   * When set, the primary category is fixed by the route: the browser shows a
+   * breadcrumb and refines within this category — it does NOT offer a category
+   * switcher. Omit on the master catalogue so category becomes a filter.
+   */
+  fixedCategory?: string;
+}
+
+type SortKey = 'recommended' | 'priceAsc' | 'priceDesc' | 'name';
+
+interface PriceBucket {
+  id: string;
+  min?: number;
+  max?: number;
+}
+
+const PRICE_BUCKETS: PriceBucket[] = [
+  { id: 'u1', max: 1_000_000 },
+  { id: '1-5', min: 1_000_000, max: 5_000_000 },
+  { id: '5-15', min: 5_000_000, max: 15_000_000 },
+  { id: 'o15', min: 15_000_000 },
+];
+
+function inBucket(price: number, bucket: PriceBucket): boolean {
+  if (bucket.min !== undefined && price < bucket.min) return false;
+  if (bucket.max !== undefined && price >= bucket.max) return false;
+  return true;
+}
+
+function localizedName(product: Product, locale: Locale): string {
+  return locale === 'en' ? product.nameEn || product.name : product.name;
+}
+
+const ALL = '__all__';
+
+const selectClass =
+  'cursor-pointer appearance-none border border-ink bg-card py-2 pl-3 pr-8 text-[12px] font-medium tracking-[0.04em] text-ink outline-none transition-colors hover:border-accent focus:border-accent';
+
+function FacetSelect({
+  label,
+  value,
+  onChange,
+  children,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="relative inline-flex">
+      <select
+        aria-label={label}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className={selectClass}
+      >
+        {children}
+      </select>
+      <ChevronRight
+        size={13}
+        strokeWidth={1.75}
+        className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 rotate-90 text-ink/55"
+        aria-hidden="true"
+      />
+    </div>
+  );
 }
 
 export function CollectionClient({
   products,
   categories,
   locale,
-  initialCategory = 'all',
+  fixedCategory,
 }: CollectionClientProps) {
-  const [query, setQuery] = useState('');
-  const [activeCategory, setActiveCategory] = useState(initialCategory);
   const t = getT(locale);
+  const { currency } = useCurrency();
+
+  const [query, setQuery] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState(ALL);
+  const [material, setMaterial] = useState(ALL);
+  const [stone, setStone] = useState(ALL);
+  const [priceBucket, setPriceBucket] = useState(ALL);
+  const [sort, setSort] = useState<SortKey>('recommended');
+
+  // Products in scope before user filters: locked to the route category when
+  // this is a category page, otherwise the whole catalogue.
+  const scoped = useMemo(
+    () => (fixedCategory ? products.filter((p) => p.category === fixedCategory) : products),
+    [products, fixedCategory]
+  );
+
+  // Facet option sets, derived from the scoped products so we never show a
+  // filter value that matches nothing.
+  const materials = useMemo(
+    () => [...new Set(scoped.map((p) => p.material).filter((m): m is string => Boolean(m)))].sort(),
+    [scoped]
+  );
+  const stones = useMemo(
+    () => [...new Set(scoped.map((p) => p.stone).filter((s): s is string => Boolean(s)))].sort(),
+    [scoped]
+  );
+  const hasStonelessPieces = useMemo(() => scoped.some((p) => !p.stone), [scoped]);
+  const activePriceBuckets = useMemo(
+    () => PRICE_BUCKETS.filter((b) => scoped.some((p) => inBucket(p.price, b))),
+    [scoped]
+  );
+
+  const showCategoryFacet = !fixedCategory && categories.length > 1;
+  const showMaterialFacet = materials.length > 1;
+  const showStoneFacet = stones.length + (hasStonelessPieces ? 1 : 0) > 1 && stones.length > 0;
+  const showPriceFacet = activePriceBuckets.length > 1;
+
+  function priceBucketLabel(bucket: PriceBucket): string {
+    if (bucket.min === undefined) {
+      return `${t.catalogV3.priceUnder} ${formatDisplayPrice(bucket.max!, currency)}`;
+    }
+    if (bucket.max === undefined) {
+      return `${t.catalogV3.priceOver} ${formatDisplayPrice(bucket.min, currency)}`;
+    }
+    return `${formatDisplayPrice(bucket.min, currency)} – ${formatDisplayPrice(bucket.max, currency)}`;
+  }
 
   const filtered = useMemo(() => {
-    let result = products;
-    if (activeCategory !== 'all') {
-      result = result.filter((p) => p.category === activeCategory);
+    let result = scoped;
+
+    if (showCategoryFacet && categoryFilter !== ALL) {
+      result = result.filter((p) => p.category === categoryFilter);
+    }
+    if (showMaterialFacet && material !== ALL) {
+      result = result.filter((p) => p.material === material);
+    }
+    if (showStoneFacet && stone !== ALL) {
+      result = stone === '__none__' ? result.filter((p) => !p.stone) : result.filter((p) => p.stone === stone);
+    }
+    if (showPriceFacet && priceBucket !== ALL) {
+      const bucket = PRICE_BUCKETS.find((b) => b.id === priceBucket);
+      if (bucket) result = result.filter((p) => inBucket(p.price, bucket));
     }
     if (query.trim()) {
       const q = query.toLowerCase();
@@ -37,53 +162,159 @@ export function CollectionClient({
           p.description.toLowerCase().includes(q)
       );
     }
-    return result;
-  }, [products, activeCategory, query]);
+
+    const sorted = [...result];
+    switch (sort) {
+      case 'priceAsc':
+        sorted.sort((a, b) => a.price - b.price);
+        break;
+      case 'priceDesc':
+        sorted.sort((a, b) => b.price - a.price);
+        break;
+      case 'name':
+        sorted.sort((a, b) => localizedName(a, locale).localeCompare(localizedName(b, locale)));
+        break;
+      case 'recommended':
+        sorted.sort((a, b) => Number(Boolean(b.featured)) - Number(Boolean(a.featured)));
+        break;
+    }
+    return sorted;
+  }, [
+    scoped,
+    showCategoryFacet,
+    categoryFilter,
+    showMaterialFacet,
+    material,
+    showStoneFacet,
+    stone,
+    showPriceFacet,
+    priceBucket,
+    query,
+    sort,
+    locale,
+  ]);
+
+  const filtersActive =
+    categoryFilter !== ALL ||
+    material !== ALL ||
+    stone !== ALL ||
+    priceBucket !== ALL ||
+    query.trim() !== '';
+
+  function resetFilters() {
+    setCategoryFilter(ALL);
+    setMaterial(ALL);
+    setStone(ALL);
+    setPriceBucket(ALL);
+    setQuery('');
+  }
+
+  const crumbLabel = fixedCategory ? categoryLabel(t, fixedCategory) : t.catalogV3.allCatalogue;
 
   return (
     <div className="mx-auto max-w-[1280px]">
-      <div className="px-5 pt-9 sm:px-10">
-        <div className="flex items-center gap-3 border border-ink bg-card px-4 py-3">
-          <Search size={16} strokeWidth={1.5} className="text-ink/50" />
-          <label htmlFor="catalogue-search" className="sr-only">
-            {t.catalogV3.searchPlaceholder}
-          </label>
-          <input
-            id="catalogue-search"
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder={t.catalogV3.searchPlaceholder}
-            className="w-full bg-transparent text-sm text-ink placeholder:text-ink/40 focus:outline-none"
-          />
+      <div className="border-b border-ink px-5 py-5 sm:px-10">
+        {/* Breadcrumb */}
+        <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-[11px] tracking-[0.08em] text-ink/45">
+          <Link href={`/${locale}`} className="uppercase transition-colors hover:text-accent">
+            {t.catalogV3.home}
+          </Link>
+          <ChevronRight size={12} strokeWidth={1.5} aria-hidden="true" />
+          <span className="font-medium uppercase text-ink">{crumbLabel}</span>
+        </nav>
+
+        {/* Filter + sort bar */}
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+          <div className="flex flex-wrap items-center gap-2.5">
+            <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink/55">
+              {t.catalogV3.filterBy}:
+            </span>
+            {showCategoryFacet && (
+              <FacetSelect label={t.catalogV3.facetCategory} value={categoryFilter} onChange={setCategoryFilter}>
+                <option value={ALL}>{t.catalogV3.facetCategory}</option>
+                {categories.map((cat) => (
+                  <option key={cat.slug} value={cat.slug}>
+                    {locale === 'en' ? cat.nameEn || cat.name : cat.name}
+                  </option>
+                ))}
+              </FacetSelect>
+            )}
+            {showMaterialFacet && (
+              <FacetSelect label={t.catalogV3.facetMaterial} value={material} onChange={setMaterial}>
+                <option value={ALL}>{t.catalogV3.facetMaterial}</option>
+                {materials.map((m) => (
+                  <option key={m} value={m}>
+                    {m}
+                  </option>
+                ))}
+              </FacetSelect>
+            )}
+            {showStoneFacet && (
+              <FacetSelect label={t.catalogV3.facetGemstone} value={stone} onChange={setStone}>
+                <option value={ALL}>{t.catalogV3.facetGemstone}</option>
+                {stones.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
+                {hasStonelessPieces && <option value="__none__">{t.catalogV3.noStone}</option>}
+              </FacetSelect>
+            )}
+            {showPriceFacet && (
+              <FacetSelect label={t.catalogV3.facetPrice} value={priceBucket} onChange={setPriceBucket}>
+                <option value={ALL}>{t.catalogV3.facetPrice}</option>
+                {activePriceBuckets.map((b) => (
+                  <option key={b.id} value={b.id}>
+                    {priceBucketLabel(b)}
+                  </option>
+                ))}
+              </FacetSelect>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2.5">
+            <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink/55">
+              {t.catalogV3.sortBy}:
+            </span>
+            <FacetSelect label={t.catalogV3.sortBy} value={sort} onChange={(v) => setSort(v as SortKey)}>
+              <option value="recommended">{t.catalogV3.sortRecommended}</option>
+              <option value="priceAsc">{t.catalogV3.sortPriceAsc}</option>
+              <option value="priceDesc">{t.catalogV3.sortPriceDesc}</option>
+              <option value="name">{t.catalogV3.sortName}</option>
+            </FacetSelect>
+          </div>
         </div>
 
-        <div className="mt-4 flex flex-wrap gap-2">
-          <button
-            onClick={() => setActiveCategory('all')}
-            aria-pressed={activeCategory === 'all'}
-            className={`cursor-pointer border border-ink px-4 py-2 text-[11px] font-semibold tracking-[0.12em] transition-colors ${
-              activeCategory === 'all' ? 'bg-ink text-paper' : 'bg-transparent text-ink hover:bg-ink/5'
-            }`}
-          >
-            {t.catalog.allCategories}
-          </button>
-          {categories.map((cat) => (
-            <button
-              key={cat.slug}
-              onClick={() => setActiveCategory(cat.slug)}
-              aria-pressed={activeCategory === cat.slug}
-              className={`cursor-pointer border border-ink px-4 py-2 text-[11px] font-semibold tracking-[0.12em] transition-colors ${
-                activeCategory === cat.slug ? 'bg-ink text-paper' : 'bg-transparent text-ink hover:bg-ink/5'
-              }`}
-            >
-              {locale === 'en' ? cat.nameEn || cat.name : cat.name}
-            </button>
-          ))}
-        </div>
-
-        <div className="mt-3 text-[11px] text-ink/50">
-          {filtered.length} {t.catalogV3.found}
+        {/* Count + search + reset */}
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+          <div className="flex items-center gap-3 text-[12px] text-ink/55">
+            <span>
+              {t.catalogV3.showing} {filtered.length} {t.catalogV3.of} {scoped.length}
+            </span>
+            {filtersActive && (
+              <button
+                type="button"
+                onClick={resetFilters}
+                className="cursor-pointer border-b border-ink pb-px font-medium uppercase tracking-[0.1em] text-ink transition-colors hover:border-accent hover:text-accent"
+              >
+                {t.catalogV3.viewAll}
+              </button>
+            )}
+          </div>
+          <div className="flex min-w-[200px] flex-1 items-center gap-2 border border-ink bg-card px-3 py-2 sm:max-w-[280px]">
+            <Search size={15} strokeWidth={1.5} className="shrink-0 text-ink/50" aria-hidden="true" />
+            <label htmlFor="catalogue-search" className="sr-only">
+              {t.catalogV3.searchPlaceholder}
+            </label>
+            <input
+              id="catalogue-search"
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder={t.catalogV3.searchPlaceholder}
+              className="w-full bg-transparent text-[13px] text-ink placeholder:text-ink/40 focus:outline-none"
+            />
+          </div>
         </div>
       </div>
 

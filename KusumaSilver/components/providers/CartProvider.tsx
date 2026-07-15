@@ -49,42 +49,36 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener('storage', onStorage);
   }, []);
 
-  const persist = useCallback((next: CartItem[]) => {
-    setItems(next);
-    if (loaded.current) writeStoredCart(next);
+  // Persist as a pure effect of state — never inside a setState updater (which
+  // would double-run under StrictMode). Skipped until the initial load so the
+  // empty SSR state can't clobber a stored cart before it's read.
+  useEffect(() => {
+    if (loaded.current) writeStoredCart(items);
+  }, [items]);
+
+  const addItem = useCallback((item: Omit<CartItem, 'addedAt' | 'qty'>, qty = 1) => {
+    setItems((prev) => {
+      const existing = prev.find((line) => sameLine(line, item));
+      return existing
+        ? prev.map((line) =>
+            sameLine(line, item)
+              ? { ...line, qty: Math.min(line.qty + qty, MAX_QTY_PER_LINE) }
+              : line
+          )
+        : [...prev, { ...item, qty: Math.min(qty, MAX_QTY_PER_LINE), addedAt: Date.now() }];
+    });
   }, []);
 
-  const addItem = useCallback(
-    (item: Omit<CartItem, 'addedAt' | 'qty'>, qty = 1) => {
-      setItems((prev) => {
-        const existing = prev.find((line) => sameLine(line, item));
-        const next = existing
-          ? prev.map((line) =>
-              sameLine(line, item)
-                ? { ...line, qty: Math.min(line.qty + qty, MAX_QTY_PER_LINE) }
-                : line
-            )
-          : [...prev, { ...item, qty: Math.min(qty, MAX_QTY_PER_LINE), addedAt: Date.now() }];
-        if (loaded.current) writeStoredCart(next);
-        return next;
-      });
-    },
-    []
-  );
-
   const setQty = useCallback((productId: string, size: string | null, qty: number) => {
-    setItems((prev) => {
-      const next =
-        qty <= 0
-          ? prev.filter((line) => !sameLine(line, { productId, size }))
-          : prev.map((line) =>
-              sameLine(line, { productId, size })
-                ? { ...line, qty: Math.min(qty, MAX_QTY_PER_LINE) }
-                : line
-            );
-      if (loaded.current) writeStoredCart(next);
-      return next;
-    });
+    setItems((prev) =>
+      qty <= 0
+        ? prev.filter((line) => !sameLine(line, { productId, size }))
+        : prev.map((line) =>
+            sameLine(line, { productId, size })
+              ? { ...line, qty: Math.min(qty, MAX_QTY_PER_LINE) }
+              : line
+          )
+    );
   }, []);
 
   const removeItem = useCallback(
@@ -92,7 +86,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     [setQty]
   );
 
-  const clear = useCallback(() => persist([]), [persist]);
+  const clear = useCallback(() => setItems([]), []);
 
   const count = items.reduce((sum, line) => sum + line.qty, 0);
 
