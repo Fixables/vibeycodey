@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Minus, Plus, X } from 'lucide-react';
+import { Lock, Minus, Plus, X } from 'lucide-react';
 import { useCart } from '@/components/providers/CartProvider';
 import { ImageSlot } from '@/components/ui/ImageSlot';
 import { PriceDisplay } from '@/components/ui/PriceDisplay';
@@ -78,7 +78,7 @@ export function CartClient({ locale }: { locale: Locale }) {
 
   if (items.length === 0) {
     return (
-      <div className="mt-10 border border-ink bg-card px-8 py-16 text-center">
+      <div className="mt-10 border border-ink bg-paper px-8 py-16 text-center">
         <h2 className="font-heading text-[26px] font-normal text-ink">{t.bag.emptyTitle}</h2>
         <p className="mx-auto mt-3 max-w-[360px] text-sm leading-relaxed text-ink/65">
           {t.bag.emptyBody}
@@ -95,7 +95,7 @@ export function CartClient({ locale }: { locale: Locale }) {
 
   if (catalogue === null) {
     return (
-      <div className="mt-10 border border-ink bg-card px-8 py-16 text-center">
+      <div className="mt-10 border border-ink bg-paper px-8 py-16 text-center">
         <p className="text-sm text-ink/65">{t.bag.loading}</p>
       </div>
     );
@@ -127,7 +127,7 @@ export function CartClient({ locale }: { locale: Locale }) {
   return (
     <div className="mt-10 grid items-start gap-8 lg:grid-cols-[1fr_360px]">
       {/* Line items */}
-      <ul className="divide-y divide-ink/15 border border-ink bg-card">
+      <ul className="divide-y divide-ink/15 border-y border-ink">
         {items.map((line) => {
           const { product, pending, available } = lineState(line.productId);
           const name = product
@@ -221,7 +221,7 @@ export function CartClient({ locale }: { locale: Locale }) {
         ref={summaryRef}
         tabIndex={-1}
         aria-label={t.bag.summaryHead}
-        className="border border-ink bg-card p-6 outline-none"
+        className="border border-ink bg-paper p-6 outline-none"
       >
         <h2 className="font-heading text-[22px] font-normal text-ink">{t.bag.summaryHead}</h2>
         <dl aria-live="polite" className="mt-5 space-y-3 text-[13px]">
@@ -271,6 +271,10 @@ export function CartClient({ locale }: { locale: Locale }) {
         >
           {t.bag.continueShopping}
         </Link>
+        <p className="mt-4 flex items-center justify-center gap-1.5 text-[11px] text-ink/45">
+          <Lock size={12} strokeWidth={1.5} aria-hidden="true" />
+          {t.bag.securePayment}
+        </p>
       </aside>
     </div>
   );

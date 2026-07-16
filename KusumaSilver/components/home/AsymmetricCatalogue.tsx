@@ -76,23 +76,27 @@ function ProductCell({ product, locale, t, shadow, layout }: CellProps & { layou
   return (
     <Link
       href={`/${locale}/koleksi/${product.category}/${product.slug}`}
-      className={`group flex ${layout.width} shrink-0 flex-col border-r border-ink ${
+      className={`group flex ${layout.width} shrink-0 flex-col ${
         layout.align === 'bottom' ? 'justify-end' : 'justify-start'
       }`}
       draggable={false}
       tabIndex={shadow ? -1 : undefined}
     >
-      {layout.invert ? (
-        <>
-          {caption}
-          {image}
-        </>
-      ) : (
-        <>
-          {image}
-          {caption}
-        </>
-      )}
+      {/* Border wraps only the image + caption, so the staggered whitespace
+          above/below has no stray hairline — the divider hugs the content. */}
+      <div className="flex flex-col border-r border-ink">
+        {layout.invert ? (
+          <>
+            {caption}
+            {image}
+          </>
+        ) : (
+          <>
+            {image}
+            {caption}
+          </>
+        )}
+      </div>
     </Link>
   );
 }
