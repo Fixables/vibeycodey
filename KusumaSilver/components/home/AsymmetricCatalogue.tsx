@@ -42,24 +42,22 @@ function CaptionBar({ product, locale, t }: CellProps) {
 }
 
 /**
- * Per-cell layout recipe. Varying width, image height, caption position, and
- * vertical alignment gives the strip an irregular, editorial rhythm rather
- * than a uniform row. Alignment leaves whitespace at the opposite end, so the
- * cells' baselines zigzag.
+ * Per-cell layout recipe. Cells fill the full strip height (the image flexes to
+ * fill whatever the caption doesn't), so there is never empty space beside a
+ * hairline. Asymmetry comes from varied column widths and caption position
+ * (some captions above the image, some below).
  */
 interface CellLayout {
   width: string;
-  imgHeight: string;
   invert: boolean;
-  align: 'top' | 'bottom';
 }
 
 const CELL_LAYOUTS: CellLayout[] = [
-  { width: 'w-[300px] sm:w-[440px]', imgHeight: 'h-[360px] sm:h-[460px]', invert: false, align: 'bottom' },
-  { width: 'w-[230px] sm:w-[300px]', imgHeight: 'h-[280px] sm:h-[340px]', invert: true, align: 'top' },
-  { width: 'w-[270px] sm:w-[360px]', imgHeight: 'h-[320px] sm:h-[400px]', invert: false, align: 'top' },
-  { width: 'w-[240px] sm:w-[330px]', imgHeight: 'h-[300px] sm:h-[380px]', invert: true, align: 'bottom' },
-  { width: 'w-[290px] sm:w-[410px]', imgHeight: 'h-[340px] sm:h-[430px]', invert: false, align: 'bottom' },
+  { width: 'w-[300px] sm:w-[440px]', invert: false },
+  { width: 'w-[230px] sm:w-[300px]', invert: true },
+  { width: 'w-[270px] sm:w-[360px]', invert: false },
+  { width: 'w-[240px] sm:w-[330px]', invert: true },
+  { width: 'w-[290px] sm:w-[410px]', invert: false },
 ];
 
 function ProductCell({ product, locale, t, shadow, layout }: CellProps & { layout: CellLayout }) {
@@ -67,7 +65,7 @@ function ProductCell({ product, locale, t, shadow, layout }: CellProps & { layou
     <ImageSlot
       src={product.imageUrl}
       alt={localizedName(product, locale)}
-      className={`${layout.imgHeight} shrink-0 border-ink ${layout.invert ? 'border-t' : 'border-b'}`}
+      className={`min-h-0 flex-1 border-ink ${layout.invert ? 'border-t' : 'border-b'}`}
       imgClassName="transition-transform duration-500 group-hover:scale-[1.04]"
     />
   );
@@ -76,27 +74,21 @@ function ProductCell({ product, locale, t, shadow, layout }: CellProps & { layou
   return (
     <Link
       href={`/${locale}/koleksi/${product.category}/${product.slug}`}
-      className={`group flex ${layout.width} shrink-0 flex-col ${
-        layout.align === 'bottom' ? 'justify-end' : 'justify-start'
-      }`}
+      className={`group flex ${layout.width} shrink-0 flex-col border-r border-ink`}
       draggable={false}
       tabIndex={shadow ? -1 : undefined}
     >
-      {/* Border wraps only the image + caption, so the staggered whitespace
-          above/below has no stray hairline — the divider hugs the content. */}
-      <div className="flex flex-col border-r border-ink">
-        {layout.invert ? (
-          <>
-            {caption}
-            {image}
-          </>
-        ) : (
-          <>
-            {image}
-            {caption}
-          </>
-        )}
-      </div>
+      {layout.invert ? (
+        <>
+          {caption}
+          {image}
+        </>
+      ) : (
+        <>
+          {image}
+          {caption}
+        </>
+      )}
     </Link>
   );
 }
