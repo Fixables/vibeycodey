@@ -57,14 +57,17 @@ export function Navbar({ locale, whatsappLink, storeName }: NavbarProps) {
           </Link>
         </div>
 
-        {/* Center: logo */}
-        <Link href={`/${locale}`} className="flex justify-center" aria-label={storeName}>
+        {/* Center: logo + subtext */}
+        <Link href={`/${locale}`} className="flex flex-col items-center" aria-label={storeName}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/logo.jpg"
             alt={storeName}
-            className="h-10 w-auto mix-blend-multiply sm:h-12 lg:h-14"
+            className="h-9 w-auto mix-blend-multiply sm:h-10 lg:h-11"
           />
+          <span className="mt-1 hidden text-[9px] font-medium tracking-[0.42em] text-ink/50 sm:block">
+            {t.chrome.wordmarkSub}
+          </span>
         </Link>
 
         {/* Right: bag */}
