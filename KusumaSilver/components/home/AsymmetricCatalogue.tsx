@@ -42,112 +42,71 @@ function CaptionBar({ product, locale, t }: CellProps) {
 }
 
 /**
- * Per-cell layout recipe. Cells fill the full strip height (the image flexes to
- * fill whatever the caption doesn't), so there is never empty space beside a
- * hairline. Asymmetry comes from varied column widths and caption position
- * (some captions above the image, some below).
+ * Column widths — the handoff's 38% / 24% / 38% rhythm (wide / narrow / wide).
+ * Every cell fills the full strip height, so borders never flank empty space.
  */
-interface CellLayout {
-  width: string;
-  invert: boolean;
-}
+const WIDE = 'w-[300px] shrink-0 sm:w-[440px]';
+const NARROW = 'w-[230px] shrink-0 sm:w-[300px]';
 
-const CELL_LAYOUTS: CellLayout[] = [
-  { width: 'w-[300px] sm:w-[440px]', invert: false },
-  { width: 'w-[230px] sm:w-[300px]', invert: true },
-  { width: 'w-[270px] sm:w-[360px]', invert: false },
-  { width: 'w-[240px] sm:w-[330px]', invert: true },
-  { width: 'w-[290px] sm:w-[410px]', invert: false },
-];
-
-function ProductCell({ product, locale, t, shadow, layout }: CellProps & { layout: CellLayout }) {
-  const image = (
-    <ImageSlot
-      src={product.imageUrl}
-      alt={localizedName(product, locale)}
-      className={`min-h-0 flex-1 border-ink ${layout.invert ? 'border-t' : 'border-b'}`}
-      imgClassName="transition-transform duration-500 group-hover:scale-[1.04]"
-    />
-  );
-  const caption = <CaptionBar product={product} locale={locale} t={t} />;
-
+/** Reusable image + caption block that links to the product page. */
+function ProductBlock({ product, locale, t, shadow }: CellProps) {
   return (
     <Link
       href={`/${locale}/koleksi/${product.category}/${product.slug}`}
-      className={`group flex ${layout.width} shrink-0 flex-col border-r border-ink`}
+      className="group flex min-h-0 flex-1 flex-col"
       draggable={false}
       tabIndex={shadow ? -1 : undefined}
     >
-      {layout.invert ? (
-        <>
-          {caption}
-          {image}
-        </>
-      ) : (
-        <>
-          {image}
-          {caption}
-        </>
-      )}
+      <ImageSlot
+        src={product.imageUrl}
+        alt={localizedName(product, locale)}
+        className="min-h-0 flex-1 border-b border-ink"
+        imgClassName="transition-transform duration-500 group-hover:scale-[1.04]"
+      />
+      <CaptionBar product={product} locale={locale} t={t} />
     </Link>
   );
 }
 
-function PanelText({ label, text }: { label: string; text: string }) {
+/** Plain full-height product cell — image fills, caption at the bottom. */
+function ProductCell({ product, locale, t, shadow, width }: CellProps & { width: string }) {
   return (
-    <>
-      <p className="text-[10px] tracking-[0.3em] text-accent">{label}</p>
-      <p className="mt-3 font-heading text-[22px] leading-snug text-ink">{text}</p>
-    </>
-  );
-}
-
-/** Full-height anchor column — technique panel on top, product filling below. */
-function TechniqueStack({ product, locale, t, shadow }: CellProps) {
-  return (
-    <div className="flex w-[250px] shrink-0 flex-col border-r border-ink sm:w-[330px]">
-      <div className="border-b border-ink p-6">
-        <PanelText label={t.homeV3.techniqueLabel} text={t.homeV3.techniqueText} />
-      </div>
-      <Link
-        href={`/${locale}/koleksi/${product.category}/${product.slug}`}
-        className="group flex min-h-0 flex-1 flex-col"
-        draggable={false}
-        tabIndex={shadow ? -1 : undefined}
-      >
-        <ImageSlot
-          src={product.imageUrl}
-          alt={localizedName(product, locale)}
-          className="min-h-0 flex-1 border-b border-ink"
-          imgClassName="transition-transform duration-500 group-hover:scale-[1.04]"
-        />
-        <CaptionBar product={product} locale={locale} t={t} />
-      </Link>
+    <div className={`flex ${width} flex-col border-r border-ink`}>
+      <ProductBlock product={product} locale={locale} t={t} shadow={shadow} />
     </div>
   );
 }
 
-/** Full-height anchor column — product filling the top, origin panel below. */
-function OriginStack({ product, locale, t, shadow }: CellProps) {
+/** Full-height cell with an editorial panel stacked above or below the product. */
+function PanelStack({
+  product,
+  locale,
+  t,
+  shadow,
+  width,
+  label,
+  text,
+  position,
+}: CellProps & { width: string; label: string; text: string; position: 'top' | 'bottom' }) {
+  const panel = (
+    <div className={`p-6 ${position === 'top' ? 'border-b' : 'border-t'} border-ink`}>
+      <p className="text-[10px] tracking-[0.3em] text-accent">{label}</p>
+      <p className="mt-3 font-heading text-[22px] leading-snug text-ink">{text}</p>
+    </div>
+  );
   return (
-    <div className="flex w-[300px] shrink-0 flex-col border-r border-ink sm:w-[440px]">
-      <Link
-        href={`/${locale}/koleksi/${product.category}/${product.slug}`}
-        className="group flex min-h-0 flex-1 flex-col"
-        draggable={false}
-        tabIndex={shadow ? -1 : undefined}
-      >
-        <ImageSlot
-          src={product.imageUrl}
-          alt={localizedName(product, locale)}
-          className="min-h-0 flex-1 border-b border-ink"
-          imgClassName="transition-transform duration-500 group-hover:scale-[1.04]"
-        />
-        <CaptionBar product={product} locale={locale} t={t} />
-      </Link>
-      <div className="border-t border-ink p-6">
-        <PanelText label={t.homeV3.originLabel} text={t.homeV3.originText} />
-      </div>
+    <div className={`flex ${width} flex-col border-r border-ink`}>
+      {position === 'top' ? (
+        <>
+          {panel}
+          <ProductBlock product={product} locale={locale} t={t} shadow={shadow} />
+        </>
+      ) : (
+        <>
+          <ProductBlock product={product} locale={locale} t={t} shadow={shadow} />
+          {panel}
+        </>
+      )}
     </div>
   );
 }
@@ -296,18 +255,41 @@ export function AsymmetricCatalogue({ locale, products }: AsymmetricCataloguePro
     };
   }, []);
 
-  // Composition: wide opener, a full-height technique panel over piece two, a
-  // full-height origin panel under piece three, then staggered product cells
-  // cycling through the layout recipes for an irregular editorial rhythm.
-  const renderSet = (shadow: boolean) =>
-    products.map((product, i) => {
-      const props = { product, locale, t, shadow };
-      if (i === 1) return <TechniqueStack key={product.slug} {...props} />;
-      if (i === 2) return <OriginStack key={product.slug} {...props} />;
+  // Rotating pool of editorial one-liners so the panels aren't just technique
+  // and origin on repeat.
+  const panels = [
+    { label: t.homeV3.techniqueLabel, text: t.homeV3.techniqueText },
+    { label: t.homeV3.madeInBaliLabel, text: t.homeV3.madeInBaliText },
+    { label: t.homeV3.originLabel, text: t.homeV3.originText },
+    { label: t.homeV3.sterlingLabel, text: t.homeV3.sterlingText },
+    { label: t.homeV3.byHandLabel, text: t.homeV3.byHandText },
+    { label: t.homeV3.familyLabel, text: t.homeV3.familyText },
+  ];
+
+  // Composition follows the handoff's wide / narrow / wide rhythm: a plain wide
+  // image, then a narrow cell with an editorial panel on top, then a wide cell
+  // with a panel below — repeating, with the panels cycling the pool.
+  const renderSet = (shadow: boolean) => {
+    let panelIdx = 0;
+    return products.map((product, i) => {
+      const props = { product, locale, t, shadow, key: product.slug };
+      const kind = i % 3;
+      if (kind === 0) {
+        return <ProductCell {...props} width={WIDE} />;
+      }
+      const panel = panels[panelIdx % panels.length];
+      panelIdx += 1;
       return (
-        <ProductCell key={product.slug} {...props} layout={CELL_LAYOUTS[i % CELL_LAYOUTS.length]} />
+        <PanelStack
+          {...props}
+          width={kind === 1 ? NARROW : WIDE}
+          label={panel.label}
+          text={panel.text}
+          position={kind === 1 ? 'top' : 'bottom'}
+        />
       );
     });
+  };
 
   return (
     <section className="px-5 py-14 sm:px-10 lg:py-20">
