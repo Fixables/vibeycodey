@@ -1,4 +1,5 @@
-import { getStoreInfo } from '@/lib/sanity-data';
+import { getBespokeContent, getStoreInfo } from '@/lib/sanity-data';
+import { resolveBespoke } from '@/lib/home-content';
 import { SUPPORTED_LOCALES, getT } from '@/lib/i18n';
 import { ImageSlot } from '@/components/ui/ImageSlot';
 import { BespokeForm } from '@/components/bespoke/BespokeForm';
@@ -15,6 +16,7 @@ export default async function CustomOrderPage({ params }: { params: Promise<{ lo
   const { locale } = await params;
   const storeInfo = await getStoreInfo();
   const t = getT(locale);
+  const bespoke = resolveBespoke(await getBespokeContent(), locale, t);
 
   return (
     <div>
@@ -22,15 +24,15 @@ export default async function CustomOrderPage({ params }: { params: Promise<{ lo
       <section className="grid border-b border-ink lg:grid-cols-2">
         <div className="flex flex-col items-start justify-center bg-ink px-6 py-16 sm:px-12 lg:px-[72px] lg:py-[88px]">
           <p className="text-[10px] font-medium tracking-[0.34em] text-accent">
-            {t.bespokeV3.eyebrow}
+            {bespoke.heroEyebrow}
           </p>
           <h1 className="mt-5 font-heading text-[38px] font-light leading-[1.1] text-ink-soft sm:text-[52px]">
-            {t.bespokeV3.title1}
+            {bespoke.heroTitle1}
             <br />
-            <em className="font-normal">{t.bespokeV3.title2}</em>
+            <em className="font-normal">{bespoke.heroTitle2}</em>
           </h1>
           <p className="mt-6 max-w-[400px] text-sm leading-[1.75] text-ink-soft/65">
-            {t.bespokeV3.intro}
+            {bespoke.heroIntro}
           </p>
           <a
             href="#commission"
@@ -40,6 +42,7 @@ export default async function CustomOrderPage({ params }: { params: Promise<{ lo
           </a>
         </div>
         <ImageSlot
+          src={bespoke.heroImageUrl}
           alt={t.bespokeV3.heroImageAlt}
           className="min-h-[320px] border-t border-ink lg:min-h-[520px] lg:border-l lg:border-t-0"
         />
@@ -49,14 +52,14 @@ export default async function CustomOrderPage({ params }: { params: Promise<{ lo
       <section className="px-5 py-16 sm:px-10 lg:py-20">
         <div className="text-center">
           <p className="text-[10px] font-semibold tracking-[0.3em] text-accent">
-            {t.bespokeV3.processEyebrow}
+            {bespoke.processEyebrow}
           </p>
           <h2 className="mt-3 font-heading text-[28px] font-normal text-ink lg:text-[34px]">
-            {t.bespokeV3.processTitle}
+            {bespoke.processTitle}
           </h2>
         </div>
         <div className="mx-auto mt-10 grid max-w-[1180px] border border-ink sm:grid-cols-2 lg:grid-cols-4">
-          {t.customOrder.steps.map((step, i) => (
+          {bespoke.steps.map((step, i) => (
             <div
               key={i}
               className="border-b border-ink p-7 last:border-b-0 sm:[&:nth-child(odd)]:border-r lg:border-b-0 lg:border-r lg:last:border-r-0"
@@ -80,12 +83,12 @@ export default async function CustomOrderPage({ params }: { params: Promise<{ lo
           />
           <div>
             <p className="text-[10px] font-semibold tracking-[0.3em] text-accent">
-              {t.bespokeV3.formEyebrow}
+              {bespoke.formEyebrow}
             </p>
             <h2 className="mt-3 font-heading text-[28px] font-normal text-ink lg:text-[34px]">
-              {t.bespokeV3.formTitle}
+              {bespoke.formTitle}
             </h2>
-            <p className="mt-2 text-sm text-ink/60">{t.bespokeV3.formSub}</p>
+            <p className="mt-2 text-sm text-ink/60">{bespoke.formSub}</p>
             <div className="mt-8">
               <BespokeForm locale={locale} whatsapp={storeInfo.whatsapp} />
             </div>

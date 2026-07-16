@@ -42,6 +42,14 @@ export default defineConfig({
                   .documentId('contactPage')
               ),
             S.listItem()
+              .title('Custom Order')
+              .id('bespokePage')
+              .child(
+                S.document()
+                  .schemaType('bespokePage')
+                  .documentId('bespokePage')
+              ),
+            S.listItem()
               .title('Informasi Toko')
               .id('storeInfo')
               .child(
@@ -52,8 +60,6 @@ export default defineConfig({
             S.divider(),
             S.documentTypeListItem('category').title('Kategori'),
             S.documentTypeListItem('product').title('Perhiasan'),
-            S.documentTypeListItem('testimonial').title('Testimoni'),
-            S.documentTypeListItem('customOrderStep').title('Langkah Custom Order'),
           ]),
     }),
     visionTool(),

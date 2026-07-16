@@ -1,5 +1,6 @@
 import { MapPin, Phone, Mail, Clock } from 'lucide-react';
-import { getStoreInfo, getWhatsAppLink } from '@/lib/sanity-data';
+import { getContactContent, getStoreInfo, getWhatsAppLink } from '@/lib/sanity-data';
+import { resolveContact } from '@/lib/home-content';
 import { ContactForm } from '@/components/contact/ContactForm';
 import { SUPPORTED_LOCALES, getT } from '@/lib/i18n';
 import type { Locale } from '@/types';
@@ -15,6 +16,7 @@ export default async function KontakPage({ params }: { params: Promise<{ locale:
   const { locale } = await params;
   const storeInfo = await getStoreInfo();
   const t = getT(locale);
+  const contact = resolveContact(await getContactContent(), locale, t);
   const waLink = getWhatsAppLink(storeInfo.whatsapp);
 
   const infoRows = [
@@ -52,14 +54,12 @@ export default async function KontakPage({ params }: { params: Promise<{ locale:
     <div>
       {/* Dark header */}
       <section className="border-b border-ink bg-ink px-5 py-16 text-center sm:px-10 lg:py-20">
-        <p className="text-[10px] font-medium tracking-[0.34em] text-accent">
-          {t.contactV3.eyebrow}
-        </p>
+        <p className="text-[10px] font-medium tracking-[0.34em] text-accent">{contact.eyebrow}</p>
         <h1 className="mt-4 font-heading text-[36px] font-light text-ink-soft sm:text-[46px]">
-          {t.contactV3.title}
+          {contact.title}
         </h1>
         <p className="mx-auto mt-4 max-w-[460px] text-sm leading-relaxed text-ink-soft/60">
-          {t.contactV3.subtitle}
+          {contact.subtitle}
         </p>
       </section>
 
@@ -115,9 +115,7 @@ export default async function KontakPage({ params }: { params: Promise<{ locale:
           <p className="text-[10px] font-semibold tracking-[0.3em] text-accent">
             {t.contactV3.formEyebrow}
           </p>
-          <h2 className="mt-3 font-heading text-[28px] font-normal text-ink">
-            {t.contactV3.formTitle}
-          </h2>
+          <h2 className="mt-3 font-heading text-[28px] font-normal text-ink">{contact.formTitle}</h2>
           <div className="mt-7">
             <ContactForm locale={locale} whatsapp={storeInfo.whatsapp} />
           </div>

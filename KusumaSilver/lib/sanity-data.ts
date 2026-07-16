@@ -1,7 +1,7 @@
 import { cache } from 'react';
 import { client, urlFor } from './sanity';
 import { formatPrice } from './utils';
-import type { Category, Product, StoreInfo, Testimonial, HomePageContent, AboutPageContent, ContactPageContent } from '@/types';
+import type { Category, Product, StoreInfo, HomePageContent, AboutPageContent, ContactPageContent } from '@/types';
 
 // ---- Helpers ----
 
@@ -167,20 +167,6 @@ export async function getAllProductSlugs(): Promise<{ slug: string; category: st
   return safeFetch<{ slug: string; category: string }[]>(query, undefined, []);
 }
 
-// ---- Testimonials ----
-
-export async function getTestimonials(): Promise<Testimonial[]> {
-  const query = `*[_type == "testimonial"] | order(order asc) {
-    "id": _id,
-    name,
-    location,
-    content,
-    contentEn,
-    rating
-  }`;
-  return safeFetch<Testimonial[]>(query, undefined, []);
-}
-
 // ---- Store Info ----
 
 const STORE_INFO_FALLBACK: StoreInfo = {
@@ -261,6 +247,50 @@ export async function getHomeContent(): Promise<Record<string, unknown> | null> 
     }
   };
   return { ...data, heroImageUrl: toUrl(data.heroImage), heritageImageUrl: toUrl(data.heritageImage) };
+}
+
+function imageUrl(value: unknown, width = 1200): string | undefined {
+  try {
+    return value ? urlFor(value as Record<string, unknown>).width(width).url() : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/** Editable "Our Story" page content, with resolved image URLs. */
+export async function getAboutContent(): Promise<Record<string, unknown> | null> {
+  const data = await safeFetch<Record<string, unknown> | null>(
+    `*[_type == "aboutPage" && _id == "aboutPage"][0]`,
+    undefined,
+    null
+  );
+  if (!data) return null;
+  return {
+    ...data,
+    heroImageUrl: imageUrl(data.heroImage),
+    galleryImage1Url: imageUrl(data.galleryImage1, 800),
+    galleryImage2Url: imageUrl(data.galleryImage2, 800),
+  };
+}
+
+/** Editable Contact page headings (contact details come from Store Info). */
+export async function getContactContent(): Promise<Record<string, unknown> | null> {
+  return safeFetch<Record<string, unknown> | null>(
+    `*[_type == "contactPage" && _id == "contactPage"][0]`,
+    undefined,
+    null
+  );
+}
+
+/** Editable Bespoke / Custom Order page content, with resolved image URL. */
+export async function getBespokeContent(): Promise<Record<string, unknown> | null> {
+  const data = await safeFetch<Record<string, unknown> | null>(
+    `*[_type == "bespokePage" && _id == "bespokePage"][0]`,
+    undefined,
+    null
+  );
+  if (!data) return null;
+  return { ...data, heroImageUrl: imageUrl(data.heroImage) };
 }
 
 export async function getAboutPageContent(): Promise<AboutPageContent> {
