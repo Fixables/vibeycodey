@@ -1,27 +1,26 @@
 import { ImageSlot } from '@/components/ui/ImageSlot';
 import { getT } from '@/lib/i18n';
+import type { ResolvedHome } from '@/lib/home-content';
 import type { Locale } from '@/types';
 
-export function HeritageBand({ locale }: { locale: Locale }) {
+export function HeritageBand({ locale, home }: { locale: Locale; home: ResolvedHome }) {
   const t = getT(locale);
 
   const stats: Array<[string, string]> = [
-    ['925', t.homeV3.statSilver],
-    ['3', t.homeV3.statGen],
-    ['100%', t.homeV3.statHand],
+    ['925', home.statSilver],
+    ['3', home.statGen],
+    ['100%', home.statHand],
   ];
 
   return (
     <section className="grid bg-ink text-ink-soft lg:grid-cols-2">
       <div className="px-5 py-14 sm:px-10 lg:px-[72px] lg:py-[88px]">
-        <p className="text-[10px] font-medium tracking-[0.34em] text-accent">
-          {t.homeV3.heritageEyebrow}
-        </p>
+        <p className="text-[10px] font-medium tracking-[0.34em] text-accent">{home.heritageEyebrow}</p>
         <h2 className="mt-4 font-heading text-[30px] font-normal leading-tight lg:text-[38px]">
-          {t.homeV3.heritageTitle}
+          {home.heritageTitle}
         </h2>
         <p className="mt-5 max-w-[400px] text-sm leading-relaxed text-ink-soft/60">
-          {t.homeV3.heritageBody}
+          {home.heritageBody}
         </p>
         <div className="mt-10 grid grid-cols-3 gap-6 border-t border-ink-soft/15 pt-8">
           {stats.map(([value, label]) => (
@@ -33,6 +32,7 @@ export function HeritageBand({ locale }: { locale: Locale }) {
         </div>
       </div>
       <ImageSlot
+        src={home.heritageImageUrl}
         alt={t.homeV3.heritageImageAlt}
         label={t.homeV3.heritageImageAlt}
         className="min-h-[300px] bg-ink-soft/10 lg:min-h-[460px]"

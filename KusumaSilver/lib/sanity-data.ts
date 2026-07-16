@@ -241,6 +241,28 @@ export async function getHomePageContent(): Promise<HomePageContent> {
   return (data ?? {}) as HomePageContent;
 }
 
+/**
+ * V3 home content: the editable hero / heritage / manifesto text plus resolved
+ * image URLs. Returns null when nothing is published (the page then falls back
+ * to the built-in default copy).
+ */
+export async function getHomeContent(): Promise<Record<string, unknown> | null> {
+  const data = await safeFetch<Record<string, unknown> | null>(
+    `*[_type == "homePage" && _id == "homePage"][0]`,
+    undefined,
+    null
+  );
+  if (!data) return null;
+  const toUrl = (value: unknown): string | undefined => {
+    try {
+      return value ? urlFor(value as Record<string, unknown>).width(1200).url() : undefined;
+    } catch {
+      return undefined;
+    }
+  };
+  return { ...data, heroImageUrl: toUrl(data.heroImage), heritageImageUrl: toUrl(data.heritageImage) };
+}
+
 export async function getAboutPageContent(): Promise<AboutPageContent> {
   const data = await safeFetch<Record<string, unknown> | null>(
     `*[_type == "aboutPage" && _id == "aboutPage"][0]`,

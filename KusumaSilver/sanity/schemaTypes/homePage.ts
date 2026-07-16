@@ -1,139 +1,133 @@
 import { defineField, defineType } from 'sanity';
 
+/**
+ * Home page content. Every field maps to a visible part of the home page.
+ * Leaving a field blank falls back to the built-in default text, so the site
+ * never breaks. Fields come in pairs: one Indonesian, one English.
+ */
 export const homePage = defineType({
   name: 'homePage',
   title: 'Home Page',
   type: 'document',
+  groups: [
+    { name: 'hero', title: 'Hero (top of page)', default: true },
+    { name: 'heritage', title: 'Heritage band' },
+    { name: 'manifesto', title: 'Manifesto' },
+  ],
   fields: [
+    // ---- Hero ----
     defineField({
-      name: 'heroHeadline',
-      title: 'Hero Headline (Indonesian)',
+      name: 'heroEyebrow',
+      title: 'Hero — small label above headline (ID)',
+      description: 'The little orange text at the top of the hero. e.g. “PERAK 925 · BALI UTARA”.',
       type: 'string',
-      description: 'Main headline displayed on the hero section',
+      group: 'hero',
     }),
+    defineField({ name: 'heroEyebrowEn', title: 'Hero — small label above headline (EN)', type: 'string', group: 'hero' }),
     defineField({
-      name: 'heroHeadlineEn',
-      title: 'Hero Headline (English)',
+      name: 'heroTitle1',
+      title: 'Hero — big headline, first line (ID)',
+      description: 'The large headline. First line is upright, second line is italic.',
       type: 'string',
+      group: 'hero',
     }),
+    defineField({ name: 'heroTitle1En', title: 'Hero — big headline, first line (EN)', type: 'string', group: 'hero' }),
     defineField({
-      name: 'heroSubtext',
-      title: 'Hero Subtext (Indonesian)',
+      name: 'heroTitle2',
+      title: 'Hero — big headline, second line / italic (ID)',
+      type: 'string',
+      group: 'hero',
+    }),
+    defineField({ name: 'heroTitle2En', title: 'Hero — big headline, second line / italic (EN)', type: 'string', group: 'hero' }),
+    defineField({
+      name: 'heroDesc',
+      title: 'Hero — description paragraph (ID)',
+      description: 'The paragraph under the headline.',
       type: 'text',
       rows: 3,
-      description: 'Supporting text below the headline',
+      group: 'hero',
     }),
+    defineField({ name: 'heroDescEn', title: 'Hero — description paragraph (EN)', type: 'text', rows: 3, group: 'hero' }),
     defineField({
-      name: 'heroSubtextEn',
-      title: 'Hero Subtext (English)',
-      type: 'text',
-      rows: 3,
+      name: 'heroCta1',
+      title: 'Hero — first button text (ID)',
+      description: 'The dark button (goes to the catalogue).',
+      type: 'string',
+      group: 'hero',
     }),
+    defineField({ name: 'heroCta1En', title: 'Hero — first button text (EN)', type: 'string', group: 'hero' }),
+    defineField({
+      name: 'heroCta2',
+      title: 'Hero — second button text (ID)',
+      description: 'The outline button (goes to Our Story).',
+      type: 'string',
+      group: 'hero',
+    }),
+    defineField({ name: 'heroCta2En', title: 'Hero — second button text (EN)', type: 'string', group: 'hero' }),
     defineField({
       name: 'heroImage',
-      title: 'Hero Background Image',
+      title: 'Hero — main image',
+      description: 'The large photo on the left of the hero (e.g. a model wearing a necklace).',
       type: 'image',
       options: { hotspot: true },
-      description: 'Optional background or featured image for the hero',
+      group: 'hero',
     }),
+
+    // ---- Heritage band (dark section) ----
+    defineField({ name: 'heritageEyebrow', title: 'Heritage — small label (ID)', type: 'string', group: 'heritage' }),
+    defineField({ name: 'heritageEyebrowEn', title: 'Heritage — small label (EN)', type: 'string', group: 'heritage' }),
     defineField({
-      name: 'heroCtaLabel',
-      title: 'Hero CTA Button Label (Indonesian)',
+      name: 'heritageTitle',
+      title: 'Heritage — heading (ID)',
+      description: 'The heading in the dark band, e.g. “Ditempa di atas pesisir Lovina”.',
       type: 'string',
-      description: 'e.g. Lihat Koleksi',
+      group: 'heritage',
     }),
+    defineField({ name: 'heritageTitleEn', title: 'Heritage — heading (EN)', type: 'string', group: 'heritage' }),
+    defineField({ name: 'heritageBody', title: 'Heritage — paragraph (ID)', type: 'text', rows: 4, group: 'heritage' }),
+    defineField({ name: 'heritageBodyEn', title: 'Heritage — paragraph (EN)', type: 'text', rows: 4, group: 'heritage' }),
     defineField({
-      name: 'heroCtaLabelEn',
-      title: 'Hero CTA Button Label (English)',
+      name: 'statSilver',
+      title: 'Heritage — stat label under “925” (ID)',
       type: 'string',
+      group: 'heritage',
     }),
+    defineField({ name: 'statSilverEn', title: 'Heritage — stat label under “925” (EN)', type: 'string', group: 'heritage' }),
+    defineField({ name: 'statGen', title: 'Heritage — stat label under “3” (ID)', type: 'string', group: 'heritage' }),
+    defineField({ name: 'statGenEn', title: 'Heritage — stat label under “3” (EN)', type: 'string', group: 'heritage' }),
+    defineField({ name: 'statHand', title: 'Heritage — stat label under “100%” (ID)', type: 'string', group: 'heritage' }),
+    defineField({ name: 'statHandEn', title: 'Heritage — stat label under “100%” (EN)', type: 'string', group: 'heritage' }),
     defineField({
-      name: 'collectionsTitle',
-      title: 'Collections Section Title (Indonesian)',
-      type: 'string',
-    }),
-    defineField({
-      name: 'collectionsTitleEn',
-      title: 'Collections Section Title (English)',
-      type: 'string',
-    }),
-    defineField({
-      name: 'collectionsSubtitle',
-      title: 'Collections Section Subtitle (Indonesian)',
-      type: 'string',
-    }),
-    defineField({
-      name: 'collectionsSubtitleEn',
-      title: 'Collections Section Subtitle (English)',
-      type: 'string',
-    }),
-    defineField({
-      name: 'craftsmanshipTitle',
-      title: 'Craftsmanship Section Title (Indonesian)',
-      type: 'string',
-    }),
-    defineField({
-      name: 'craftsmanshipTitleEn',
-      title: 'Craftsmanship Section Title (English)',
-      type: 'string',
-    }),
-    defineField({
-      name: 'craftsmanshipBody',
-      title: 'Craftsmanship Section Body (Indonesian)',
-      type: 'text',
-      rows: 5,
-    }),
-    defineField({
-      name: 'craftsmanshipBodyEn',
-      title: 'Craftsmanship Section Body (English)',
-      type: 'text',
-      rows: 5,
-    }),
-    defineField({
-      name: 'craftsmanshipImage',
-      title: 'Craftsmanship Section Image',
+      name: 'heritageImage',
+      title: 'Heritage — image',
+      description: 'The photo on the right of the dark band (e.g. an artisan at work).',
       type: 'image',
       options: { hotspot: true },
+      group: 'heritage',
     }),
+
+    // ---- Manifesto ----
     defineField({
-      name: 'ctaBannerTitle',
-      title: 'CTA Banner Title (Indonesian)',
-      type: 'string',
-      description: 'Bottom-of-page call to action heading',
-    }),
-    defineField({
-      name: 'ctaBannerTitleEn',
-      title: 'CTA Banner Title (English)',
-      type: 'string',
-    }),
-    defineField({
-      name: 'ctaBannerSubtext',
-      title: 'CTA Banner Subtext (Indonesian)',
-      type: 'string',
-    }),
-    defineField({
-      name: 'ctaBannerSubtextEn',
-      title: 'CTA Banner Subtext (English)',
-      type: 'string',
-    }),
-    defineField({
-      name: 'seoTitle',
-      title: 'SEO Page Title',
-      type: 'string',
-      description: 'Overrides the default page title for search engines',
-    }),
-    defineField({
-      name: 'seoDescription',
-      title: 'SEO Meta Description',
+      name: 'manifestoQuote',
+      title: 'Manifesto — quote (ID)',
+      description: 'The large centred quote near the bottom of the page.',
       type: 'text',
-      rows: 3,
-      description: '150–160 characters recommended',
+      rows: 2,
+      group: 'manifesto',
     }),
+    defineField({ name: 'manifestoQuoteEn', title: 'Manifesto — quote (EN)', type: 'text', rows: 2, group: 'manifesto' }),
+    defineField({
+      name: 'manifestoAttr',
+      title: 'Manifesto — attribution line (ID)',
+      description: 'The small line under the quote, e.g. “— KELUARGA KUSUMA, SINGARAJA”.',
+      type: 'string',
+      group: 'manifesto',
+    }),
+    defineField({ name: 'manifestoAttrEn', title: 'Manifesto — attribution line (EN)', type: 'string', group: 'manifesto' }),
   ],
   preview: {
-    select: { title: 'heroHeadline' },
-    prepare({ title }) {
-      return { title: title || 'Home Page', subtitle: 'Home page content' };
+    prepare() {
+      return { title: 'Home Page', subtitle: 'Hero, heritage band, and manifesto text' };
     },
   },
 });

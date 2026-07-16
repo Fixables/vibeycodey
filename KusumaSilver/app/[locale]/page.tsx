@@ -2,8 +2,9 @@ import { SplitHero } from '@/components/home/SplitHero';
 import { AsymmetricCatalogue } from '@/components/home/AsymmetricCatalogue';
 import { HeritageBand } from '@/components/home/HeritageBand';
 import { Manifesto } from '@/components/home/Manifesto';
-import { getFeaturedProducts, getProducts } from '@/lib/sanity-data';
-import { SUPPORTED_LOCALES } from '@/lib/i18n';
+import { getFeaturedProducts, getHomeContent, getProducts } from '@/lib/sanity-data';
+import { SUPPORTED_LOCALES, getT } from '@/lib/i18n';
+import { resolveHome } from '@/lib/home-content';
 import type { Locale } from '@/types';
 
 export function generateStaticParams() {
@@ -26,12 +27,14 @@ export default async function HomePage({ params }: { params: Promise<{ locale: L
     products = [...products, ...all.filter((p) => !seen.has(p.slug))];
   }
 
+  const home = resolveHome(await getHomeContent(), locale, getT(locale));
+
   return (
     <>
-      <SplitHero locale={locale} />
+      <SplitHero locale={locale} home={home} />
       <AsymmetricCatalogue locale={locale} products={products.slice(0, 8)} />
-      <HeritageBand locale={locale} />
-      <Manifesto locale={locale} />
+      <HeritageBand locale={locale} home={home} />
+      <Manifesto locale={locale} home={home} />
     </>
   );
 }
