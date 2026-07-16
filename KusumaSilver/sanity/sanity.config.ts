@@ -42,7 +42,7 @@ export default defineConfig({
                   .documentId('contactPage')
               ),
             S.listItem()
-              .title('Custom Order')
+              .title('Silver Class')
               .id('bespokePage')
               .child(
                 S.document()

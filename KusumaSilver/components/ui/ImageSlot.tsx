@@ -15,7 +15,14 @@ export function ImageSlot({ src, alt, label, className, imgClassName }: ImageSlo
   if (src) {
     return (
       <div className={base}>
-        <img src={src} alt={alt} className={cn('h-full w-full object-cover', imgClassName)} />
+        {/* draggable=false so dragging an image doesn't start a native image
+            drag — which would hijack the catalogue strip's drag-to-scroll. */}
+        <img
+          src={src}
+          alt={alt}
+          draggable={false}
+          className={cn('h-full w-full select-none object-cover', imgClassName)}
+        />
       </div>
     );
   }

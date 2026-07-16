@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { Menu, X, Search, ShoppingBag } from 'lucide-react';
 import { useCart } from '@/components/providers/CartProvider';
@@ -17,6 +18,16 @@ export function Navbar({ locale, whatsappLink, storeName }: NavbarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const t = getT(locale);
   const { count: cartCount } = useCart();
+  const pathname = usePathname();
+  const homePath = `/${locale}`;
+
+  function handleLogoClick(e: React.MouseEvent) {
+    // Already home → don't reload, just scroll to the top.
+    if (pathname === homePath) {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
 
   const categoryLinks = [
     { href: `/${locale}/koleksi/cincin`, label: t.chrome.navRings },
@@ -58,12 +69,18 @@ export function Navbar({ locale, whatsappLink, storeName }: NavbarProps) {
         </div>
 
         {/* Center: logo + subtext */}
-        <Link href={`/${locale}`} className="flex flex-col items-center" aria-label={storeName}>
+        <Link
+          href={`/${locale}`}
+          onClick={handleLogoClick}
+          className="flex flex-col items-center"
+          aria-label={storeName}
+        >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/logo.jpg"
             alt={storeName}
-            className="h-9 w-auto mix-blend-multiply sm:h-10 lg:h-11"
+            draggable={false}
+            className="h-9 w-auto select-none mix-blend-multiply sm:h-10 lg:h-11"
           />
           <span className="mt-1 hidden text-[9px] font-medium tracking-[0.42em] text-ink/50 sm:block">
             {t.chrome.wordmarkSub}

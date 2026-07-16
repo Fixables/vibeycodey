@@ -6,7 +6,7 @@ import { defineField, defineType } from 'sanity';
  */
 export const bespokePage = defineType({
   name: 'bespokePage',
-  title: 'Bespoke Page',
+  title: 'Silver Class Page',
   type: 'document',
   groups: [
     { name: 'hero', title: 'Top of page', default: true },
@@ -52,5 +52,5 @@ export const bespokePage = defineType({
     defineField({ name: 'formSub', title: 'Form — subtitle (ID)', type: 'string', group: 'form' }),
     defineField({ name: 'formSubEn', title: 'Form — subtitle (EN)', type: 'string', group: 'form' }),
   ],
-  preview: { prepare: () => ({ title: 'Bespoke Page', subtitle: 'Custom order page content' }) },
+  preview: { prepare: () => ({ title: 'Silver Class Page', subtitle: 'Silver Class page content' }) },
 });

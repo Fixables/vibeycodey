@@ -40,7 +40,9 @@ export function BespokeForm({ locale, whatsapp }: BespokeFormProps) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
     const lines = [
-      locale === 'en' ? 'Hello Kusuma Silver, a bespoke enquiry:' : 'Halo Kusuma Silver, permintaan bespoke:',
+      locale === 'en'
+        ? 'Hello Kusuma Silver, a Silver Class booking request:'
+        : 'Halo Kusuma Silver, permintaan pemesanan Kelas Perak:',
       `${t.bespokeV3.nameLabel}: ${form.get('name')}`,
       `${t.bespokeV3.phoneLabel}: ${form.get('phone')}`,
       form.get('email') ? `${t.bespokeV3.emailLabel}: ${form.get('email')}` : null,
