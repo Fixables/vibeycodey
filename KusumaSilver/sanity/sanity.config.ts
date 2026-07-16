@@ -13,54 +13,33 @@ export default defineConfig({
   dataset,
   plugins: [
     structureTool({
-      structure: (S) =>
-        S.list()
+      structure: (S) => {
+        const singleton = (id: string, title: string) =>
+          S.listItem()
+            .title(title)
+            .id(id)
+            .child(S.document().schemaType(id).documentId(id));
+
+        return S.list()
           .title('Konten Situs')
           .items([
-            S.listItem()
-              .title('Beranda')
-              .id('homePage')
-              .child(
-                S.document()
-                  .schemaType('homePage')
-                  .documentId('homePage')
-              ),
-            S.listItem()
-              .title('Tentang Kami')
-              .id('aboutPage')
-              .child(
-                S.document()
-                  .schemaType('aboutPage')
-                  .documentId('aboutPage')
-              ),
-            S.listItem()
-              .title('Kontak')
-              .id('contactPage')
-              .child(
-                S.document()
-                  .schemaType('contactPage')
-                  .documentId('contactPage')
-              ),
-            S.listItem()
-              .title('Silver Class')
-              .id('bespokePage')
-              .child(
-                S.document()
-                  .schemaType('bespokePage')
-                  .documentId('bespokePage')
-              ),
-            S.listItem()
-              .title('Informasi Toko')
-              .id('storeInfo')
-              .child(
-                S.document()
-                  .schemaType('storeInfo')
-                  .documentId('storeInfo')
-              ),
+            // --- Halaman (Pages) ---
+            singleton('homePage', 'Beranda (Home)'),
+            singleton('aboutPage', 'Tentang Kami (About)'),
+            singleton('bespokePage', 'Silver Class'),
+            singleton('contactPage', 'Kontak (Contact)'),
             S.divider(),
-            S.documentTypeListItem('category').title('Kategori'),
-            S.documentTypeListItem('product').title('Perhiasan'),
-          ]),
+            // --- Toko (Shop) ---
+            S.documentTypeListItem('product').title('Perhiasan (Products)'),
+            S.documentTypeListItem('category').title('Kategori (Categories)'),
+            S.divider(),
+            // --- Pesanan (Orders) ---
+            S.documentTypeListItem('order').title('Pesanan (Orders)'),
+            S.divider(),
+            // --- Pengaturan (Settings) ---
+            singleton('storeInfo', 'Informasi Toko (Store Info)'),
+          ]);
+      },
     }),
     visionTool(),
   ],
