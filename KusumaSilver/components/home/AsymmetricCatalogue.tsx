@@ -97,61 +97,12 @@ function ProductCell({ product, locale, t, shadow, layout }: CellProps & { layou
   );
 }
 
-function PanelText({ label, text }: { label: string; text: string }) {
+/** Standalone editorial column — an eyebrow label over a short line, centered. */
+function EditorialPanel({ label, text }: { label: string; text: string }) {
   return (
-    <>
+    <div className="flex w-[220px] shrink-0 flex-col justify-center border-r border-ink px-6 sm:w-[300px]">
       <p className="text-[10px] tracking-[0.3em] text-accent">{label}</p>
       <p className="mt-3 font-heading text-[22px] leading-snug text-ink">{text}</p>
-    </>
-  );
-}
-
-/** Full-height anchor column — technique panel on top, product filling below. */
-function TechniqueStack({ product, locale, t, shadow }: CellProps) {
-  return (
-    <div className="flex w-[250px] shrink-0 flex-col border-r border-ink sm:w-[330px]">
-      <div className="border-b border-ink p-6">
-        <PanelText label={t.homeV3.techniqueLabel} text={t.homeV3.techniqueText} />
-      </div>
-      <Link
-        href={`/${locale}/koleksi/${product.category}/${product.slug}`}
-        className="group flex min-h-0 flex-1 flex-col"
-        draggable={false}
-        tabIndex={shadow ? -1 : undefined}
-      >
-        <ImageSlot
-          src={product.imageUrl}
-          alt={localizedName(product, locale)}
-          className="min-h-0 flex-1 border-b border-ink"
-          imgClassName="transition-transform duration-500 group-hover:scale-[1.04]"
-        />
-        <CaptionBar product={product} locale={locale} t={t} />
-      </Link>
-    </div>
-  );
-}
-
-/** Full-height anchor column — product filling the top, origin panel below. */
-function OriginStack({ product, locale, t, shadow }: CellProps) {
-  return (
-    <div className="flex w-[300px] shrink-0 flex-col border-r border-ink sm:w-[440px]">
-      <Link
-        href={`/${locale}/koleksi/${product.category}/${product.slug}`}
-        className="group flex min-h-0 flex-1 flex-col"
-        draggable={false}
-        tabIndex={shadow ? -1 : undefined}
-      >
-        <ImageSlot
-          src={product.imageUrl}
-          alt={localizedName(product, locale)}
-          className="min-h-0 flex-1 border-b border-ink"
-          imgClassName="transition-transform duration-500 group-hover:scale-[1.04]"
-        />
-        <CaptionBar product={product} locale={locale} t={t} />
-      </Link>
-      <div className="border-t border-ink p-6">
-        <PanelText label={t.homeV3.originLabel} text={t.homeV3.originText} />
-      </div>
     </div>
   );
 }
@@ -300,18 +251,46 @@ export function AsymmetricCatalogue({ locale, products }: AsymmetricCataloguePro
     };
   }, []);
 
-  // Composition: wide opener, a full-height technique panel over piece two, a
-  // full-height origin panel under piece three, then staggered product cells
-  // cycling through the layout recipes for an irregular editorial rhythm.
-  const renderSet = (shadow: boolean) =>
-    products.map((product, i) => {
-      const props = { product, locale, t, shadow };
-      if (i === 1) return <TechniqueStack key={product.slug} {...props} />;
-      if (i === 2) return <OriginStack key={product.slug} {...props} />;
-      return (
-        <ProductCell key={product.slug} {...props} layout={CELL_LAYOUTS[i % CELL_LAYOUTS.length]} />
+  // Rotating pool of editorial one-liners woven between the product cells, so
+  // the strip reads with variety rather than repeating just two panels.
+  const panels = [
+    { label: t.homeV3.techniqueLabel, text: t.homeV3.techniqueText },
+    { label: t.homeV3.madeInBaliLabel, text: t.homeV3.madeInBaliText },
+    { label: t.homeV3.originLabel, text: t.homeV3.originText },
+    { label: t.homeV3.sterlingLabel, text: t.homeV3.sterlingText },
+    { label: t.homeV3.byHandLabel, text: t.homeV3.byHandText },
+    { label: t.homeV3.familyLabel, text: t.homeV3.familyText },
+  ];
+
+  // Composition: staggered product cells (cycling the layout recipes) with an
+  // editorial panel between them. Small catalogues get two panels per product
+  // so every message in the pool shows before the strip loops.
+  const panelsPerProduct = products.length <= 3 ? 2 : 1;
+
+  const renderSet = (shadow: boolean) => {
+    const cells: React.ReactNode[] = [];
+    let panelIdx = 0;
+    products.forEach((product, i) => {
+      cells.push(
+        <ProductCell
+          key={product.slug}
+          product={product}
+          locale={locale}
+          t={t}
+          shadow={shadow}
+          layout={CELL_LAYOUTS[i % CELL_LAYOUTS.length]}
+        />
       );
+      for (let k = 0; k < panelsPerProduct; k++) {
+        const panel = panels[panelIdx % panels.length];
+        panelIdx += 1;
+        cells.push(
+          <EditorialPanel key={`${product.slug}-panel-${k}`} label={panel.label} text={panel.text} />
+        );
+      }
     });
+    return cells;
+  };
 
   return (
     <section className="px-5 py-14 sm:px-10 lg:py-20">
