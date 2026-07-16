@@ -10,6 +10,10 @@ export function generateStaticParams() {
   return SUPPORTED_LOCALES.map((locale) => ({ locale }));
 }
 
+// Re-fetch CMS content at most once a minute so Studio edits go live without a
+// rebuild (owner publishes → visible within ~60s).
+export const revalidate = 60;
+
 export default async function HomePage({ params }: { params: Promise<{ locale: Locale }> }) {
   const { locale } = await params;
 

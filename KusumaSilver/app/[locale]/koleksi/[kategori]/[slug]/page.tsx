@@ -8,6 +8,10 @@ import { categoryLabel, parseSizes } from '@/lib/catalog';
 import { SUPPORTED_LOCALES, getT } from '@/lib/i18n';
 import type { Locale } from '@/types';
 
+// Studio edits go live within ~60s without a rebuild; newly added pieces
+// render on demand (dynamicParams defaults to true).
+export const revalidate = 60;
+
 export async function generateStaticParams() {
   try {
     const slugs = await getAllProductSlugs();

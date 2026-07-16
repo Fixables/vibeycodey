@@ -4,6 +4,10 @@ import { CollectionClient } from '@/components/catalog/CollectionClient';
 import { SUPPORTED_LOCALES, getT } from '@/lib/i18n';
 import type { Locale } from '@/types';
 
+// Studio edits go live within ~60s without a rebuild; new categories render
+// on demand (dynamicParams defaults to true).
+export const revalidate = 60;
+
 export async function generateStaticParams() {
   try {
     const categories = await getCategories();

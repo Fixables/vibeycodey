@@ -45,6 +45,9 @@ export function generateStaticParams() {
   return SUPPORTED_LOCALES.map((locale) => ({ locale }));
 }
 
+// Store info (WhatsApp number, nav) picks up Studio edits within ~60s.
+export const revalidate = 60;
+
 export default async function LocaleLayout({
   children,
   params,

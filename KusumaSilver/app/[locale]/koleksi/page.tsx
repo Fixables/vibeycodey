@@ -7,6 +7,9 @@ export function generateStaticParams() {
   return SUPPORTED_LOCALES.map((locale) => ({ locale }));
 }
 
+// Studio edits go live within ~60s without a rebuild.
+export const revalidate = 60;
+
 export default async function KoleksiPage({ params }: { params: Promise<{ locale: Locale }> }) {
   const { locale } = await params;
   const [categories, products] = await Promise.all([getCategories(), getProducts()]);
