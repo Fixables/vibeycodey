@@ -11,6 +11,10 @@ import type { Locale, Product } from '@/types';
 interface AsymmetricCatalogueProps {
   locale: Locale;
   products: Product[];
+  /** Heading above the strip, resolved from the Studio. */
+  head: string;
+  /** Editorial cards between the photos, resolved from the Studio. */
+  panels: { label: string; text: string }[];
 }
 
 function localizedName(product: Product, locale: Locale): string {
@@ -118,7 +122,7 @@ const RESUME_DELAY = 2500;
 /** pointer travel in px beyond which a drag suppresses the click on release */
 const DRAG_CLICK_THRESHOLD = 8;
 
-export function AsymmetricCatalogue({ locale, products }: AsymmetricCatalogueProps) {
+export function AsymmetricCatalogue({ locale, products, head, panels }: AsymmetricCatalogueProps) {
   const t = getT(locale);
   const scrollerRef = useRef<HTMLDivElement>(null);
   const firstSetRef = useRef<HTMLDivElement>(null);
@@ -255,17 +259,6 @@ export function AsymmetricCatalogue({ locale, products }: AsymmetricCataloguePro
     };
   }, []);
 
-  // Rotating pool of editorial one-liners so the panels aren't just technique
-  // and origin on repeat.
-  const panels = [
-    { label: t.homeV3.techniqueLabel, text: t.homeV3.techniqueText },
-    { label: t.homeV3.madeInBaliLabel, text: t.homeV3.madeInBaliText },
-    { label: t.homeV3.originLabel, text: t.homeV3.originText },
-    { label: t.homeV3.sterlingLabel, text: t.homeV3.sterlingText },
-    { label: t.homeV3.byHandLabel, text: t.homeV3.byHandText },
-    { label: t.homeV3.familyLabel, text: t.homeV3.familyText },
-  ];
-
   // Composition follows the handoff's wide / narrow / wide rhythm: a plain wide
   // image, then a narrow cell with an editorial panel on top, then a wide cell
   // with a panel below — repeating, with the panels cycling the pool.
@@ -296,7 +289,7 @@ export function AsymmetricCatalogue({ locale, products }: AsymmetricCataloguePro
     <section className="px-5 py-14 sm:px-10 lg:py-20">
       <div className="mb-8 flex items-end justify-between">
         <h2 className="font-heading text-[28px] font-normal text-ink lg:text-[34px]">
-          {t.homeV3.catalogueHead}
+          {head}
         </h2>
         <Link
           href={`/${locale}/koleksi`}
@@ -319,7 +312,7 @@ export function AsymmetricCatalogue({ locale, products }: AsymmetricCataloguePro
         <div
           ref={scrollerRef}
           role="region"
-          aria-label={t.homeV3.catalogueHead}
+          aria-label={head}
           tabIndex={0}
           className="scrollbar-none cursor-grab select-none overflow-x-auto border border-ink active:cursor-grabbing"
         >

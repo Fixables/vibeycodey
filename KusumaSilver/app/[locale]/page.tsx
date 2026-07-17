@@ -32,7 +32,12 @@ export default async function HomePage({ params }: { params: Promise<{ locale: L
   return (
     <>
       <SplitHero locale={locale} home={home} />
-      <AsymmetricCatalogue locale={locale} products={products.slice(0, 8)} />
+      <AsymmetricCatalogue
+        locale={locale}
+        products={products.slice(0, 8)}
+        head={home.catalogueHead}
+        panels={home.cataloguePanels}
+      />
       <HeritageBand locale={locale} home={home} />
       <Manifesto locale={locale} home={home} />
     </>

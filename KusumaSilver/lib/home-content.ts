@@ -13,6 +13,18 @@ function pickLocalized(
   return typeof value === 'string' && value.trim() ? value : fallback;
 }
 
+/** The built-in strip cards, used until the owner defines their own. */
+function defaultPanels(h: Translation['homeV3']): { label: string; text: string }[] {
+  return [
+    { label: h.techniqueLabel, text: h.techniqueText },
+    { label: h.madeInBaliLabel, text: h.madeInBaliText },
+    { label: h.originLabel, text: h.originText },
+    { label: h.sterlingLabel, text: h.sterlingText },
+    { label: h.byHandLabel, text: h.byHandText },
+    { label: h.familyLabel, text: h.familyText },
+  ];
+}
+
 /** Fully-resolved home strings: Studio value if published, else default copy. */
 export interface ResolvedHome {
   heroEyebrow: string;
@@ -23,6 +35,8 @@ export interface ResolvedHome {
   heroCta2: string;
   heroCoords: string;
   heroImageUrl?: string;
+  catalogueHead: string;
+  cataloguePanels: { label: string; text: string }[];
   heritageEyebrow: string;
   heritageTitle: string;
   heritageBody: string;
@@ -55,6 +69,25 @@ export function resolveHome(
     return typeof value === 'string' && value.trim() ? value : fallback;
   };
   const h = t.homeV3;
+
+  // The editorial cards in the scrolling strip. The owner can add, reorder, or
+  // remove them in the Studio; an empty list keeps the built-in six.
+  const rawPanels = Array.isArray(doc?.cataloguePanels)
+    ? (doc.cataloguePanels as Record<string, unknown>[])
+    : [];
+  // The English fields are optional: a card written in Indonesian only still
+  // shows on the English site rather than vanishing from it.
+  const panelText = (panel: Record<string, unknown>, idKey: string, enKey: string) => {
+    const id = typeof panel[idKey] === 'string' ? (panel[idKey] as string).trim() : '';
+    return pickLocalized(panel, locale, idKey, enKey, id);
+  };
+  const cataloguePanels = rawPanels
+    .map((panel) => ({
+      label: panelText(panel, 'label', 'labelEn'),
+      text: panelText(panel, 'text', 'textEn'),
+    }))
+    .filter((panel) => panel.label && panel.text);
+
   return {
     heroEyebrow: pick('heroEyebrow', 'heroEyebrowEn', h.heroEyebrow),
     heroTitle1: pick('heroTitle1', 'heroTitle1En', h.heroTitle1),
@@ -64,6 +97,8 @@ export function resolveHome(
     heroCta2: pick('heroCta2', 'heroCta2En', h.heroCta2),
     heroCoords: pickPlain('heroCoords', h.heroCoords),
     heroImageUrl: (doc?.heroImageUrl as string) || undefined,
+    catalogueHead: pick('catalogueHead', 'catalogueHeadEn', h.catalogueHead),
+    cataloguePanels: cataloguePanels.length ? cataloguePanels : defaultPanels(h),
     heritageEyebrow: pick('heritageEyebrow', 'heritageEyebrowEn', h.heritageEyebrow),
     heritageTitle: pick('heritageTitle', 'heritageTitleEn', h.heritageTitle),
     heritageBody: pick('heritageBody', 'heritageBodyEn', h.heritageBody),

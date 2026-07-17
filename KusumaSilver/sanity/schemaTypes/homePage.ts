@@ -11,6 +11,7 @@ export const homePage = defineType({
   type: 'document',
   groups: [
     { name: 'hero', title: 'Hero (top of page)', default: true },
+    { name: 'strip', title: 'Catalogue strip' },
     { name: 'heritage', title: 'Heritage band' },
     { name: 'manifesto', title: 'Manifesto' },
   ],
@@ -78,6 +79,49 @@ export const homePage = defineType({
       type: 'image',
       options: { hotspot: true },
       group: 'hero',
+    }),
+
+    // ---- Catalogue strip (the sideways-scrolling row of pieces) ----
+    defineField({
+      name: 'catalogueHead',
+      title: 'Strip — heading above the row (ID)',
+      description: 'The word above the scrolling row of pieces, e.g. Katalog.',
+      type: 'string',
+      group: 'strip',
+    }),
+    defineField({ name: 'catalogueHeadEn', title: 'Strip — heading above the row (EN)', type: 'string', group: 'strip' }),
+    defineField({
+      name: 'cataloguePanels',
+      title: 'Strip — the little text cards between the photos',
+      description:
+        'The small cards that sit between product photos in the scrolling row, e.g. TEKNIK / “Filigri, granulasi…”. They repeat in order once the photos run out. Drag to reorder, or use Add item for a new one. Leave the whole list empty to keep the six built-in cards.',
+      type: 'array',
+      group: 'strip',
+      of: [
+        {
+          type: 'object',
+          name: 'panel',
+          fields: [
+            defineField({
+              name: 'label',
+              title: 'Small heading (ID)',
+              description: 'The short label in capitals, e.g. TEKNIK.',
+              type: 'string',
+              validation: (Rule) => Rule.required(),
+            }),
+            defineField({ name: 'labelEn', title: 'Small heading (EN)', type: 'string' }),
+            defineField({
+              name: 'text',
+              title: 'Text underneath (ID)',
+              type: 'text',
+              rows: 2,
+              validation: (Rule) => Rule.required(),
+            }),
+            defineField({ name: 'textEn', title: 'Text underneath (EN)', type: 'text', rows: 2 }),
+          ],
+          preview: { select: { title: 'label', subtitle: 'text' } },
+        },
+      ],
     }),
 
     // ---- Heritage band (dark section) ----
