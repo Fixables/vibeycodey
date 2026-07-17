@@ -37,7 +37,7 @@ export function SplitHero({ locale, home }: { locale: Locale; home: ResolvedHome
             {home.heroCta2}
           </Link>
         </div>
-        <p className="mt-10 text-[11px] tracking-[0.08em] text-ink/45">{t.homeV3.heroCoords}</p>
+        <p className="mt-10 text-[11px] tracking-[0.08em] text-ink/45">{home.heroCoords}</p>
       </div>
     </section>
   );

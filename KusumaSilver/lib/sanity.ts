@@ -6,6 +6,10 @@ export const client = createClient({
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET ?? 'production',
   apiVersion: '2024-01-01',
   useCdn: false,
+  // Read published documents only. Without this the token makes queries return
+  // drafts too, so a half-finished piece in the Studio (no slug, no category)
+  // leaks into the site and breaks the build.
+  perspective: 'published',
   // Server-only env var; enables reads when the dataset is private. All page
   // data flows through server components / build, so this never ships to the
   // browser bundle.

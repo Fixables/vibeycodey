@@ -163,8 +163,15 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
 }
 
 export async function getAllProductSlugs(): Promise<{ slug: string; category: string }[]> {
-  const query = `*[_type == "product"] { "slug": slug.current, "category": category->slug.current }`;
-  return safeFetch<{ slug: string; category: string }[]>(query, undefined, []);
+  const query = `*[_type == "product" && defined(slug.current) && defined(category->slug.current)] {
+    "slug": slug.current,
+    "category": category->slug.current
+  }`;
+  const raw = await safeFetch<{ slug: string; category: string }[]>(query, undefined, []);
+  // A piece still being written may have no slug or category yet. Next requires
+  // every static param to be a string, so drop anything incomplete rather than
+  // failing the whole build.
+  return raw.filter((s) => typeof s.slug === 'string' && typeof s.category === 'string');
 }
 
 // ---- Store Info ----
