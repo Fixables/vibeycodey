@@ -272,15 +272,16 @@ export function AsymmetricCatalogue({ locale, products }: AsymmetricCataloguePro
   const renderSet = (shadow: boolean) => {
     let panelIdx = 0;
     return products.map((product, i) => {
-      const props = { product, locale, t, shadow, key: product.slug };
+      const props = { product, locale, t, shadow };
       const kind = i % 3;
       if (kind === 0) {
-        return <ProductCell {...props} width={WIDE} />;
+        return <ProductCell key={product.slug} {...props} width={WIDE} />;
       }
       const panel = panels[panelIdx % panels.length];
       panelIdx += 1;
       return (
         <PanelStack
+          key={product.slug}
           {...props}
           width={kind === 1 ? NARROW : WIDE}
           label={panel.label}

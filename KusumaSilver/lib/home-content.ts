@@ -21,12 +21,16 @@ export interface ResolvedHome {
   heroDesc: string;
   heroCta1: string;
   heroCta2: string;
+  heroCoords: string;
   heroImageUrl?: string;
   heritageEyebrow: string;
   heritageTitle: string;
   heritageBody: string;
+  statSilverValue: string;
   statSilver: string;
+  statGenValue: string;
   statGen: string;
+  statHandValue: string;
   statHand: string;
   heritageImageUrl?: string;
   manifestoQuote: string;
@@ -44,6 +48,12 @@ export function resolveHome(
 ): ResolvedHome {
   const pick = (idKey: string, enKey: string, fallback: string) =>
     pickLocalized(doc, locale, idKey, enKey, fallback);
+  // The heritage stat figures are numerals, so they are one shared field rather
+  // than an ID/EN pair.
+  const pickPlain = (key: string, fallback: string) => {
+    const value = doc?.[key];
+    return typeof value === 'string' && value.trim() ? value : fallback;
+  };
   const h = t.homeV3;
   return {
     heroEyebrow: pick('heroEyebrow', 'heroEyebrowEn', h.heroEyebrow),
@@ -52,12 +62,16 @@ export function resolveHome(
     heroDesc: pick('heroDesc', 'heroDescEn', h.heroDesc),
     heroCta1: pick('heroCta1', 'heroCta1En', h.heroCta1),
     heroCta2: pick('heroCta2', 'heroCta2En', h.heroCta2),
+    heroCoords: pickPlain('heroCoords', h.heroCoords),
     heroImageUrl: (doc?.heroImageUrl as string) || undefined,
     heritageEyebrow: pick('heritageEyebrow', 'heritageEyebrowEn', h.heritageEyebrow),
     heritageTitle: pick('heritageTitle', 'heritageTitleEn', h.heritageTitle),
     heritageBody: pick('heritageBody', 'heritageBodyEn', h.heritageBody),
+    statSilverValue: pickPlain('statSilverValue', h.statSilverValue),
     statSilver: pick('statSilver', 'statSilverEn', h.statSilver),
+    statGenValue: pickPlain('statGenValue', h.statGenValue),
     statGen: pick('statGen', 'statGenEn', h.statGen),
+    statHandValue: pickPlain('statHandValue', h.statHandValue),
     statHand: pick('statHand', 'statHandEn', h.statHand),
     heritageImageUrl: (doc?.heritageImageUrl as string) || undefined,
     manifestoQuote: pick('manifestoQuote', 'manifestoQuoteEn', h.manifestoQuote),

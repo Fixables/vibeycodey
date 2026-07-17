@@ -7,9 +7,9 @@ export function HeritageBand({ locale, home }: { locale: Locale; home: ResolvedH
   const t = getT(locale);
 
   const stats: Array<[string, string]> = [
-    ['925', home.statSilver],
-    ['3', home.statGen],
-    ['100%', home.statHand],
+    [home.statSilverValue, home.statSilver],
+    [home.statGenValue, home.statGen],
+    [home.statHandValue, home.statHand],
   ];
 
   return (
