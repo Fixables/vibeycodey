@@ -76,6 +76,16 @@ docs now exist: `docs/CMS-GUIDE.md` (for the client) and `docs/CMS-MAINTENANCE.m
   Hotspot only applies when width *and* height are requested with `fit=crop`.
 - **Client components must not call `buildImage()`** — resolve server-side and pass
   the result down (see `Product.card`).
+- **Two fetchers, and picking the wrong one breaks the build.** `safeFetch` is
+  draft-aware and works **only in React Server Components**; `safeFetchStatic` is
+  published-only and is what `generateStaticParams`, `app/sitemap.ts` and API route
+  handlers must use (hence `getCategorySlugs` / `getStoreInfoStatic`).
+- **Never import from `lib/sanity-data.ts` in a `'use client'` file** — it drags the
+  server-only live client into the browser bundle and fails the build. That is why
+  `getWhatsAppLink` lives in `lib/whatsapp.ts`.
+- **Preview did not cost static generation.** Pages still prerender (`●`) with
+  `revalidate = 60`; draft mode renders dynamically only for the preview cookie.
+  If the build output flips to `ƒ`, something regressed.
 
 **Key changes:** `localeString`/`localeText` replace ~120 twin fields; drag ordering
 via `@sanity/orderable-document-list` for products and categories; arrays replace the
@@ -89,9 +99,15 @@ exist in production (owner was editing an empty document); `/studio` had no
 `<html>`/`<body>` so the CMS would not open; `getFeaturedProducts()` had no `order()`
 clause; `safeFetch` now logs failures instead of silently serving defaults.
 
-**Migrations are written but NOT yet applied to production** —
-`sanity/scripts/migrations/`, run `fix-store-info-id.ts` first. Back up with
-`npx sanity dataset export` before applying.
+**Live preview (2026-07-23):** Sanity Presentation + Next draft mode —
+`lib/sanity.live.ts`, `app/api/draft-mode/{enable,disable}`, `presentationTool` in
+`sanity.config.ts`. Click-to-edit via stega, enabled in draft mode only (published
+HTML must stay stega-free). `/api/draft-mode/enable` 401s without Sanity's signed
+secret; the disable route rejects off-site redirects.
+
+**Migrations were applied to production 2026-07-22** —
+`sanity/scripts/migrations/`, all idempotent, `fix-store-info-id.ts` runs first.
+`npx sanity login` is required before `npx sanity dataset export` can back up.
 
 **Commerce decisions approved by owner (2026-07-15):**
 - Shipping: placeholder rule for now — free ≥ Rp 2,000,000, else Rp 45,000 flat, defined once in `lib/commerce/` and identical in both display currencies (final business rule TBD).

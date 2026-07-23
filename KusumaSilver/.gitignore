@@ -27,3 +27,10 @@ ruvector.db
 
 # TypeScript incremental build state
 tsconfig.tsbuildinfo
+
+# Sanity dataset backups (`sanity dataset export`).
+# These contain every document — including customer orders with names, phone
+# numbers, emails and addresses — plus every uploaded image. Keep them off git.
+backup-*.tar.gz
+*.ndjson
+

@@ -1,38 +1,66 @@
 import { cache } from 'react';
 import { client } from './sanity';
+import { sanityFetch } from './sanity.live';
 import { buildImage, IMAGE_PROJECTION } from './image';
 import { formatPrice } from './utils';
 import type { Category, Locale, Product, SanityImage, StoreInfo } from '@/types';
 
 // ---- Helpers ----
 
-export function getWhatsAppLink(whatsapp: string, message?: string): string {
-  const base = `https://wa.me/${whatsapp}`;
-  if (!message) return base;
-  return `${base}?text=${encodeURIComponent(message)}`;
+// Re-exported for the server components that already import it from here.
+// Client components must import it from '@/lib/whatsapp' directly — importing
+// anything from this module pulls the Sanity client into the browser bundle.
+export { getWhatsAppLink } from './whatsapp';
+
+function logFailure(error: unknown, query: string) {
+  // Logged before falling back: without this, a bad query, an expired token or a
+  // network fault is indistinguishable from "the owner hasn't written this yet",
+  // and the site quietly serves built-in defaults with no signal.
+  console.error(
+    '[sanity] query failed, falling back to defaults:',
+    error instanceof Error ? error.message : error,
+    '\n  query:',
+    query.replace(/\s+/g, ' ').trim().slice(0, 160)
+  );
 }
 
 /**
- * Fetch that degrades to a fallback rather than breaking the page — a blank CMS
- * field must never take the site down.
+ * Draft-aware fetch, for content rendered by a page.
  *
- * The failure is logged server-side first: without it, a bad query, an expired
- * token, or a network fault is indistinguishable from "the owner hasn't written
- * this yet", and the site quietly serves built-in defaults with no signal.
+ * Goes through `sanityFetch`, which returns published content for ordinary
+ * visitors and unpublished drafts when draft mode is on. That is what makes the
+ * Studio's preview pane show work in progress — the same query powers the real
+ * page and the preview, so the two can never drift apart.
+ *
+ * ONLY usable from a React Server Component. `sanityFetch` reads the draft-mode
+ * cookie, so it needs a request scope: calling it from a route handler, from
+ * `sitemap.ts`, or from `generateStaticParams` throws. Use `safeFetchStatic`
+ * there instead.
  */
 async function safeFetch<T>(query: string, params?: Record<string, string>, fallback?: T): Promise<T> {
   try {
-    if (params) {
-      return await client.fetch<T>(query, params);
-    }
-    return await client.fetch<T>(query);
+    const { data } = await sanityFetch({ query, params: params ?? {} });
+    return data as T;
   } catch (error) {
-    console.error(
-      '[sanity] query failed, falling back to defaults:',
-      error instanceof Error ? error.message : error,
-      '\n  query:',
-      query.replace(/\s+/g, ' ').trim().slice(0, 160)
-    );
+    logFailure(error, query);
+    return (fallback ?? null) as T;
+  }
+}
+
+/**
+ * Published-only fetch, for everything that runs outside a request: build-time
+ * static params, the sitemap, and API route handlers. Never sees drafts, which
+ * is correct — none of those should preview unpublished content.
+ */
+async function safeFetchStatic<T>(
+  query: string,
+  params?: Record<string, string>,
+  fallback?: T
+): Promise<T> {
+  try {
+    return params ? await client.fetch<T>(query, params) : await client.fetch<T>(query);
+  } catch (error) {
+    logFailure(error, query);
     return (fallback ?? null) as T;
   }
 }
@@ -135,6 +163,19 @@ export async function getCategories(locale: Locale): Promise<Category[]> {
   return raw.map((row) => mapCategory(row, locale));
 }
 
+/**
+ * Category slugs only, published-only. For `generateStaticParams` and the
+ * sitemap, which run outside a request and so cannot use the draft-aware fetch.
+ */
+export async function getCategorySlugs(): Promise<string[]> {
+  const raw = await safeFetchStatic<{ slug: string }[]>(
+    `*[_type == "category" && defined(slug.current)] ${CATEGORY_ORDER} { "slug": slug.current }`,
+    undefined,
+    []
+  );
+  return (raw ?? []).map((row) => row.slug).filter((slug) => typeof slug === 'string');
+}
+
 export async function getCategoryBySlug(slug: string, locale: Locale): Promise<Category | null> {
   const query = `*[_type == "category" && slug.current == $slug][0] { ${CATEGORY_FIELDS} }`;
   const raw = await safeFetch<Record<string, unknown> | null>(query, { slug }, null);
@@ -209,7 +250,7 @@ export async function getAllProductSlugs(): Promise<{ slug: string; category: st
     "slug": slug.current,
     "category": category->slug.current
   }`;
-  const raw = await safeFetch<{ slug: string; category: string }[]>(query, undefined, []);
+  const raw = await safeFetchStatic<{ slug: string; category: string }[]>(query, undefined, []);
   // A piece still being written may have no slug or category yet. Next requires
   // every static param to be a string, so drop anything incomplete rather than
   // failing the whole build.
@@ -229,7 +270,11 @@ const STORE_INFO_FALLBACK: StoreInfo = {
   hours: { weekday: 'Senin – Sabtu: 09.00 – 18.00', weekend: 'Minggu: 10.00 – 15.00' },
 };
 
-export const getStoreInfo = cache(async (locale: Locale = 'id'): Promise<StoreInfo> => {
+/**
+ * @param draftAware - false when called from a route handler or the sitemap,
+ *   which have no request scope and so cannot read the draft-mode cookie.
+ */
+async function fetchStoreInfo(locale: Locale, draftAware: boolean): Promise<StoreInfo> {
   // Prefer the document at the canonical id, falling back to whatever storeInfo
   // document exists. Historically the live document had an auto-generated id
   // while the Studio's menu opened `storeInfo`, so the owner edited a different
@@ -267,7 +312,9 @@ export const getStoreInfo = cache(async (locale: Locale = 'id'): Promise<StoreIn
     footerAtelierLinks[] { ..., category->{ "slug": slug.current, name, nameEn } }
   }`;
 
-  const raw = await safeFetch<Record<string, unknown> | null>(query, undefined, null);
+  const raw = draftAware
+    ? await safeFetch<Record<string, unknown> | null>(query, undefined, null)
+    : await safeFetchStatic<Record<string, unknown> | null>(query, undefined, null);
 
   return {
     name: (raw?.name as string) ?? STORE_INFO_FALLBACK.name,
@@ -301,7 +348,16 @@ export const getStoreInfo = cache(async (locale: Locale = 'id'): Promise<StoreIn
     specLeadTime: raw?.specLeadTime as StoreInfo['specLeadTime'],
     defaultSeo: raw?.defaultSeo as StoreInfo['defaultSeo'],
   };
-});
+}
+
+/** Store details for a page. Shows unpublished edits inside the preview pane. */
+export const getStoreInfo = cache((locale: Locale = 'id') => fetchStoreInfo(locale, true));
+
+/**
+ * Store details for code that runs outside a request — the checkout route
+ * handler and the sitemap. Published content only.
+ */
+export const getStoreInfoStatic = cache((locale: Locale = 'id') => fetchStoreInfo(locale, false));
 
 // ---- Page Content ----
 

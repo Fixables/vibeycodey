@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { client } from '@/lib/sanity';
-import { getStoreInfo, getWhatsAppLink } from '@/lib/sanity-data';
+// Route handlers have no request scope for draft mode, so they use the
+// published-only variant. An order must never be built from unpublished data.
+import { getStoreInfoStatic, getWhatsAppLink } from '@/lib/sanity-data';
 import { shippingForSubtotalIdr } from '@/lib/commerce/shipping';
 import { MAX_QTY_PER_LINE } from '@/lib/commerce/cart';
 import {
@@ -172,7 +174,7 @@ export async function POST(request: NextRequest) {
   const statusUrl = `/${body.locale}/order/${order.token}`;
 
   if (body.method === 'whatsapp') {
-    const storeInfo = await getStoreInfo();
+    const storeInfo = await getStoreInfoStatic();
     const lines = orderItems
       .map((item) => `- ${item.name}${item.size ? ` (${item.size})` : ''} × ${item.qty}`)
       .join('\n');

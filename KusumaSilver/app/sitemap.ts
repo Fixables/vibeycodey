@@ -1,18 +1,17 @@
 import { MetadataRoute } from 'next';
-import { getCategories, getAllProductSlugs } from '@/lib/sanity-data';
-import { DEFAULT_LOCALE } from '@/lib/i18n';
+// The sitemap runs outside a request, so it uses the published-only fetchers —
+// unpublished pages must never appear in a sitemap anyway.
+import { getCategorySlugs, getAllProductSlugs } from '@/lib/sanity-data';
 
 const BASE_URL = 'https://kusumasilver.com';
 const LOCALES = ['id', 'en'];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  let categories: Awaited<ReturnType<typeof getCategories>> = [];
+  let categorySlugs: string[] = [];
   let productSlugs: Awaited<ReturnType<typeof getAllProductSlugs>> = [];
   try {
-    // The sitemap only needs slugs, so the locale used to resolve display names
-    // is irrelevant here.
-    [categories, productSlugs] = await Promise.all([
-      getCategories(DEFAULT_LOCALE),
+    [categorySlugs, productSlugs] = await Promise.all([
+      getCategorySlugs(),
       getAllProductSlugs(),
     ]);
   } catch {
@@ -31,8 +30,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   );
 
   const categoryEntries = LOCALES.flatMap((locale) =>
-    categories.map((cat) => ({
-      url: `${BASE_URL}/${locale}/koleksi/${cat.slug}`,
+    categorySlugs.map((slug) => ({
+      url: `${BASE_URL}/${locale}/koleksi/${slug}`,
       lastModified: new Date(),
       changeFrequency: 'weekly' as const,
       priority: 0.7,

@@ -1,10 +1,16 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getCatalogueContent, getCategoryBySlug, getCategories, getProducts } from '@/lib/sanity-data';
+import {
+  getCatalogueContent,
+  getCategoryBySlug,
+  getCategories,
+  getCategorySlugs,
+  getProducts,
+} from '@/lib/sanity-data';
 import { CollectionClient } from '@/components/catalog/CollectionClient';
 import { resolveCatalogue } from '@/lib/home-content';
 import { metadataFromSeo } from '@/lib/metadata';
-import { DEFAULT_LOCALE, SUPPORTED_LOCALES, getT } from '@/lib/i18n';
+import { SUPPORTED_LOCALES, getT } from '@/lib/i18n';
 import type { Locale } from '@/types';
 
 // Studio edits go live within ~60s without a rebuild; new categories render
@@ -13,9 +19,11 @@ export const revalidate = 60;
 
 export async function generateStaticParams() {
   try {
-    const categories = await getCategories(DEFAULT_LOCALE);
+    // Slugs only, via the published-only fetcher: this runs at build time, with
+    // no request scope for the draft-aware one to read.
+    const slugs = await getCategorySlugs();
     return SUPPORTED_LOCALES.flatMap((locale) =>
-      categories.map((cat) => ({ locale, kategori: cat.slug }))
+      slugs.map((kategori) => ({ locale, kategori }))
     );
   } catch {
     return SUPPORTED_LOCALES.map((locale) => ({ locale, kategori: 'cincin' }));

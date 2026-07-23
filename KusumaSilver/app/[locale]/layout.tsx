@@ -1,5 +1,8 @@
 import type { Metadata } from 'next';
+import { draftMode } from 'next/headers';
+import { VisualEditing } from 'next-sanity/visual-editing';
 import { Cormorant_Garamond, Plus_Jakarta_Sans } from 'next/font/google';
+import { SanityLive } from '@/lib/sanity.live';
 import '@/app/globals.css';
 import { CurrencyProvider } from '@/components/providers/CurrencyProvider';
 import { CartProvider } from '@/components/providers/CartProvider';
@@ -82,6 +85,8 @@ export default async function LocaleLayout({
   const [storeInfo, categories] = await Promise.all([getStoreInfo(locale), getCategories(locale)]);
   const chrome = resolveChrome(storeInfo, categories, locale, getT(locale));
   const waLink = getWhatsAppLink(storeInfo.whatsapp);
+  // True only inside the Studio's preview pane, for a signed-in editor.
+  const { isEnabled: isDraft } = await draftMode();
 
   return (
     <html lang={locale} className={`${cormorant.variable} ${jakarta.variable}`}>
@@ -106,6 +111,13 @@ export default async function LocaleLayout({
           </a>
           </CartProvider>
         </CurrencyProvider>
+        {/* Streams edits into the preview pane as the owner types. Rendered for
+            everyone: outside draft mode it subscribes to published content only
+            and holds no token. */}
+        <SanityLive />
+        {/* Click-to-edit overlays — only inside the Studio's preview pane, so
+            visitors never download the visual-editing bundle. */}
+        {isDraft && <VisualEditing />}
       </body>
     </html>
   );

@@ -1,5 +1,6 @@
 import { defineConfig } from 'sanity';
 import { structureTool } from 'sanity/structure';
+import { presentationTool, defineLocations } from 'sanity/presentation';
 import { visionTool } from '@sanity/vision';
 import { orderableDocumentListDeskItem } from '@sanity/orderable-document-list';
 // Studio icons come from @sanity/icons (the Studio's own icon set), not from
@@ -33,6 +34,30 @@ const SINGLETON_TYPES = new Set([
 
 /** Orders are created by the website's checkout, never by hand in the Studio. */
 const READ_ONLY_TYPES = new Set(['order']);
+
+/**
+ * Where each page singleton appears on the site, so the Preview pane opens the
+ * right page and the "Used on N pages" banner links somewhere useful.
+ * The site is bilingual; Indonesian is the default locale.
+ */
+const PAGE_ROUTES: Record<string, { title: string; path: string }> = {
+  homePage: { title: 'Home', path: '/id' },
+  cataloguePage: { title: 'The Catalogue', path: '/id/koleksi' },
+  aboutPage: { title: 'Our Story', path: '/id/tentang-kami' },
+  bespokePage: { title: 'Silver Class', path: '/id/custom-order' },
+  contactPage: { title: 'Contact', path: '/id/kontak' },
+};
+
+/** Singletons all resolve to their one fixed route. */
+const singletonLocations = Object.fromEntries(
+  Object.entries(PAGE_ROUTES).map(([type, { title, path }]) => [
+    type,
+    defineLocations({
+      message: 'This is the page this document controls.',
+      locations: [{ title, href: path }],
+    }),
+  ])
+);
 
 export default defineConfig({
   name: 'kusuma-silver',
@@ -106,6 +131,54 @@ export default defineConfig({
 
             page('storeInfo', 'Site Settings', CogIcon),
           ]);
+      },
+    }),
+    /**
+     * Preview — shows the live site beside the editor with unpublished changes
+     * applied, and lets the owner click text on the page to jump to the field
+     * that produces it.
+     */
+    presentationTool({
+      title: 'Preview',
+      previewUrl: {
+        origin: process.env.SANITY_STUDIO_PREVIEW_ORIGIN,
+        previewMode: {
+          enable: '/api/draft-mode/enable',
+          disable: '/api/draft-mode/disable',
+        },
+      },
+      resolve: {
+        locations: {
+          ...singletonLocations,
+          // A piece and a category each appear on their own page and in the
+          // catalogue, so the owner can jump to either from the document.
+          product: defineLocations({
+            select: { name: 'name', slug: 'slug.current', category: 'category->slug.current' },
+            resolve: (doc) => ({
+              locations: [
+                {
+                  title: doc?.name || 'This piece',
+                  href: `/id/koleksi/${doc?.category}/${doc?.slug}`,
+                },
+                { title: 'The Catalogue', href: '/id/koleksi' },
+              ],
+            }),
+          }),
+          category: defineLocations({
+            select: { name: 'name', slug: 'slug.current' },
+            resolve: (doc) => ({
+              locations: [
+                { title: doc?.name || 'This category', href: `/id/koleksi/${doc?.slug}` },
+                { title: 'The Catalogue', href: '/id/koleksi' },
+              ],
+            }),
+          }),
+          // Site Settings feeds the menu and footer, which are on every page.
+          storeInfo: defineLocations({
+            message: 'These settings appear on every page of the site.',
+            locations: [{ title: 'Home', href: '/id' }],
+          }),
+        },
       },
     }),
     // The query playground is a developer tool; it is noise for the owner and is

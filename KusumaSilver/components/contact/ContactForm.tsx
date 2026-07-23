@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { getT } from '@/lib/i18n';
-import { getWhatsAppLink } from '@/lib/sanity-data';
+import { getWhatsAppLink } from '@/lib/whatsapp';
 import type { Locale } from '@/types';
 
 interface ContactFormProps {

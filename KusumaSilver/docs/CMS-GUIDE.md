@@ -208,13 +208,41 @@ automatically. It never ends up empty.
 
 ---
 
-## 10. Checking how it will look before publishing
+## 10. Seeing your change before you publish it
 
-Changes you have typed but not published are called a **draft**. The website
-still shows the old version until you press Publish, so you can take your time.
+Changes you have typed but not published are called a **draft**. Visitors still
+see the old version until you press Publish, so you can take your time.
 
-To see your change on the real site, click **Publish**, then open the page. It
-appears within about a minute.
+To see how a draft will actually look:
+
+1. Click **Preview** in the top bar of the content manager.
+2. The website opens on the right, with your unpublished changes already applied.
+3. Edit on the left — the preview updates as you type.
+
+Only you can see this. Visitors continue to see the published version until you
+press Publish.
+
+### Jumping straight to the right field
+
+In the preview, hover over any text or photo and a small pencil appears. Click
+it and the content manager opens the exact field that produces it. This is the
+quickest way to change something when you can see it on the page but do not know
+which tab it lives in.
+
+### Previewing a specific page
+
+Open any document and click **Preview**, and it opens the page that document
+controls. For a piece of jewellery you get a choice: its own page, or the
+catalogue it appears in.
+
+You can also just browse inside the preview pane like a normal website — click
+through the menu and the editor follows along.
+
+### If the preview looks stuck
+
+Close the preview and reopen it. If the site still shows old content, you may
+have left preview mode switched on in a separate tab; visit
+**yoursite.com/api/draft-mode/disable** to return to the normal published site.
 
 ---
 

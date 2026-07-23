@@ -248,10 +248,10 @@ Next.js app at `/studio`.
 
 ## 10. Known limitations
 
-- **No live preview yet.** The owner publishes and then looks. Adding Sanity's
-  Presentation tool with Next.js draft mode is the remaining piece — it needs a
-  `/api/draft` route, a perspective-switching fetch wrapper, and a server-only
-  read token.
+- **Preview needs the site origin configured** in production — see §12. Without
+  `SANITY_STUDIO_PREVIEW_ORIGIN` the preview pane falls back to the Studio's own
+  origin, which is correct for the embedded Studio at `/studio` but not if the
+  Studio is ever deployed separately.
 - **Legacy fields are still present.** Migration 002 adds the new shapes but
   deliberately leaves `heroTitleEn`, `step1Title`, `value1Head`, `statSilver`
   and friends in the documents as a safety net. Remove them, and the matching
@@ -268,10 +268,78 @@ Next.js app at `/studio`.
 
 ---
 
+## 12. Live preview (Presentation)
+
+The Studio's **Preview** tab shows the real site with unpublished content
+applied, plus click-to-edit overlays.
+
+| Piece | File |
+|---|---|
+| Draft-aware fetch + live updates | `lib/sanity.live.ts` (`defineLive`) |
+| Turn draft mode on | `app/api/draft-mode/enable/route.ts` |
+| Turn draft mode off | `app/api/draft-mode/disable/route.ts` |
+| Overlays + live stream | `<VisualEditing />` and `<SanityLive />` in `app/[locale]/layout.tsx` |
+| Studio tool + page mapping | `presentationTool({...})` in `sanity.config.ts` |
+
+### The two fetch paths — the thing to understand before editing
+
+`lib/sanity-data.ts` has **two** fetchers, and picking the wrong one breaks the
+build:
+
+- **`safeFetch`** → `sanityFetch`, draft-aware. **React Server Components only.**
+  It reads the draft-mode cookie, so it needs a request scope.
+- **`safeFetchStatic`** → the plain client, published only. For anything without
+  a request: `generateStaticParams`, `app/sitemap.ts`, and API route handlers.
+
+Get this wrong and you see one of:
+
+- `draftMode was called outside a request scope` — a build-time caller used
+  `safeFetch`. Move it to `safeFetchStatic` (this is why `getCategorySlugs` and
+  `getStoreInfoStatic` exist alongside `getCategories` / `getStoreInfo`).
+- `defineLive can only be used in React Server Components` — a **client**
+  component imported something from `lib/sanity-data.ts`, dragging the
+  server-only live client into the browser bundle. This is why
+  `getWhatsAppLink` lives in `lib/whatsapp.ts`: two client-side forms use it.
+  Never import from `lib/sanity-data.ts` in a `'use client'` file.
+
+### Static generation is preserved
+
+Adding preview did **not** make the site dynamic. Pages still prerender (`●` in
+the build output) with `revalidate = 60`; Next serves them dynamically only for
+requests carrying the draft-mode cookie. Check the build output stays `●` after
+touching the data layer.
+
+### Security properties, and how to re-verify them
+
+- `/api/draft-mode/enable` returns **401** without Sanity's signed secret, so a
+  visitor cannot switch themselves into draft mode:
+  `curl -o /dev/null -w "%{http_code}" localhost:3000/api/draft-mode/enable`
+- `/api/draft-mode/disable?redirect=…` only follows same-site paths; `//evil.com`
+  and `https://evil.com` both fall back to `/`.
+- **Stega must not leak.** Click-to-edit works by hiding invisible characters in
+  strings. It is enabled only in draft mode — confirm published HTML is clean:
+  ```bash
+  curl -s localhost:3000/id | grep -c $'​'   # expect 0
+  ```
+- `browserToken` is only sent to the browser while draft mode is on. It reuses
+  `SANITY_API_TOKEN`; if that token ever gains write scope, issue a separate
+  read-only Viewer token for the browser.
+
+### Environment
+
+`SANITY_STUDIO_PREVIEW_ORIGIN` — the site's origin, e.g.
+`https://kusumasilver.com`. Optional for the embedded Studio at `/studio`
+(it defaults to the Studio's own origin, which is the same site). Set it if the
+Studio is ever hosted separately from the website.
+
+The site origin must also be a **CORS origin** on the Sanity project
+(sanity.io/manage → API), with credentials allowed — including
+`http://localhost:3000` for local work.
+
 ## 11. Suggested next steps
 
-1. Run the three migrations against production (backup first).
-2. Add the Presentation tool so the owner can preview before publishing.
+1. ~~Run the three migrations against production~~ — done 2026-07-22.
+2. ~~Add the Presentation tool~~ — done 2026-07-23.
 3. Fill in the new Site Settings fields — especially the **Google Maps link**,
    which is currently unset, so the contact page map never renders.
 4. Add photo descriptions to the existing pieces; none currently have any.
