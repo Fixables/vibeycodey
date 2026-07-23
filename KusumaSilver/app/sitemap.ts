@@ -2,8 +2,9 @@ import { MetadataRoute } from 'next';
 // The sitemap runs outside a request, so it uses the published-only fetchers —
 // unpublished pages must never appear in a sitemap anyway.
 import { getCategorySlugs, getAllProductSlugs } from '@/lib/sanity-data';
+import { SITE_URL } from '@/lib/site-url';
 
-const BASE_URL = 'https://kusumasilver.com';
+const BASE_URL = SITE_URL;
 const LOCALES = ['id', 'en'];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

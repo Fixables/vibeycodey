@@ -1,4 +1,5 @@
 import { MetadataRoute } from 'next';
+import { absoluteUrl } from '@/lib/site-url';
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -9,6 +10,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ['/studio/', '/api/'],
       },
     ],
-    sitemap: 'https://kusumasilver.com/sitemap.xml',
+    sitemap: absoluteUrl('/sitemap.xml'),
   };
 }

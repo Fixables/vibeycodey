@@ -206,9 +206,34 @@ built-in defaults. Treat any such line as a build failure.
 | `NEXT_PUBLIC_SANITY_DATASET` | client + server | Defaults to `production` |
 | `SANITY_API_TOKEN` | **server only** | Read access for a private dataset; write access for migrations |
 | `SANITY_REVALIDATE_SECRET` | server only | Shared secret for `POST /api/revalidate` |
+| `NEXT_PUBLIC_SITE_URL` | optional | Pins the public base URL. Leave unset on Vercel — see below |
 | `NEXT_PUBLIC_EXCHANGE_RATE_IDR_PER_USD` | client | USD display rate (default 16000) |
 
 Midtrans and commerce variables are documented in `.env.example`.
+
+### The public base URL
+
+`lib/site-url.ts` resolves the canonical origin used by the sitemap, robots.txt
+and every absolute URL in social share cards. It was previously hardcoded to
+`https://kusumasilver.com` while the site actually ran at
+`kusumasilver.vercel.app`, so the sitemap advertised URLs that did not resolve.
+
+Resolution order:
+
+1. `NEXT_PUBLIC_SITE_URL`, if set.
+2. `VERCEL_PROJECT_PRODUCTION_URL`, which Vercel sets automatically and which
+   **follows a custom domain once one is attached**.
+3. `http://localhost:3000` for local development.
+
+**Moving to kusumasilver.com therefore needs no code change** — attach the domain
+in Vercel and the URLs follow. Only set `NEXT_PUBLIC_SITE_URL` if you need to
+pin an origin that Vercel does not know about.
+
+Deliberately *not* `VERCEL_URL`: that is a unique per-deployment hostname, and
+using it would put throwaway preview URLs into the production sitemap.
+
+Whatever the final origin is, it must also be a CORS origin on the Sanity
+project for live preview to work there (§12).
 
 The Sanity CLI reads these from `.env.local` via `sanity.cli.ts`. Without that
 file the CLI reports the misleading error *"Invalid studio config format"* —

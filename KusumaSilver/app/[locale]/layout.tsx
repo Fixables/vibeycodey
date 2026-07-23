@@ -12,6 +12,7 @@ import { Footer } from '@/components/layout/Footer';
 import { SUPPORTED_LOCALES, getT } from '@/lib/i18n';
 import { getCategories, getStoreInfo, getWhatsAppLink } from '@/lib/sanity-data';
 import { resolveChrome } from '@/lib/site-settings';
+import { SITE_URL } from '@/lib/site-url';
 import { localizedValue } from '@/lib/catalog';
 import type { Locale } from '@/types';
 
@@ -52,7 +53,7 @@ export async function generateMetadata({
     'Perhiasan perak 925 asli Bali, dibuat tangan oleh pengrajin berpengalaman. Authentic 925 silver jewelry from Bali, handcrafted by experienced artisans.';
 
   return {
-    metadataBase: new URL('https://kusumasilver.com'),
+    metadataBase: new URL(SITE_URL),
     title: { default: title, template: `%s | ${storeInfo.name}` },
     description,
     keywords: ['silver jewelry', 'perhiasan perak', 'bali silver', '925 silver', 'kusuma silver'],
