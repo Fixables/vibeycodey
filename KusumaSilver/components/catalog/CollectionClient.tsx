@@ -20,6 +20,8 @@ interface CollectionClientProps {
    * switcher. Omit on the master catalogue so category becomes a filter.
    */
   fixedCategory?: string;
+  /** Owner-editable message shown when a visitor's filters match nothing. */
+  emptyMessage?: string;
 }
 
 type SortKey = 'recommended' | 'priceAsc' | 'priceDesc' | 'name';
@@ -88,6 +90,7 @@ export function CollectionClient({
   categories,
   locale,
   fixedCategory,
+  emptyMessage,
 }: CollectionClientProps) {
   const t = getT(locale);
   const { currency } = useCurrency();
@@ -209,7 +212,9 @@ export function CollectionClient({
     setQuery('');
   }
 
-  const crumbLabel = fixedCategory ? categoryLabel(t, fixedCategory) : t.catalogV3.allCatalogue;
+  const crumbLabel = fixedCategory
+    ? categoryLabel(categories, fixedCategory, locale)
+    : t.catalogV3.allCatalogue;
 
   return (
     <div className="mx-auto max-w-[1280px]">
@@ -319,7 +324,12 @@ export function CollectionClient({
       </div>
 
       <div className="px-5 pb-20 pt-7 sm:px-10">
-        <PieceGrid products={filtered} locale={locale} />
+        <PieceGrid
+          products={filtered}
+          categories={categories}
+          locale={locale}
+          emptyMessage={emptyMessage}
+        />
       </div>
     </div>
   );

@@ -1,9 +1,11 @@
+import type { Metadata } from 'next';
 import { MapPin, Phone, Mail, Clock } from 'lucide-react';
 import { getContactContent, getStoreInfo, getWhatsAppLink } from '@/lib/sanity-data';
 import { resolveContact } from '@/lib/home-content';
+import { metadataFromSeo } from '@/lib/metadata';
 import { ContactForm } from '@/components/contact/ContactForm';
 import { SUPPORTED_LOCALES, getT } from '@/lib/i18n';
-import type { Locale } from '@/types';
+import type { Locale, Seo } from '@/types';
 
 export function generateStaticParams() {
   return SUPPORTED_LOCALES.map((locale) => ({ locale }));
@@ -12,9 +14,23 @@ export function generateStaticParams() {
 // Studio edits go live within ~60s without a rebuild.
 export const revalidate = 60;
 
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const doc = await getContactContent();
+  const contact = resolveContact(doc, locale, getT(locale));
+  return metadataFromSeo(doc?.seo as Seo | undefined, locale, {
+    title: contact.title,
+    description: contact.subtitle,
+  });
+}
+
 export default async function KontakPage({ params }: { params: Promise<{ locale: Locale }> }) {
   const { locale } = await params;
-  const storeInfo = await getStoreInfo();
+  const storeInfo = await getStoreInfo(locale);
   const t = getT(locale);
   const contact = resolveContact(await getContactContent(), locale, t);
   const waLink = getWhatsAppLink(storeInfo.whatsapp);

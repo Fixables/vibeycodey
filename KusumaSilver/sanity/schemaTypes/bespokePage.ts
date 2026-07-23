@@ -1,8 +1,9 @@
 import { defineField, defineType } from 'sanity';
+import { imageField } from './objects/image';
 
 /**
- * Bespoke / Custom Order (Custom) page content. Blank fields fall back to the
- * built-in default copy. Each text field is bilingual: (ID) / (EN).
+ * Silver Class page (the /custom-order route). Blank fields fall back to the
+ * built-in default copy.
  */
 export const bespokePage = defineType({
   name: 'bespokePage',
@@ -10,47 +11,70 @@ export const bespokePage = defineType({
   type: 'document',
   groups: [
     { name: 'hero', title: 'Top of page', default: true },
-    { name: 'process', title: 'The four steps' },
-    { name: 'form', title: 'Enquiry form' },
+    { name: 'process', title: 'How it works' },
+    { name: 'form', title: 'Booking form' },
+    { name: 'seo', title: 'Search & sharing' },
   ],
   fields: [
-    defineField({ name: 'heroEyebrow', title: 'Top — small label (ID)', type: 'string', group: 'hero' }),
-    defineField({ name: 'heroEyebrowEn', title: 'Top — small label (EN)', type: 'string', group: 'hero' }),
-    defineField({ name: 'heroTitle1', title: 'Top — heading, first line (ID)', type: 'string', group: 'hero' }),
-    defineField({ name: 'heroTitle1En', title: 'Top — heading, first line (EN)', type: 'string', group: 'hero' }),
-    defineField({ name: 'heroTitle2', title: 'Top — heading, second line / italic (ID)', type: 'string', group: 'hero' }),
-    defineField({ name: 'heroTitle2En', title: 'Top — heading, second line / italic (EN)', type: 'string', group: 'hero' }),
-    defineField({ name: 'heroIntro', title: 'Top — intro paragraph (ID)', type: 'text', rows: 3, group: 'hero' }),
-    defineField({ name: 'heroIntroEn', title: 'Top — intro paragraph (EN)', type: 'text', rows: 3, group: 'hero' }),
-    defineField({ name: 'heroImage', title: 'Top — photo (right side)', type: 'image', options: { hotspot: true }, group: 'hero' }),
+    defineField({ name: 'heroEyebrow', title: 'Small label', type: 'localeString', group: 'hero' }),
+    defineField({ name: 'heroTitle1', title: 'Heading — first line', type: 'localeString', group: 'hero' }),
+    defineField({ name: 'heroTitle2', title: 'Heading — second line (italic)', type: 'localeString', group: 'hero' }),
+    defineField({ name: 'heroIntro', title: 'Intro paragraph', type: 'localeText', group: 'hero' }),
+    defineField({
+      name: 'heroCta',
+      title: 'Button text',
+      description: 'The button scrolls down to the booking form.',
+      type: 'localeString',
+      group: 'hero',
+    }),
+    imageField({
+      name: 'heroImage',
+      title: 'Photo (right side)',
+      description: 'The photo beside the heading at the top of the page.',
+      group: 'hero',
+    }),
 
-    defineField({ name: 'processEyebrow', title: 'Steps — small label (ID)', type: 'string', group: 'process' }),
-    defineField({ name: 'processEyebrowEn', title: 'Steps — small label (EN)', type: 'string', group: 'process' }),
-    defineField({ name: 'processTitle', title: 'Steps — heading (ID)', type: 'string', group: 'process' }),
-    defineField({ name: 'processTitleEn', title: 'Steps — heading (EN)', type: 'string', group: 'process' }),
-    defineField({ name: 'step1Title', title: 'Step 1 — title (ID)', type: 'string', group: 'process' }),
-    defineField({ name: 'step1TitleEn', title: 'Step 1 — title (EN)', type: 'string', group: 'process' }),
-    defineField({ name: 'step1Body', title: 'Step 1 — text (ID)', type: 'text', rows: 2, group: 'process' }),
-    defineField({ name: 'step1BodyEn', title: 'Step 1 — text (EN)', type: 'text', rows: 2, group: 'process' }),
-    defineField({ name: 'step2Title', title: 'Step 2 — title (ID)', type: 'string', group: 'process' }),
-    defineField({ name: 'step2TitleEn', title: 'Step 2 — title (EN)', type: 'string', group: 'process' }),
-    defineField({ name: 'step2Body', title: 'Step 2 — text (ID)', type: 'text', rows: 2, group: 'process' }),
-    defineField({ name: 'step2BodyEn', title: 'Step 2 — text (EN)', type: 'text', rows: 2, group: 'process' }),
-    defineField({ name: 'step3Title', title: 'Step 3 — title (ID)', type: 'string', group: 'process' }),
-    defineField({ name: 'step3TitleEn', title: 'Step 3 — title (EN)', type: 'string', group: 'process' }),
-    defineField({ name: 'step3Body', title: 'Step 3 — text (ID)', type: 'text', rows: 2, group: 'process' }),
-    defineField({ name: 'step3BodyEn', title: 'Step 3 — text (EN)', type: 'text', rows: 2, group: 'process' }),
-    defineField({ name: 'step4Title', title: 'Step 4 — title (ID)', type: 'string', group: 'process' }),
-    defineField({ name: 'step4TitleEn', title: 'Step 4 — title (EN)', type: 'string', group: 'process' }),
-    defineField({ name: 'step4Body', title: 'Step 4 — text (ID)', type: 'text', rows: 2, group: 'process' }),
-    defineField({ name: 'step4BodyEn', title: 'Step 4 — text (EN)', type: 'text', rows: 2, group: 'process' }),
+    defineField({ name: 'processEyebrow', title: 'Small label', type: 'localeString', group: 'process' }),
+    defineField({ name: 'processTitle', title: 'Heading', type: 'localeString', group: 'process' }),
+    defineField({
+      name: 'steps',
+      title: 'The steps',
+      description:
+        'The numbered steps across the middle of the page. Drag to reorder — the numbers update ' +
+        'by themselves. Four fits the row exactly.',
+      type: 'array',
+      group: 'process',
+      of: [{ type: 'processStep' }],
+      validation: (Rule) => Rule.max(6).warning('More than four steps wrap onto a second row.'),
+    }),
 
-    defineField({ name: 'formEyebrow', title: 'Form — small label (ID)', type: 'string', group: 'form' }),
-    defineField({ name: 'formEyebrowEn', title: 'Form — small label (EN)', type: 'string', group: 'form' }),
-    defineField({ name: 'formTitle', title: 'Form — heading (ID)', type: 'string', group: 'form' }),
-    defineField({ name: 'formTitleEn', title: 'Form — heading (EN)', type: 'string', group: 'form' }),
-    defineField({ name: 'formSub', title: 'Form — subtitle (ID)', type: 'string', group: 'form' }),
-    defineField({ name: 'formSubEn', title: 'Form — subtitle (EN)', type: 'string', group: 'form' }),
+    defineField({ name: 'formEyebrow', title: 'Small label', type: 'localeString', group: 'form' }),
+    defineField({ name: 'formTitle', title: 'Heading', type: 'localeString', group: 'form' }),
+    defineField({ name: 'formSub', title: 'Line under the heading', type: 'localeString', group: 'form' }),
+    imageField({
+      name: 'formImage',
+      title: 'Photo beside the form',
+      description: 'Shown on wide screens only. Without a photo here the space shows a grey placeholder.',
+      group: 'form',
+    }),
+    defineField({
+      name: 'typeOptions',
+      title: '"What would you like to make?" choices',
+      description: 'The options in the first dropdown. Drag to reorder. Leave empty to keep the built-in list.',
+      type: 'array',
+      group: 'form',
+      of: [{ type: 'formOption' }],
+    }),
+    defineField({
+      name: 'budgetOptions',
+      title: '"How many people?" choices',
+      description: 'The options in the second dropdown. Leave empty to keep the built-in list.',
+      type: 'array',
+      group: 'form',
+      of: [{ type: 'formOption' }],
+    }),
+
+    defineField({ name: 'seo', title: 'Search & sharing', type: 'seo', group: 'seo' }),
   ],
-  preview: { prepare: () => ({ title: 'Silver Class Page', subtitle: 'Silver Class page content' }) },
+  preview: { prepare: () => ({ title: 'Silver Class Page', subtitle: 'Class description, steps, and booking form' }) },
 });

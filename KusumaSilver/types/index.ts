@@ -6,9 +6,10 @@ export interface Category {
   nameEn: string;
   description: string;
   descriptionEn: string;
-  icon: string;
   productCount?: number;
-  coverImageUrl?: string;
+  /** The category's own photo, or a borrowed product photo as a fallback. */
+  cover: ResolvedImage | null;
+  seo?: Seo;
 }
 
 export interface Product {
@@ -21,8 +22,18 @@ export interface Product {
   priceDisplay: string;
   description: string;
   descriptionEn: string;
-  images: string[];
-  imageUrl?: string;
+  /** Raw CMS photos, for server components that resolve their own size. */
+  images: SanityImage[];
+  /**
+   * The first photo, pre-resolved at catalogue-card size. Resolved server-side
+   * so client components (the grid, the home strip) never touch the image
+   * builder — see the note on `mapProduct` in lib/sanity-data.ts.
+   */
+  card: ResolvedImage | null;
+  /** Per-product overrides for the spec table; fall back to the site defaults. */
+  origin?: LocaleString;
+  technique?: LocaleString;
+  seo?: Seo;
   material?: string;
   weight?: number;
   sizes?: string;
@@ -45,79 +56,87 @@ export interface StoreInfo {
   hours: { weekday: string; weekend: string };
   socialMedia?: { instagram?: string; tiktok?: string; facebook?: string };
   mapsEmbedUrl?: string;
-  aboutContent?: unknown[];
-  aboutContentEn?: unknown[];
+
+  // ---- Site chrome, all optional: blank falls back to the built-in wording ----
+  logo?: ResolvedImage | null;
+  wordmarkSub?: LocaleString;
+  promoBar?: LocaleString;
+  promoBarHidden?: boolean;
+  /** Raw CMS menu entries; resolved to safe links by lib/site-settings.ts. */
+  mainNav?: unknown[];
+  footerShopLinks?: unknown[];
+  footerAtelierLinks?: unknown[];
+  footerBlurb?: LocaleString;
+  copyright?: LocaleString;
+
+  /** Defaults for the piece-page details table. */
+  specOrigin?: LocaleString;
+  specTechnique?: LocaleString;
+  specMaterial?: LocaleString;
+  specLeadTime?: LocaleString;
+
+  defaultSeo?: Seo;
 }
 
-export interface Testimonial {
-  id: string;
-  name: string;
-  location?: string;
-  content: string;
-  contentEn?: string;
-  rating?: number;
+/**
+ * A localized string as stored in Sanity: one value per locale. Page documents
+ * written before the localeString migration still hold flat `foo` / `fooEn`
+ * pairs, so readers accept either shape (see `pickLocalized` in lib/home-content).
+ */
+export interface LocaleString {
+  id?: string;
+  en?: string;
 }
 
-export interface CustomOrderStep {
-  id: string;
-  stepNumber: number;
-  title: string;
-  titleEn: string;
-  description: string;
-  descriptionEn: string;
-  icon: string;
+/** Sanity image reference plus the presentation data the frontend needs. */
+export interface SanityImage {
+  asset?: {
+    _ref?: string;
+    _id?: string;
+    _type?: string;
+    metadata?: {
+      /** Base64 placeholder used for the blur-up while the photo loads. */
+      lqip?: string;
+      dimensions?: { width: number; height: number; aspectRatio: number };
+    };
+  };
+  hotspot?: { x: number; y: number; width: number; height: number };
+  crop?: { top: number; bottom: number; left: number; right: number };
+  /** Legacy documents may hold a plain string here instead of a LocaleString. */
+  alt?: LocaleString | string;
+  caption?: LocaleString | string;
+  hidden?: boolean;
+  shape?: ImageShape;
 }
 
-export interface HomePageContent {
-  heroHeadline?: string;
-  heroHeadlineEn?: string;
-  heroSubtext?: string;
-  heroSubtextEn?: string;
-  heroImage?: string;
-  heroCtaLabel?: string;
-  heroCtaLabelEn?: string;
-  collectionsTitle?: string;
-  collectionsTitleEn?: string;
-  collectionsSubtitle?: string;
-  collectionsSubtitleEn?: string;
-  craftsmanshipTitle?: string;
-  craftsmanshipTitleEn?: string;
-  craftsmanshipBody?: string;
-  craftsmanshipBodyEn?: string;
-  craftsmanshipImage?: string;
-  ctaBannerTitle?: string;
-  ctaBannerTitleEn?: string;
-  ctaBannerSubtext?: string;
-  ctaBannerSubtextEn?: string;
-  seoTitle?: string;
-  seoDescription?: string;
+/** Owner-chosen image framing. Enumerated so no invalid ratio is expressible. */
+export type ImageShape = 'original' | 'square' | 'landscape' | 'portrait';
+
+/** Owner-chosen image display size. Enumerated for the same reason. */
+export type ImageSize = 'small' | 'medium' | 'large' | 'full';
+
+/**
+ * A CMS image after `buildImage()` has resolved it: ready-to-render URLs with
+ * the owner's crop and focal point already baked into them. Safe to pass to
+ * client components — it holds no Sanity client state.
+ */
+export interface ResolvedImage {
+  src: string;
+  srcSet: string;
+  width: number;
+  height: number;
+  blurDataURL?: string;
+  alt: string;
+  caption?: string;
+  /**
+   * The shape the URL was cropped to. Components use it to size the box to
+   * match, so CSS `object-cover` does not re-crop and undo the owner's choice.
+   */
+  shape?: ImageShape;
 }
 
-export interface AboutPageContent {
-  pageTitle?: string;
-  pageTitleEn?: string;
-  subtitle?: string;
-  subtitleEn?: string;
-  content?: unknown[];
-  contentEn?: unknown[];
-  heroImage?: string;
-  values?: Array<{
-    title: string;
-    titleEn?: string;
-    description: string;
-    descriptionEn?: string;
-  }>;
-  seoTitle?: string;
-  seoDescription?: string;
-}
-
-export interface ContactPageContent {
-  pageTitle?: string;
-  pageTitleEn?: string;
-  subtitle?: string;
-  subtitleEn?: string;
-  introText?: string;
-  introTextEn?: string;
-  seoTitle?: string;
-  seoDescription?: string;
+export interface Seo {
+  title?: LocaleString;
+  description?: LocaleString;
+  shareImage?: SanityImage;
 }

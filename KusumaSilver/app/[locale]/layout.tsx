@@ -6,8 +6,10 @@ import { CartProvider } from '@/components/providers/CartProvider';
 import { UtilityBar } from '@/components/layout/UtilityBar';
 import { NavbarServer } from '@/components/layout/NavbarServer';
 import { Footer } from '@/components/layout/Footer';
-import { SUPPORTED_LOCALES } from '@/lib/i18n';
-import { getStoreInfo, getWhatsAppLink } from '@/lib/sanity-data';
+import { SUPPORTED_LOCALES, getT } from '@/lib/i18n';
+import { getCategories, getStoreInfo, getWhatsAppLink } from '@/lib/sanity-data';
+import { resolveChrome } from '@/lib/site-settings';
+import { localizedValue } from '@/lib/catalog';
 import type { Locale } from '@/types';
 
 const cormorant = Cormorant_Garamond({
@@ -25,21 +27,41 @@ const jakarta = Plus_Jakarta_Sans({
   display: 'swap',
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL('https://kusumasilver.com'),
-  title: {
-    default: 'Kusuma Silver — Perhiasan Perak 925 Asli dari Bali',
-    template: '%s | Kusuma Silver',
-  },
-  description:
-    'Perhiasan perak 925 asli Bali, dibuat tangan oleh pengrajin berpengalaman. Authentic 925 silver jewelry from Bali, handcrafted by experienced artisans.',
-  keywords: ['silver jewelry', 'perhiasan perak', 'bali silver', '925 silver', 'kusuma silver'],
-  openGraph: {
-    type: 'website',
-    locale: 'id_ID',
-    siteName: 'Kusuma Silver',
-  },
-};
+/**
+ * Site-wide metadata. The shop name, title and description come from Site
+ * Settings so the owner can change them; the constants below are only used
+ * before those fields are filled in.
+ */
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale: localeStr } = await params;
+  const locale = localeStr as Locale;
+  const storeInfo = await getStoreInfo(locale);
+  const seo = storeInfo.defaultSeo;
+
+  const tagline = locale === 'en' ? storeInfo.taglineEn || storeInfo.tagline : storeInfo.tagline;
+  const title = localizedValue(seo?.title, locale) || `${storeInfo.name} — ${tagline}`;
+  const description =
+    localizedValue(seo?.description, locale) ||
+    'Perhiasan perak 925 asli Bali, dibuat tangan oleh pengrajin berpengalaman. Authentic 925 silver jewelry from Bali, handcrafted by experienced artisans.';
+
+  return {
+    metadataBase: new URL('https://kusumasilver.com'),
+    title: { default: title, template: `%s | ${storeInfo.name}` },
+    description,
+    keywords: ['silver jewelry', 'perhiasan perak', 'bali silver', '925 silver', 'kusuma silver'],
+    openGraph: {
+      type: 'website',
+      locale: locale === 'en' ? 'en_US' : 'id_ID',
+      siteName: storeInfo.name,
+      title,
+      description,
+    },
+  };
+}
 
 export function generateStaticParams() {
   return SUPPORTED_LOCALES.map((locale) => ({ locale }));
@@ -57,7 +79,8 @@ export default async function LocaleLayout({
 }) {
   const { locale: localeStr } = await params;
   const locale = localeStr as Locale;
-  const storeInfo = await getStoreInfo();
+  const [storeInfo, categories] = await Promise.all([getStoreInfo(locale), getCategories(locale)]);
+  const chrome = resolveChrome(storeInfo, categories, locale, getT(locale));
   const waLink = getWhatsAppLink(storeInfo.whatsapp);
 
   return (
@@ -65,7 +88,7 @@ export default async function LocaleLayout({
       <body className="font-body bg-paper text-ink antialiased">
         <CurrencyProvider>
           <CartProvider>
-          <UtilityBar locale={locale} />
+          {!chrome.promoBarHidden && <UtilityBar locale={locale} promo={chrome.promoBar} />}
           <NavbarServer locale={locale} />
           <main className="min-h-screen">{children}</main>
           <Footer locale={locale} />

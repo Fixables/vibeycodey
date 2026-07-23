@@ -1,200 +1,165 @@
 import { defineField, defineType } from 'sanity';
+import { imageField } from './objects/image';
 
 /**
  * Home page content. Every field maps to a visible part of the home page.
  * Leaving a field blank falls back to the built-in default text, so the site
- * never breaks. Fields come in pairs: one Indonesian, one English.
+ * never breaks.
+ *
+ * Text fields hold both languages in one place (Bahasa Indonesia + English).
+ * Documents written before that change still hold separate `…En` fields; the
+ * website reads either shape, so nothing has to be migrated in a hurry.
  */
 export const homePage = defineType({
   name: 'homePage',
   title: 'Home Page',
   type: 'document',
   groups: [
-    { name: 'hero', title: 'Hero (top of page)', default: true },
+    { name: 'hero', title: 'Top of page', default: true },
+    { name: 'layout', title: 'Section order' },
     { name: 'strip', title: 'Catalogue strip' },
     { name: 'heritage', title: 'Heritage band' },
     { name: 'manifesto', title: 'Manifesto' },
+    { name: 'seo', title: 'Search & sharing' },
   ],
   fields: [
     // ---- Hero ----
     defineField({
       name: 'heroEyebrow',
-      title: 'Hero — small label above headline (ID)',
-      description: 'The little orange text at the top of the hero. e.g. “PERAK 925 · BALI UTARA”.',
-      type: 'string',
+      title: 'Small label above the headline',
+      description: 'The little orange text at the top, e.g. "925 STERLING · NORTH BALI".',
+      type: 'localeString',
       group: 'hero',
     }),
-    defineField({ name: 'heroEyebrowEn', title: 'Hero — small label above headline (EN)', type: 'string', group: 'hero' }),
     defineField({
       name: 'heroTitle1',
-      title: 'Hero — big headline, first line (ID)',
-      description: 'The large headline. First line is upright, second line is italic.',
-      type: 'string',
+      title: 'Headline — first line',
+      description: 'The large headline. The first line is upright, the second is italic.',
+      type: 'localeString',
       group: 'hero',
     }),
-    defineField({ name: 'heroTitle1En', title: 'Hero — big headline, first line (EN)', type: 'string', group: 'hero' }),
     defineField({
       name: 'heroTitle2',
-      title: 'Hero — big headline, second line / italic (ID)',
-      type: 'string',
+      title: 'Headline — second line (italic)',
+      type: 'localeString',
       group: 'hero',
     }),
-    defineField({ name: 'heroTitle2En', title: 'Hero — big headline, second line / italic (EN)', type: 'string', group: 'hero' }),
     defineField({
       name: 'heroDesc',
-      title: 'Hero — description paragraph (ID)',
-      description: 'The paragraph under the headline.',
-      type: 'text',
-      rows: 3,
+      title: 'Paragraph under the headline',
+      type: 'localeText',
       group: 'hero',
     }),
-    defineField({ name: 'heroDescEn', title: 'Hero — description paragraph (EN)', type: 'text', rows: 3, group: 'hero' }),
     defineField({
       name: 'heroCta1',
-      title: 'Hero — first button text (ID)',
-      description: 'The dark button (goes to the catalogue).',
-      type: 'string',
+      title: 'First button',
+      description: 'The dark button. It always goes to the catalogue.',
+      type: 'localeString',
       group: 'hero',
     }),
-    defineField({ name: 'heroCta1En', title: 'Hero — first button text (EN)', type: 'string', group: 'hero' }),
     defineField({
       name: 'heroCta2',
-      title: 'Hero — second button text (ID)',
-      description: 'The outline button (goes to Our Story).',
-      type: 'string',
+      title: 'Second button',
+      description: 'The outline button. It always goes to Our Story.',
+      type: 'localeString',
       group: 'hero',
     }),
-    defineField({ name: 'heroCta2En', title: 'Hero — second button text (EN)', type: 'string', group: 'hero' }),
     defineField({
       name: 'heroCoords',
-      title: 'Hero — small line under the buttons',
+      title: 'Small line under the buttons',
       description: 'The location line, e.g. SINGARAJA · 8°6′ S, 115°5′ E. Same in both languages.',
       type: 'string',
       group: 'hero',
     }),
-    defineField({
+    imageField({
       name: 'heroImage',
-      title: 'Hero — main image',
-      description: 'The large photo on the left of the hero (e.g. a model wearing a necklace).',
-      type: 'image',
-      options: { hotspot: true },
+      title: 'Main photo',
+      description: 'The large photo on the left of the top section.',
       group: 'hero',
     }),
 
-    // ---- Catalogue strip (the sideways-scrolling row of pieces) ----
+    // ---- Section order ----
     defineField({
-      name: 'catalogueHead',
-      title: 'Strip — heading above the row (ID)',
-      description: 'The word above the scrolling row of pieces, e.g. Katalog.',
-      type: 'string',
-      group: 'strip',
-    }),
-    defineField({ name: 'catalogueHeadEn', title: 'Strip — heading above the row (EN)', type: 'string', group: 'strip' }),
-    defineField({
-      name: 'cataloguePanels',
-      title: 'Strip — the little text cards between the photos',
+      name: 'sections',
+      title: 'Sections, in order',
       description:
-        'The small cards that sit between product photos in the scrolling row, e.g. TEKNIK / “Filigri, granulasi…”. They repeat in order once the photos run out. Drag to reorder, or use Add item for a new one. Leave the whole list empty to keep the six built-in cards.',
+        'Drag to change the order the sections appear down the page, or hide one temporarily. ' +
+        'The top section with the big headline is always first and is not listed here. ' +
+        'Leave this empty to keep the standard order.',
       type: 'array',
-      group: 'strip',
-      of: [
-        {
-          type: 'object',
-          name: 'panel',
-          fields: [
-            defineField({
-              name: 'label',
-              title: 'Small heading (ID)',
-              description: 'The short label in capitals, e.g. TEKNIK.',
-              type: 'string',
-              validation: (Rule) => Rule.required(),
-            }),
-            defineField({ name: 'labelEn', title: 'Small heading (EN)', type: 'string' }),
-            defineField({
-              name: 'text',
-              title: 'Text underneath (ID)',
-              type: 'text',
-              rows: 2,
-              validation: (Rule) => Rule.required(),
-            }),
-            defineField({ name: 'textEn', title: 'Text underneath (EN)', type: 'text', rows: 2 }),
-          ],
-          preview: { select: { title: 'label', subtitle: 'text' } },
-        },
-      ],
+      group: 'layout',
+      of: [{ type: 'catalogueStrip' }, { type: 'heritageBand' }, { type: 'manifesto' }],
+      validation: (Rule) => Rule.max(6),
     }),
 
-    // ---- Heritage band (dark section) ----
-    defineField({ name: 'heritageEyebrow', title: 'Heritage — small label (ID)', type: 'string', group: 'heritage' }),
-    defineField({ name: 'heritageEyebrowEn', title: 'Heritage — small label (EN)', type: 'string', group: 'heritage' }),
+    // ---- Catalogue strip ----
+    defineField({
+      name: 'catalogueHead',
+      title: 'Heading above the row',
+      description: 'The words above the scrolling row of pieces, e.g. "The Catalogue".',
+      type: 'localeString',
+      group: 'strip',
+    }),
+    defineField({
+      name: 'cataloguePanels',
+      title: 'Text cards between the photos',
+      description:
+        'The small cards that sit between product photos in the scrolling row. They repeat in ' +
+        'order once the photos run out. Drag to reorder. Leave the list empty to keep the six built-in cards.',
+      type: 'array',
+      group: 'strip',
+      of: [{ type: 'panel' }],
+    }),
+
+    // ---- Heritage band ----
+    defineField({ name: 'heritageEyebrow', title: 'Small label', type: 'localeString', group: 'heritage' }),
     defineField({
       name: 'heritageTitle',
-      title: 'Heritage — heading (ID)',
-      description: 'The heading in the dark band, e.g. “Ditempa di atas pesisir Lovina”.',
-      type: 'string',
+      title: 'Heading',
+      description: 'The heading in the dark band.',
+      type: 'localeString',
       group: 'heritage',
     }),
-    defineField({ name: 'heritageTitleEn', title: 'Heritage — heading (EN)', type: 'string', group: 'heritage' }),
-    defineField({ name: 'heritageBody', title: 'Heritage — paragraph (ID)', type: 'text', rows: 4, group: 'heritage' }),
-    defineField({ name: 'heritageBodyEn', title: 'Heritage — paragraph (EN)', type: 'text', rows: 4, group: 'heritage' }),
+    defineField({ name: 'heritageBody', title: 'Paragraph', type: 'localeText', group: 'heritage' }),
     defineField({
-      name: 'statSilverValue',
-      title: 'Heritage — stat 1, the big number',
-      description: 'The large figure itself, e.g. 925. Same in both languages.',
-      type: 'string',
+      name: 'stats',
+      title: 'The figures',
+      description:
+        'The large numbers along the bottom of the dark band. Drag to reorder, or use Add item ' +
+        'for another. Three fits best; four is the most that stays readable.',
+      type: 'array',
       group: 'heritage',
+      of: [{ type: 'heritageStat' }],
+      validation: (Rule) => Rule.max(4).warning('More than four figures get cramped on phones.'),
     }),
-    defineField({ name: 'statSilver', title: 'Heritage — stat 1, label under the number (ID)', type: 'string', group: 'heritage' }),
-    defineField({ name: 'statSilverEn', title: 'Heritage — stat 1, label under the number (EN)', type: 'string', group: 'heritage' }),
-    defineField({
-      name: 'statGenValue',
-      title: 'Heritage — stat 2, the big number',
-      description: 'The large figure itself, e.g. 3. Same in both languages.',
-      type: 'string',
-      group: 'heritage',
-    }),
-    defineField({ name: 'statGen', title: 'Heritage — stat 2, label under the number (ID)', type: 'string', group: 'heritage' }),
-    defineField({ name: 'statGenEn', title: 'Heritage — stat 2, label under the number (EN)', type: 'string', group: 'heritage' }),
-    defineField({
-      name: 'statHandValue',
-      title: 'Heritage — stat 3, the big number',
-      description: 'The large figure itself, e.g. 100%. Same in both languages.',
-      type: 'string',
-      group: 'heritage',
-    }),
-    defineField({ name: 'statHand', title: 'Heritage — stat 3, label under the number (ID)', type: 'string', group: 'heritage' }),
-    defineField({ name: 'statHandEn', title: 'Heritage — stat 3, label under the number (EN)', type: 'string', group: 'heritage' }),
-    defineField({
+    imageField({
       name: 'heritageImage',
-      title: 'Heritage — image',
-      description: 'The photo on the right of the dark band (e.g. an artisan at work).',
-      type: 'image',
-      options: { hotspot: true },
+      title: 'Photo',
+      description: 'The photo on the right of the dark band.',
       group: 'heritage',
     }),
 
     // ---- Manifesto ----
     defineField({
       name: 'manifestoQuote',
-      title: 'Manifesto — quote (ID)',
+      title: 'Quote',
       description: 'The large centred quote near the bottom of the page.',
-      type: 'text',
-      rows: 2,
+      type: 'localeText',
       group: 'manifesto',
     }),
-    defineField({ name: 'manifestoQuoteEn', title: 'Manifesto — quote (EN)', type: 'text', rows: 2, group: 'manifesto' }),
     defineField({
       name: 'manifestoAttr',
-      title: 'Manifesto — attribution line (ID)',
-      description: 'The small line under the quote, e.g. “— KELUARGA KUSUMA, SINGARAJA”.',
-      type: 'string',
+      title: 'Line under the quote',
+      description: 'e.g. "— THE KUSUMA FAMILY, SINGARAJA".',
+      type: 'localeString',
       group: 'manifesto',
     }),
-    defineField({ name: 'manifestoAttrEn', title: 'Manifesto — attribution line (EN)', type: 'string', group: 'manifesto' }),
+
+    defineField({ name: 'seo', title: 'Search & sharing', type: 'seo', group: 'seo' }),
   ],
   preview: {
     prepare() {
-      return { title: 'Home Page', subtitle: 'Hero, heritage band, and manifesto text' };
+      return { title: 'Home Page', subtitle: 'Top section, catalogue strip, heritage band, manifesto' };
     },
   },
 });

@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next';
 import { getCategories, getAllProductSlugs } from '@/lib/sanity-data';
+import { DEFAULT_LOCALE } from '@/lib/i18n';
 
 const BASE_URL = 'https://kusumasilver.com';
 const LOCALES = ['id', 'en'];
@@ -8,8 +9,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let categories: Awaited<ReturnType<typeof getCategories>> = [];
   let productSlugs: Awaited<ReturnType<typeof getAllProductSlugs>> = [];
   try {
+    // The sitemap only needs slugs, so the locale used to resolve display names
+    // is irrelevant here.
     [categories, productSlugs] = await Promise.all([
-      getCategories(),
+      getCategories(DEFAULT_LOCALE),
       getAllProductSlugs(),
     ]);
   } catch {

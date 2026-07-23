@@ -1,66 +1,90 @@
 import { defineField, defineType } from 'sanity';
+import { imageField, imageMember } from './objects/image';
 
 /**
  * "Our Story" (Tentang Kami) page content. Blank fields fall back to the
- * built-in default copy, so nothing breaks. Each text field comes in two
- * languages: (ID) Indonesian and (EN) English.
+ * built-in default copy, so nothing breaks.
  */
 export const aboutPage = defineType({
   name: 'aboutPage',
-  title: 'About Page',
+  title: 'Our Story Page',
   type: 'document',
   groups: [
     { name: 'hero', title: 'Top of page', default: true },
     { name: 'story', title: 'Story text' },
+    { name: 'gallery', title: 'Photo gallery' },
     { name: 'values', title: 'Values band' },
+    { name: 'cta', title: 'Bottom buttons' },
+    { name: 'seo', title: 'Search & sharing' },
   ],
   fields: [
-    defineField({ name: 'heroEyebrow', title: 'Top — small label (ID)', type: 'string', group: 'hero' }),
-    defineField({ name: 'heroEyebrowEn', title: 'Top — small label (EN)', type: 'string', group: 'hero' }),
-    defineField({ name: 'heroTitle', title: 'Top — big heading (ID)', type: 'string', group: 'hero' }),
-    defineField({ name: 'heroTitleEn', title: 'Top — big heading (EN)', type: 'string', group: 'hero' }),
-    defineField({
+    defineField({ name: 'heroEyebrow', title: 'Small label', type: 'localeString', group: 'hero' }),
+    defineField({ name: 'heroTitle', title: 'Big heading', type: 'localeString', group: 'hero' }),
+    imageField({
       name: 'heroImage',
-      title: 'Top — background photo',
-      description: 'The large photo behind the page heading.',
-      type: 'image',
-      options: { hotspot: true },
+      title: 'Background photo',
+      description: 'The large photo behind the page heading. The heading sits over the bottom of it.',
       group: 'hero',
     }),
 
     defineField({
       name: 'lede',
-      title: 'Story — opening line, large (ID)',
+      title: 'Opening line (large)',
       description: 'The bigger opening sentence of the story.',
-      type: 'text',
-      rows: 2,
+      type: 'localeText',
       group: 'story',
     }),
-    defineField({ name: 'ledeEn', title: 'Story — opening line, large (EN)', type: 'text', rows: 2, group: 'story' }),
-    defineField({ name: 'body1', title: 'Story — paragraph 1 (ID)', type: 'text', rows: 3, group: 'story' }),
-    defineField({ name: 'body1En', title: 'Story — paragraph 1 (EN)', type: 'text', rows: 3, group: 'story' }),
-    defineField({ name: 'body2', title: 'Story — paragraph 2 (ID)', type: 'text', rows: 3, group: 'story' }),
-    defineField({ name: 'body2En', title: 'Story — paragraph 2 (EN)', type: 'text', rows: 3, group: 'story' }),
-    defineField({ name: 'body3', title: 'Story — paragraph 3 (ID)', type: 'text', rows: 3, group: 'story' }),
-    defineField({ name: 'body3En', title: 'Story — paragraph 3 (EN)', type: 'text', rows: 3, group: 'story' }),
-    defineField({ name: 'galleryImage1', title: 'Story — gallery photo 1 (left)', type: 'image', options: { hotspot: true }, group: 'story' }),
-    defineField({ name: 'galleryImage2', title: 'Story — gallery photo 2 (right)', type: 'image', options: { hotspot: true }, group: 'story' }),
+    defineField({ name: 'body1', title: 'Paragraph 1', type: 'localeText', group: 'story' }),
+    defineField({ name: 'body2', title: 'Paragraph 2', type: 'localeText', group: 'story' }),
+    defineField({
+      name: 'body3',
+      title: 'Paragraph 3 (after the photos)',
+      description: 'This one appears below the photo gallery. Leave blank to skip it.',
+      type: 'localeText',
+      group: 'story',
+    }),
 
-    defineField({ name: 'value1Head', title: 'Values — item 1 title (ID)', type: 'string', group: 'values' }),
-    defineField({ name: 'value1HeadEn', title: 'Values — item 1 title (EN)', type: 'string', group: 'values' }),
-    defineField({ name: 'value1Body', title: 'Values — item 1 text (ID)', type: 'text', rows: 2, group: 'values' }),
-    defineField({ name: 'value1BodyEn', title: 'Values — item 1 text (EN)', type: 'text', rows: 2, group: 'values' }),
-    defineField({ name: 'value2Head', title: 'Values — item 2 title (ID)', type: 'string', group: 'values' }),
-    defineField({ name: 'value2HeadEn', title: 'Values — item 2 title (EN)', type: 'string', group: 'values' }),
-    defineField({ name: 'value2Body', title: 'Values — item 2 text (ID)', type: 'text', rows: 2, group: 'values' }),
-    defineField({ name: 'value2BodyEn', title: 'Values — item 2 text (EN)', type: 'text', rows: 2, group: 'values' }),
-    defineField({ name: 'value3Head', title: 'Values — item 3 title (ID)', type: 'string', group: 'values' }),
-    defineField({ name: 'value3HeadEn', title: 'Values — item 3 title (EN)', type: 'string', group: 'values' }),
-    defineField({ name: 'value3Body', title: 'Values — item 3 text (ID)', type: 'text', rows: 2, group: 'values' }),
-    defineField({ name: 'value3BodyEn', title: 'Values — item 3 text (EN)', type: 'text', rows: 2, group: 'values' }),
+    defineField({
+      name: 'gallery',
+      title: 'Photos',
+      description:
+        'The row of photos in the middle of the page. Drag to reorder. Two photos show side by ' +
+        'side; add a third and they become three across. Each photo has its own shape setting.',
+      type: 'array',
+      group: 'gallery',
+      of: [{ ...imageMember({ captionable: true, hideable: true }), name: 'galleryPhoto' }],
+      validation: (Rule) => Rule.max(3).warning('More than three photos will not fit in one row.'),
+    }),
 
-    defineField({ name: 'ctaTitle', title: 'Bottom — call-to-action heading (ID)', type: 'string', group: 'values' }),
-    defineField({ name: 'ctaTitleEn', title: 'Bottom — call-to-action heading (EN)', type: 'string', group: 'values' }),
+    defineField({
+      name: 'values',
+      title: 'Values',
+      description:
+        'The items in the dark band near the bottom. Drag to reorder, or use Add item for another. ' +
+        'Three fits the layout best.',
+      type: 'array',
+      group: 'values',
+      of: [{ type: 'storyValue' }],
+      validation: (Rule) => Rule.max(4).warning('More than four values get cramped.'),
+    }),
+
+    defineField({ name: 'ctaTitle', title: 'Closing heading', type: 'localeString', group: 'cta' }),
+    defineField({
+      name: 'ctaCatalogue',
+      title: 'First button',
+      description: 'The dark button. It always goes to the catalogue.',
+      type: 'localeString',
+      group: 'cta',
+    }),
+    defineField({
+      name: 'ctaBespoke',
+      title: 'Second button',
+      description: 'The outline button. It always goes to the Silver Class page.',
+      type: 'localeString',
+      group: 'cta',
+    }),
+
+    defineField({ name: 'seo', title: 'Search & sharing', type: 'seo', group: 'seo' }),
   ],
-  preview: { prepare: () => ({ title: 'About Page', subtitle: 'Our Story page content' }) },
+  preview: { prepare: () => ({ title: 'Our Story Page', subtitle: 'Story, photos, and values' }) },
 });

@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { getStoreInfo, getWhatsAppLink } from '@/lib/sanity-data';
+import { getCategories, getStoreInfo, getWhatsAppLink } from '@/lib/sanity-data';
+import { resolveChrome, type ResolvedLink } from '@/lib/site-settings';
 import { getT } from '@/lib/i18n';
 import type { Locale } from '@/types';
 
@@ -7,32 +8,27 @@ interface FooterProps {
   locale: Locale;
 }
 
+/** Internal links use next/link for client navigation; external ones do not. */
+function FooterLink({ link, className }: { link: ResolvedLink; className: string }) {
+  if (link.external) {
+    return (
+      <a href={link.href} target="_blank" rel="noopener noreferrer" className={className}>
+        {link.label}
+      </a>
+    );
+  }
+  return (
+    <Link href={link.href} className={className}>
+      {link.label}
+    </Link>
+  );
+}
+
 export async function Footer({ locale }: FooterProps) {
-  const storeInfo = await getStoreInfo();
   const t = getT(locale);
+  const [storeInfo, categories] = await Promise.all([getStoreInfo(locale), getCategories(locale)]);
+  const chrome = resolveChrome(storeInfo, categories, locale, t);
   const waLink = getWhatsAppLink(storeInfo.whatsapp);
-
-  const shopLinks = [
-    { href: `/${locale}/koleksi/cincin`, label: t.chrome.navRings },
-    { href: `/${locale}/koleksi/kalung`, label: t.chrome.navNecklaces },
-    { href: `/${locale}/koleksi/gelang`, label: t.chrome.navBracelets },
-    { href: `/${locale}/koleksi/anting`, label: t.chrome.navEarrings },
-  ];
-
-  const atelierLinks = [
-    { href: `/${locale}/tentang-kami`, label: t.chrome.navStory, external: false },
-    { href: `/${locale}/custom-order`, label: t.chrome.navBespoke, external: false },
-    { href: `/${locale}/kontak`, label: t.chrome.navContact, external: false },
-    ...(storeInfo.socialMedia?.instagram
-      ? [
-          {
-            href: `https://instagram.com/${storeInfo.socialMedia.instagram}`,
-            label: 'Instagram',
-            external: true,
-          },
-        ]
-      : []),
-  ];
 
   const headingClass =
     'text-[11px] font-semibold uppercase tracking-[0.14em] text-accent';
@@ -48,10 +44,10 @@ export async function Footer({ locale }: FooterProps) {
             {storeInfo.name.toUpperCase()}
           </div>
           <div className="mt-2 text-[9px] font-medium tracking-[0.42em] text-ink-soft/50">
-            {t.chrome.wordmarkSub}
+            {chrome.wordmarkSub}
           </div>
           <p className="mt-5 max-w-[280px] text-[13px] leading-relaxed text-ink-soft/55">
-            {t.footerV3.blurb}
+            {chrome.footerBlurb}
           </p>
         </div>
 
@@ -59,11 +55,9 @@ export async function Footer({ locale }: FooterProps) {
         <div>
           <h3 className={headingClass}>{t.footerV3.shop}</h3>
           <ul className="mt-4 space-y-2.5">
-            {shopLinks.map((link) => (
+            {chrome.footerShopLinks.map((link) => (
               <li key={link.href}>
-                <Link href={link.href} className={linkClass}>
-                  {link.label}
-                </Link>
+                <FooterLink link={link} className={linkClass} />
               </li>
             ))}
           </ul>
@@ -73,21 +67,11 @@ export async function Footer({ locale }: FooterProps) {
         <div>
           <h3 className={headingClass}>{t.footerV3.atelier}</h3>
           <ul className="mt-4 space-y-2.5">
-            {atelierLinks.map((link) =>
-              link.external ? (
-                <li key={link.href}>
-                  <a href={link.href} target="_blank" rel="noopener noreferrer" className={linkClass}>
-                    {link.label}
-                  </a>
-                </li>
-              ) : (
-                <li key={link.href}>
-                  <Link href={link.href} className={linkClass}>
-                    {link.label}
-                  </Link>
-                </li>
-              )
-            )}
+            {chrome.footerAtelierLinks.map((link) => (
+              <li key={link.href}>
+                <FooterLink link={link} className={linkClass} />
+              </li>
+            ))}
           </ul>
         </div>
 
@@ -123,7 +107,7 @@ export async function Footer({ locale }: FooterProps) {
 
       {/* Bottom bar */}
       <div className="mt-12 flex flex-col items-center justify-between gap-2 border-t border-ink-soft/15 px-5 py-[22px] text-[11px] text-ink-soft/40 sm:flex-row sm:px-10 lg:mt-16">
-        <span>{t.footerV3.copyright}</span>
+        <span>{chrome.copyright}</span>
         <span>{t.footerV3.rights}</span>
       </div>
     </footer>

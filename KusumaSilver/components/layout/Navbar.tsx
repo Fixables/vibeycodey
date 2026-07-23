@@ -6,15 +6,28 @@ import { useState } from 'react';
 import { Menu, X, Search, ShoppingBag } from 'lucide-react';
 import { useCart } from '@/components/providers/CartProvider';
 import { getT } from '@/lib/i18n';
-import type { Locale } from '@/types';
+import type { ResolvedLink } from '@/lib/site-settings';
+import type { Locale, ResolvedImage } from '@/types';
 
 interface NavbarProps {
   locale: Locale;
   whatsappLink: string;
   storeName: string;
+  /** Logo from Site Settings; falls back to the bundled file when unset. */
+  logo: ResolvedImage | null;
+  wordmarkSub: string;
+  /** Menu links, already resolved from the CMS on the server. */
+  navLinks: ResolvedLink[];
 }
 
-export function Navbar({ locale, whatsappLink, storeName }: NavbarProps) {
+export function Navbar({
+  locale,
+  whatsappLink,
+  storeName,
+  logo,
+  wordmarkSub,
+  navLinks,
+}: NavbarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const t = getT(locale);
   const { count: cartCount } = useCart();
@@ -28,20 +41,6 @@ export function Navbar({ locale, whatsappLink, storeName }: NavbarProps) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
-
-  const categoryLinks = [
-    { href: `/${locale}/koleksi/cincin`, label: t.chrome.navRings },
-    { href: `/${locale}/koleksi/kalung`, label: t.chrome.navNecklaces },
-    { href: `/${locale}/koleksi/gelang`, label: t.chrome.navBracelets },
-    { href: `/${locale}/koleksi/anting`, label: t.chrome.navEarrings },
-    { href: `/${locale}/koleksi/liontin`, label: t.chrome.navPendants },
-  ];
-
-  const navLinks = [
-    ...categoryLinks,
-    { href: `/${locale}/custom-order`, label: t.chrome.navBespoke, accent: true },
-    { href: `/${locale}/tentang-kami`, label: t.chrome.navStory },
-  ];
 
   return (
     <header className="sticky top-0 z-50 border-b border-ink bg-paper">
@@ -77,13 +76,14 @@ export function Navbar({ locale, whatsappLink, storeName }: NavbarProps) {
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/logo.jpg"
-            alt={storeName}
+            src={logo?.src ?? '/logo.jpg'}
+            srcSet={logo?.srcSet}
+            alt={logo?.alt ?? storeName}
             draggable={false}
             className="h-9 w-auto select-none mix-blend-multiply sm:h-10 lg:h-11"
           />
           <span className="mt-1 hidden text-[9px] font-medium tracking-[0.42em] text-ink/50 sm:block">
-            {t.chrome.wordmarkSub}
+            {wordmarkSub}
           </span>
         </Link>
 
@@ -111,7 +111,7 @@ export function Navbar({ locale, whatsappLink, storeName }: NavbarProps) {
             key={link.href}
             href={link.href}
             className={`transition-colors hover:text-accent ${
-              'accent' in link && link.accent ? 'text-accent' : 'text-ink'
+              link.highlight ? 'text-accent' : 'text-ink'
             }`}
           >
             {link.label}
@@ -129,7 +129,7 @@ export function Navbar({ locale, whatsappLink, storeName }: NavbarProps) {
                   href={link.href}
                   onClick={() => setMobileOpen(false)}
                   className={`block px-5 py-3.5 text-sm font-medium tracking-[0.14em] transition-colors hover:text-accent ${
-                    'accent' in link && link.accent ? 'text-accent' : 'text-ink'
+                    link.highlight ? 'text-accent' : 'text-ink'
                   }`}
                 >
                   {link.label}

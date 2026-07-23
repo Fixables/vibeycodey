@@ -1,7 +1,21 @@
+import { buildImage } from '@/lib/image';
 import type { Translation } from '@/lib/i18n';
-import type { Locale } from '@/types';
+import type { Locale, ResolvedImage, SanityImage } from '@/types';
 
-/** Studio value for the current locale if present, otherwise the fallback. */
+/**
+ * Read one localized value from a Studio document.
+ *
+ * Accepts BOTH shapes on purpose:
+ *  - the new one, a single `localeString` object: `{ heroTitle: { id, en } }`
+ *  - the legacy one, a pair of flat fields: `{ heroTitle, heroTitleEn }`
+ *
+ * That dual-read is what makes the localeString migration safe — the site reads
+ * correctly before, during and after the documents are converted, so the schema
+ * change and the data change do not have to ship together.
+ *
+ * English is optional in both shapes: a line written only in Indonesian shows on
+ * the English site rather than disappearing from it.
+ */
 function pickLocalized(
   doc: Record<string, unknown> | null,
   locale: Locale,
@@ -9,8 +23,40 @@ function pickLocalized(
   enKey: string,
   fallback: string
 ): string {
-  const value = doc?.[locale === 'en' ? enKey : idKey];
-  return typeof value === 'string' && value.trim() ? value : fallback;
+  const grouped = doc?.[idKey];
+  if (grouped && typeof grouped === 'object' && !Array.isArray(grouped)) {
+    const record = grouped as Record<string, unknown>;
+    const preferred = record[locale];
+    if (typeof preferred === 'string' && preferred.trim()) return preferred;
+    if (typeof record.id === 'string' && record.id.trim()) return record.id;
+    return fallback;
+  }
+
+  const flat = doc?.[locale === 'en' ? enKey : idKey];
+  if (typeof flat === 'string' && flat.trim()) return flat;
+  // An English value that was never filled in falls back to the Indonesian one.
+  if (locale === 'en') {
+    const indonesian = doc?.[idKey];
+    if (typeof indonesian === 'string' && indonesian.trim()) return indonesian;
+  }
+  return fallback;
+}
+
+/** Resolve a CMS image on a page document to render-ready URLs. */
+function pickImage(
+  doc: Record<string, unknown> | null,
+  key: string,
+  locale: Locale,
+  width: number,
+  fallbackAlt: string,
+  aspect?: Parameters<typeof buildImage>[1]['aspect']
+): ResolvedImage | null {
+  return buildImage(doc?.[key] as SanityImage | undefined, {
+    width,
+    aspect,
+    fallbackAlt,
+    locale,
+  });
 }
 
 /** The built-in strip cards, used until the owner defines their own. */
@@ -34,21 +80,49 @@ export interface ResolvedHome {
   heroCta1: string;
   heroCta2: string;
   heroCoords: string;
-  heroImageUrl?: string;
+  heroImage: ResolvedImage | null;
   catalogueHead: string;
   cataloguePanels: { label: string; text: string }[];
   heritageEyebrow: string;
   heritageTitle: string;
   heritageBody: string;
-  statSilverValue: string;
-  statSilver: string;
-  statGenValue: string;
-  statGen: string;
-  statHandValue: string;
-  statHand: string;
-  heritageImageUrl?: string;
+  /** Drag-reorderable in the Studio; falls back to the three legacy stat pairs. */
+  stats: { value: string; label: string }[];
+  heritageImage: ResolvedImage | null;
   manifestoQuote: string;
   manifestoAttr: string;
+  /** Section order and visibility, chosen by the owner. */
+  sections: HomeSection[];
+}
+
+/** The section types the home page can render. The list is fixed by the design. */
+export type HomeSectionType = 'catalogueStrip' | 'heritageBand' | 'manifesto';
+
+export interface HomeSection {
+  type: HomeSectionType;
+  key: string;
+}
+
+/** Order used when the owner has not arranged the sections — today's layout. */
+const DEFAULT_SECTIONS: HomeSectionType[] = ['catalogueStrip', 'heritageBand', 'manifesto'];
+
+/**
+ * Read the owner's section arrangement, dropping hidden entries and anything
+ * whose type this build does not know how to render (so removing a section type
+ * from the code can never crash a published page).
+ */
+function resolveSections(doc: Record<string, unknown> | null): HomeSection[] {
+  const raw = Array.isArray(doc?.sections) ? (doc.sections as Record<string, unknown>[]) : [];
+  const chosen = raw
+    .filter((section) => !section.hidden)
+    .map((section, index) => ({
+      type: section._type as HomeSectionType,
+      key: (section._key as string) ?? `${section._type}-${index}`,
+    }))
+    .filter((section) => DEFAULT_SECTIONS.includes(section.type));
+
+  if (chosen.length > 0) return chosen;
+  return DEFAULT_SECTIONS.map((type) => ({ type, key: type }));
 }
 
 /**
@@ -82,11 +156,30 @@ export function resolveHome(
     return pickLocalized(panel, locale, idKey, enKey, id);
   };
   const cataloguePanels = rawPanels
+    .filter((panel) => !panel.hidden)
     .map((panel) => ({
       label: panelText(panel, 'label', 'labelEn'),
       text: panelText(panel, 'text', 'textEn'),
     }))
     .filter((panel) => panel.label && panel.text);
+
+  // Heritage figures. Prefer the drag-reorderable array; fall back to the three
+  // legacy stat fields so documents that predate the migration still render.
+  const rawStats = Array.isArray(doc?.stats) ? (doc.stats as Record<string, unknown>[]) : [];
+  const arrayStats = rawStats
+    .filter((stat) => !stat.hidden)
+    .map((stat) => ({
+      value: typeof stat.value === 'string' ? stat.value.trim() : '',
+      label: panelText(stat, 'label', 'labelEn'),
+    }))
+    .filter((stat) => stat.value && stat.label);
+  const stats = arrayStats.length
+    ? arrayStats
+    : [
+        { value: pickPlain('statSilverValue', h.statSilverValue), label: pick('statSilver', 'statSilverEn', h.statSilver) },
+        { value: pickPlain('statGenValue', h.statGenValue), label: pick('statGen', 'statGenEn', h.statGen) },
+        { value: pickPlain('statHandValue', h.statHandValue), label: pick('statHand', 'statHandEn', h.statHand) },
+      ];
 
   return {
     heroEyebrow: pick('heroEyebrow', 'heroEyebrowEn', h.heroEyebrow),
@@ -96,21 +189,18 @@ export function resolveHome(
     heroCta1: pick('heroCta1', 'heroCta1En', h.heroCta1),
     heroCta2: pick('heroCta2', 'heroCta2En', h.heroCta2),
     heroCoords: pickPlain('heroCoords', h.heroCoords),
-    heroImageUrl: (doc?.heroImageUrl as string) || undefined,
+    // The hero fills a 58%-wide column up to 620px tall; 1200px covers it at 2x.
+    heroImage: pickImage(doc, 'heroImage', locale, 1200, h.heroImageAlt),
     catalogueHead: pick('catalogueHead', 'catalogueHeadEn', h.catalogueHead),
     cataloguePanels: cataloguePanels.length ? cataloguePanels : defaultPanels(h),
     heritageEyebrow: pick('heritageEyebrow', 'heritageEyebrowEn', h.heritageEyebrow),
     heritageTitle: pick('heritageTitle', 'heritageTitleEn', h.heritageTitle),
     heritageBody: pick('heritageBody', 'heritageBodyEn', h.heritageBody),
-    statSilverValue: pickPlain('statSilverValue', h.statSilverValue),
-    statSilver: pick('statSilver', 'statSilverEn', h.statSilver),
-    statGenValue: pickPlain('statGenValue', h.statGenValue),
-    statGen: pick('statGen', 'statGenEn', h.statGen),
-    statHandValue: pickPlain('statHandValue', h.statHandValue),
-    statHand: pick('statHand', 'statHandEn', h.statHand),
-    heritageImageUrl: (doc?.heritageImageUrl as string) || undefined,
+    stats,
+    heritageImage: pickImage(doc, 'heritageImage', locale, 1200, h.heritageImageAlt),
     manifestoQuote: pick('manifestoQuote', 'manifestoQuoteEn', h.manifestoQuote),
     manifestoAttr: pick('manifestoAttr', 'manifestoAttrEn', h.manifestoAttr),
+    sections: resolveSections(doc),
   };
 }
 
@@ -132,13 +222,39 @@ const DEFAULT_ABOUT_BODY: Record<Locale, [string, string, string]> = {
 export interface ResolvedAbout {
   heroEyebrow: string;
   heroTitle: string;
-  heroImageUrl?: string;
+  heroImage: ResolvedImage | null;
   lede: string;
   body: string[];
-  galleryImage1Url?: string;
-  galleryImage2Url?: string;
+  /** Drag-reorderable gallery; falls back to the two legacy gallery fields. */
+  gallery: ResolvedImage[];
   values: { head: string; body: string }[];
   ctaTitle: string;
+  ctaCatalogue: string;
+  ctaBespoke: string;
+}
+
+/**
+ * Read a repeatable list the owner can drag, add to, and hide items in.
+ * Returns an empty array when there is nothing usable, so callers can decide
+ * whether to fall back to the legacy numbered fields.
+ */
+function resolveList<T>(
+  doc: Record<string, unknown> | null,
+  key: string,
+  locale: Locale,
+  map: (item: Record<string, unknown>, pick: (idKey: string, enKey: string) => string) => T,
+  isUsable: (item: T) => boolean
+): T[] {
+  const raw = Array.isArray(doc?.[key]) ? (doc[key] as Record<string, unknown>[]) : [];
+  return raw
+    .filter((item) => !item.hidden)
+    .map((item) =>
+      map(item, (idKey, enKey) => {
+        const indonesian = typeof item[idKey] === 'string' ? (item[idKey] as string).trim() : '';
+        return pickLocalized(item, locale, idKey, enKey, indonesian);
+      })
+    )
+    .filter(isUsable);
 }
 
 export function resolveAbout(
@@ -150,24 +266,56 @@ export function resolveAbout(
     pickLocalized(doc, locale, idKey, enKey, fallback);
   const s = t.storyV3;
   const defaults = DEFAULT_ABOUT_BODY[locale];
+
+  const arrayValues = resolveList(
+    doc,
+    'values',
+    locale,
+    (_item, p) => ({ head: p('head', 'headEn'), body: p('body', 'bodyEn') }),
+    (value) => Boolean(value.head && value.body)
+  );
+  const values = arrayValues.length
+    ? arrayValues
+    : [
+        { head: pick('value1Head', 'value1HeadEn', s.valuesHead1), body: pick('value1Body', 'value1BodyEn', s.valuesBody1) },
+        { head: pick('value2Head', 'value2HeadEn', s.valuesHead2), body: pick('value2Body', 'value2BodyEn', s.valuesBody2) },
+        { head: pick('value3Head', 'value3HeadEn', s.valuesHead3), body: pick('value3Body', 'value3BodyEn', s.valuesBody3) },
+      ];
+
+  // Prefer the drag-reorderable gallery array; fall back to the two legacy
+  // single-image fields so unmigrated documents keep their photos.
+  const rawGallery = Array.isArray(doc?.gallery) ? (doc.gallery as SanityImage[]) : [];
+  const gallery = rawGallery.length
+    ? rawGallery
+        .map((image, i) =>
+          buildImage(image, {
+            width: 800,
+            aspect: image?.shape ?? 'square',
+            fallbackAlt: i === 0 ? s.galleryAlt1 : s.galleryAlt2,
+            locale,
+          })
+        )
+        .filter((image): image is ResolvedImage => image !== null)
+    : [
+        pickImage(doc, 'galleryImage1', locale, 800, s.galleryAlt1, 'square'),
+        pickImage(doc, 'galleryImage2', locale, 800, s.galleryAlt2, 'square'),
+      ].filter((image): image is ResolvedImage => image !== null);
+
   return {
     heroEyebrow: pick('heroEyebrow', 'heroEyebrowEn', s.eyebrow),
     heroTitle: pick('heroTitle', 'heroTitleEn', s.title),
-    heroImageUrl: (doc?.heroImageUrl as string) || undefined,
+    heroImage: pickImage(doc, 'heroImage', locale, 1600, s.heroImageAlt),
     lede: pick('lede', 'ledeEn', s.lede),
     body: [
       pick('body1', 'body1En', defaults[0]),
       pick('body2', 'body2En', defaults[1]),
       pick('body3', 'body3En', defaults[2]),
     ],
-    galleryImage1Url: (doc?.galleryImage1Url as string) || undefined,
-    galleryImage2Url: (doc?.galleryImage2Url as string) || undefined,
-    values: [
-      { head: pick('value1Head', 'value1HeadEn', s.valuesHead1), body: pick('value1Body', 'value1BodyEn', s.valuesBody1) },
-      { head: pick('value2Head', 'value2HeadEn', s.valuesHead2), body: pick('value2Body', 'value2BodyEn', s.valuesBody2) },
-      { head: pick('value3Head', 'value3HeadEn', s.valuesHead3), body: pick('value3Body', 'value3BodyEn', s.valuesBody3) },
-    ],
+    gallery,
+    values,
     ctaTitle: pick('ctaTitle', 'ctaTitleEn', s.ctaTitle),
+    ctaCatalogue: pick('ctaCatalogue', 'ctaCatalogueEn', s.ctaCatalogue),
+    ctaBespoke: pick('ctaBespoke', 'ctaBespokeEn', s.ctaBespoke),
   };
 }
 
@@ -196,6 +344,32 @@ export function resolveContact(
   };
 }
 
+// ---- Catalogue (/koleksi) ----
+
+export interface ResolvedCatalogue {
+  eyebrow: string;
+  title: string;
+  subtitle: string;
+  /** Shown when a visitor's filters match nothing. */
+  emptyMessage: string;
+}
+
+export function resolveCatalogue(
+  doc: Record<string, unknown> | null,
+  locale: Locale,
+  t: Translation
+): ResolvedCatalogue {
+  const pick = (idKey: string, enKey: string, fallback: string) =>
+    pickLocalized(doc, locale, idKey, enKey, fallback);
+  const c = t.catalogV3;
+  return {
+    eyebrow: pick('eyebrow', 'eyebrowEn', c.eyebrow),
+    title: pick('title', 'titleEn', c.title),
+    subtitle: pick('subtitle', 'subtitleEn', c.subtitle),
+    emptyMessage: pick('emptyMessage', 'emptyMessageEn', c.noResults),
+  };
+}
+
 // ---- Bespoke (Custom Order) ----
 
 export interface ResolvedBespoke {
@@ -203,13 +377,20 @@ export interface ResolvedBespoke {
   heroTitle1: string;
   heroTitle2: string;
   heroIntro: string;
-  heroImageUrl?: string;
+  heroCta: string;
+  heroImage: ResolvedImage | null;
   processEyebrow: string;
   processTitle: string;
+  /** Drag-reorderable; falls back to the four legacy numbered step fields. */
   steps: { title: string; description: string }[];
   formEyebrow: string;
   formTitle: string;
   formSub: string;
+  /** The enquiry-section photo, which previously had no field at all. */
+  formImage: ResolvedImage | null;
+  /** Owner-editable dropdown choices on the booking form. */
+  typeOptions: string[];
+  budgetOptions: string[];
 }
 
 export function resolveBespoke(
@@ -221,20 +402,47 @@ export function resolveBespoke(
     pickLocalized(doc, locale, idKey, enKey, fallback);
   const b = t.bespokeV3;
   const stepDefaults = t.customOrder.steps;
+
+  const arraySteps = resolveList(
+    doc,
+    'steps',
+    locale,
+    (_item, p) => ({ title: p('title', 'titleEn'), description: p('body', 'bodyEn') }),
+    (step) => Boolean(step.title)
+  );
+  const steps = arraySteps.length
+    ? arraySteps
+    : [0, 1, 2, 3].map((i) => ({
+        title: pick(`step${i + 1}Title`, `step${i + 1}TitleEn`, stepDefaults[i]?.title ?? ''),
+        description: pick(`step${i + 1}Body`, `step${i + 1}BodyEn`, stepDefaults[i]?.description ?? ''),
+      }));
+
+  const options = (key: string, fallback: readonly string[]): string[] => {
+    const chosen = resolveList(
+      doc,
+      key,
+      locale,
+      (_item, p) => p('label', 'labelEn'),
+      (label) => Boolean(label)
+    );
+    return chosen.length ? chosen : [...fallback];
+  };
+
   return {
     heroEyebrow: pick('heroEyebrow', 'heroEyebrowEn', b.eyebrow),
     heroTitle1: pick('heroTitle1', 'heroTitle1En', b.title1),
     heroTitle2: pick('heroTitle2', 'heroTitle2En', b.title2),
     heroIntro: pick('heroIntro', 'heroIntroEn', b.intro),
-    heroImageUrl: (doc?.heroImageUrl as string) || undefined,
+    heroCta: pick('heroCta', 'heroCtaEn', b.heroCta),
+    heroImage: pickImage(doc, 'heroImage', locale, 1200, b.heroImageAlt),
     processEyebrow: pick('processEyebrow', 'processEyebrowEn', b.processEyebrow),
     processTitle: pick('processTitle', 'processTitleEn', b.processTitle),
-    steps: [0, 1, 2, 3].map((i) => ({
-      title: pick(`step${i + 1}Title`, `step${i + 1}TitleEn`, stepDefaults[i]?.title ?? ''),
-      description: pick(`step${i + 1}Body`, `step${i + 1}BodyEn`, stepDefaults[i]?.description ?? ''),
-    })),
+    steps,
     formEyebrow: pick('formEyebrow', 'formEyebrowEn', b.formEyebrow),
     formTitle: pick('formTitle', 'formTitleEn', b.formTitle),
     formSub: pick('formSub', 'formSubEn', b.formSub),
+    formImage: pickImage(doc, 'formImage', locale, 800, b.formImageAlt, 'portrait'),
+    typeOptions: options('typeOptions', b.typeOptions),
+    budgetOptions: options('budgetOptions', b.budgetOptions),
   };
 }

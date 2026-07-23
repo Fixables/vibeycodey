@@ -1,12 +1,21 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { getProductBySlug, getAllProductSlugs, getStoreInfo, getWhatsAppLink } from '@/lib/sanity-data';
+import {
+  getProductBySlug,
+  getAllProductSlugs,
+  getCategories,
+  getStoreInfo,
+  getWhatsAppLink,
+} from '@/lib/sanity-data';
 import { ImageSlot } from '@/components/ui/ImageSlot';
 import { PriceDisplay } from '@/components/ui/PriceDisplay';
 import { PurchasePanel } from '@/components/product/PurchasePanel';
-import { categoryLabel, parseSizes } from '@/lib/catalog';
+import { buildImage } from '@/lib/image';
+import { metadataFromSeo } from '@/lib/metadata';
+import { categoryLabel, localizedValue, parseSizes } from '@/lib/catalog';
 import { SUPPORTED_LOCALES, getT } from '@/lib/i18n';
-import type { Locale } from '@/types';
+import type { Locale, ResolvedImage } from '@/types';
 
 // Studio edits go live within ~60s without a rebuild; newly added pieces
 // render on demand (dynamicParams defaults to true).
@@ -23,20 +32,43 @@ export async function generateStaticParams() {
   }
 }
 
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: Locale; slug: string }>;
+}): Promise<Metadata> {
+  const { locale, slug } = await params;
+  const product = await getProductBySlug(slug, locale);
+  if (!product) return {};
+
+  const name = locale === 'en' ? product.nameEn || product.name : product.name;
+  const description = locale === 'en' ? product.descriptionEn || product.description : product.description;
+
+  return metadataFromSeo(product.seo, locale, {
+    title: name,
+    // Search results cut off around 155 characters, so trim at a word boundary.
+    description: description.length > 155 ? `${description.slice(0, 152).trimEnd()}…` : description,
+  });
+}
+
 export default async function PieceDetailPage({
   params,
 }: {
   params: Promise<{ locale: Locale; kategori: string; slug: string }>;
 }) {
   const { locale, kategori, slug } = await params;
-  const [product, storeInfo] = await Promise.all([getProductBySlug(slug), getStoreInfo()]);
+  const [product, storeInfo, categories] = await Promise.all([
+    getProductBySlug(slug, locale),
+    getStoreInfo(locale),
+    getCategories(locale),
+  ]);
 
   if (!product) notFound();
 
   const t = getT(locale);
   const name = locale === 'en' ? product.nameEn || product.name : product.name;
   const description = locale === 'en' ? product.descriptionEn || product.description : product.description;
-  const catLabel = categoryLabel(t, kategori);
+  const catLabel = categoryLabel(categories, kategori, locale);
 
   const waMessage =
     locale === 'en'
@@ -44,16 +76,52 @@ export default async function PieceDetailPage({
       : `Halo, saya tertarik dengan ${product.name}. Bisa info lebih lanjut?`;
   const waLink = getWhatsAppLink(storeInfo.whatsapp, waMessage);
 
-  const images = product.images?.length ? product.images : product.imageUrl ? [product.imageUrl] : [];
-  const thumbs = [images[1], images[2], images[3]];
+  // The main image is rendered large and square; the three thumbnails below it
+  // are small, so they are requested at a much smaller size.
+  const gallery = product.images
+    .map((image, i) =>
+      buildImage(image, {
+        width: i === 0 ? 1000 : 320,
+        aspect: 'square',
+        fallbackAlt: i === 0 ? name : `${name} — ${t.pieceV3.thumbLabel}`,
+        locale,
+      })
+    )
+    .filter((image): image is ResolvedImage => image !== null);
+  const [hero, ...thumbs] = gallery;
+
+  // Most pieces share the same origin, technique, material and lead time, so
+  // those come from Site Settings. A piece only overrides one when it differs,
+  // and the built-in wording is the last resort.
+  const fromSettings = (
+    own: string | undefined,
+    setting: Parameters<typeof localizedValue>[0],
+    builtIn: string
+  ) => own || localizedValue(setting, locale) || builtIn;
 
   const specs = [
-    { label: t.pieceV3.specMaterial, value: product.material || t.pieceV3.specMaterialFallback },
-    { label: t.pieceV3.specOrigin, value: t.pieceV3.specOriginValue },
-    { label: t.pieceV3.specTechnique, value: t.pieceV3.specTechniqueValue },
+    {
+      label: t.pieceV3.specMaterial,
+      value: fromSettings(product.material, storeInfo.specMaterial, t.pieceV3.specMaterialFallback),
+    },
+    {
+      label: t.pieceV3.specOrigin,
+      value: fromSettings(localizedValue(product.origin, locale), storeInfo.specOrigin, t.pieceV3.specOriginValue),
+    },
+    {
+      label: t.pieceV3.specTechnique,
+      value: fromSettings(
+        localizedValue(product.technique, locale),
+        storeInfo.specTechnique,
+        t.pieceV3.specTechniqueValue
+      ),
+    },
     product.weight && { label: t.pieceV3.specWeight, value: `${product.weight}g` },
     product.stone && { label: t.pieceV3.specStone, value: product.stone },
-    { label: t.pieceV3.specLead, value: product.craftingTime || t.pieceV3.specLeadFallback },
+    {
+      label: t.pieceV3.specLead,
+      value: fromSettings(product.craftingTime, storeInfo.specLeadTime, t.pieceV3.specLeadFallback),
+    },
   ].filter(Boolean) as { label: string; value: string }[];
 
   return (
@@ -72,14 +140,21 @@ export default async function PieceDetailPage({
 
       <div className="mt-6 grid gap-10 lg:grid-cols-2 lg:gap-12">
         <div>
-          <ImageSlot src={images[0]} alt={name} className="aspect-square border border-ink" />
+          <ImageSlot
+            image={hero}
+            alt={name}
+            priority
+            sizes="(min-width: 1024px) 50vw, 100vw"
+            className="aspect-square border border-ink"
+          />
           <div className="mt-3 grid grid-cols-3 gap-3">
-            {thumbs.map((img, i) => (
+            {[0, 1, 2].map((i) => (
               <ImageSlot
                 key={i}
-                src={img}
+                image={thumbs[i]}
                 alt={`${name} — ${t.pieceV3.thumbLabel}`}
                 label={t.pieceV3.thumbLabel}
+                sizes="(min-width: 1024px) 16vw, 32vw"
                 className="aspect-square border border-ink"
               />
             ))}

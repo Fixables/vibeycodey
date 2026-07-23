@@ -1,7 +1,8 @@
 import { cache } from 'react';
-import { client, urlFor } from './sanity';
+import { client } from './sanity';
+import { buildImage, IMAGE_PROJECTION } from './image';
 import { formatPrice } from './utils';
-import type { Category, Product, StoreInfo, HomePageContent, AboutPageContent, ContactPageContent } from '@/types';
+import type { Category, Locale, Product, SanityImage, StoreInfo } from '@/types';
 
 // ---- Helpers ----
 
@@ -11,28 +12,44 @@ export function getWhatsAppLink(whatsapp: string, message?: string): string {
   return `${base}?text=${encodeURIComponent(message)}`;
 }
 
+/**
+ * Fetch that degrades to a fallback rather than breaking the page — a blank CMS
+ * field must never take the site down.
+ *
+ * The failure is logged server-side first: without it, a bad query, an expired
+ * token, or a network fault is indistinguishable from "the owner hasn't written
+ * this yet", and the site quietly serves built-in defaults with no signal.
+ */
 async function safeFetch<T>(query: string, params?: Record<string, string>, fallback?: T): Promise<T> {
   try {
     if (params) {
       return await client.fetch<T>(query, params);
     }
     return await client.fetch<T>(query);
-  } catch {
+  } catch (error) {
+    console.error(
+      '[sanity] query failed, falling back to defaults:',
+      error instanceof Error ? error.message : error,
+      '\n  query:',
+      query.replace(/\s+/g, ' ').trim().slice(0, 160)
+    );
     return (fallback ?? null) as T;
   }
 }
 
-function mapProduct(raw: Record<string, unknown>): Product {
-  const rawImages = (raw.images as Array<Record<string, unknown>> | undefined) ?? [];
-  const images = rawImages
-    .map((img) => {
-      try {
-        return urlFor(img).width(800).url();
-      } catch {
-        return null;
-      }
-    })
-    .filter(Boolean) as string[];
+/** Width the catalogue/strip cards render a product photo at, on a 2x screen. */
+const CARD_IMAGE_WIDTH = 640;
+
+/**
+ * Products are consumed by client components (the catalogue strip, the grid),
+ * which cannot build Sanity URLs themselves — importing the image builder there
+ * would pull @sanity/client into the browser bundle. So the card-sized image is
+ * resolved here, on the server, while the raw image objects travel alongside for
+ * server components that need a different size (the product detail page).
+ */
+function mapProduct(raw: Record<string, unknown>, locale: Locale): Product {
+  const images = (raw.images as SanityImage[] | undefined) ?? [];
+  const name = (locale === 'en' ? (raw.nameEn as string) : (raw.name as string)) || (raw.name as string);
 
   return {
     id: raw._id as string,
@@ -45,7 +62,15 @@ function mapProduct(raw: Record<string, unknown>): Product {
     description: (raw.description as string) ?? '',
     descriptionEn: (raw.descriptionEn as string) ?? '',
     images,
-    imageUrl: images[0],
+    card: buildImage(images[0], {
+      width: CARD_IMAGE_WIDTH,
+      aspect: 'square',
+      fallbackAlt: name,
+      locale,
+    }),
+    origin: raw.origin as Product['origin'],
+    technique: raw.technique as Product['technique'],
+    seo: raw.seo as Product['seo'],
     material: raw.material as string | undefined,
     weight: raw.weight as number | undefined,
     sizes: raw.sizes as string | undefined,
@@ -59,57 +84,62 @@ function mapProduct(raw: Record<string, unknown>): Product {
 
 // ---- Categories ----
 
-function mapCategory(c: Record<string, unknown>): Category {
-  let coverImageUrl: string | undefined;
-  if (c.coverImage) {
-    try {
-      coverImageUrl = urlFor(c.coverImage as Record<string, unknown>).width(600).height(480).url();
-    } catch {
-      coverImageUrl = undefined;
-    }
-  }
+function mapCategory(c: Record<string, unknown>, locale: Locale): Category {
+  // The category's own photo if the owner has set one, otherwise fall back to
+  // borrowing the first in-stock product's photo (the previous behaviour, which
+  // left the three empty categories with no cover at all).
+  const source = (c.image ?? c.coverImage) as SanityImage | undefined;
+  const name = (locale === 'en' ? (c.nameEn as string) : (c.name as string)) || (c.name as string);
+  const cover = buildImage(source, {
+    width: 600,
+    aspect: 'landscape',
+    fallbackAlt: name,
+    locale,
+  });
+
   return {
     slug: c.slug as string,
     name: c.name as string,
     nameEn: (c.nameEn as string) ?? '',
     description: (c.description as string) ?? '',
     descriptionEn: (c.descriptionEn as string) ?? '',
-    icon: (c.icon as string) ?? '',
     productCount: c.productCount as number,
-    coverImageUrl,
+    cover,
+    seo: c.seo as Category['seo'],
   };
 }
 
-export async function getCategories(): Promise<Category[]> {
-  const query = `*[_type == "category"] | order(order asc) {
-    "slug": slug.current,
-    name,
-    nameEn,
-    description,
-    descriptionEn,
-    icon,
-    "productCount": count(*[_type == "product" && references(^._id) && inStock == true]),
-    "coverImage": *[_type == "product" && references(^._id) && inStock == true && defined(images[0])][0].images[0]
-  }`;
+const CATEGORY_FIELDS = `
+  "slug": slug.current,
+  name,
+  nameEn,
+  description,
+  descriptionEn,
+  image ${IMAGE_PROJECTION},
+  seo { ..., shareImage ${IMAGE_PROJECTION} },
+  "productCount": count(*[_type == "product" && references(^._id) && inStock == true]),
+  "coverImage": *[_type == "product" && references(^._id) && inStock == true && defined(images[0])][0].images[0] ${IMAGE_PROJECTION}
+`;
+
+/**
+ * Menu order. `orderRank` comes from the Studio's drag-and-drop list; the legacy
+ * `order` number is kept as a tiebreaker so categories that have not been
+ * dragged yet keep the sequence the owner already set.
+ */
+const CATEGORY_ORDER = `| order(orderRank asc, order asc)`;
+
+export async function getCategories(locale: Locale): Promise<Category[]> {
+  const query = `*[_type == "category"] ${CATEGORY_ORDER} { ${CATEGORY_FIELDS} }`;
   const raw = await safeFetch<Record<string, unknown>[]>(query, undefined, []);
   if (!raw) return [];
-  return raw.map(mapCategory);
+  return raw.map((row) => mapCategory(row, locale));
 }
 
-export async function getCategoryBySlug(slug: string): Promise<Category | null> {
-  const query = `*[_type == "category" && slug.current == $slug][0] {
-    "slug": slug.current,
-    name,
-    nameEn,
-    description,
-    descriptionEn,
-    icon,
-    "productCount": count(*[_type == "product" && references(^._id) && inStock == true]),
-    "coverImage": *[_type == "product" && references(^._id) && inStock == true && defined(images[0])][0].images[0]
-  }`;
+export async function getCategoryBySlug(slug: string, locale: Locale): Promise<Category | null> {
+  const query = `*[_type == "category" && slug.current == $slug][0] { ${CATEGORY_FIELDS} }`;
   const raw = await safeFetch<Record<string, unknown> | null>(query, { slug }, null);
   if (!raw) return null;
-  return mapCategory(raw);
+  return mapCategory(raw, locale);
 }
 
 // ---- Products ----
@@ -123,7 +153,10 @@ const PRODUCT_FIELDS = `
   price,
   description,
   descriptionEn,
-  images[] { ..., asset-> },
+  images[] ${IMAGE_PROJECTION},
+  origin,
+  technique,
+  seo { ..., shareImage ${IMAGE_PROJECTION} },
   material,
   weight,
   sizes,
@@ -134,32 +167,41 @@ const PRODUCT_FIELDS = `
   inStock
 `;
 
-export async function getProducts(): Promise<Product[]> {
-  const query = `*[_type == "product" && inStock == true] | order(_createdAt desc) { ${PRODUCT_FIELDS} }`;
+/**
+ * Catalogue order. `orderRank` is written by the Studio's drag-and-drop list;
+ * documents that predate it sort last, then by newest, so ordering is always
+ * deterministic even mid-migration.
+ */
+const PRODUCT_ORDER = `| order(orderRank asc, _createdAt desc)`;
+
+export async function getProducts(locale: Locale): Promise<Product[]> {
+  const query = `*[_type == "product" && inStock == true] ${PRODUCT_ORDER} { ${PRODUCT_FIELDS} }`;
   const raw = await safeFetch<Record<string, unknown>[]>(query, undefined, []);
   if (!raw) return [];
-  return raw.map(mapProduct);
+  return raw.map((row) => mapProduct(row, locale));
 }
 
-export async function getFeaturedProducts(): Promise<Product[]> {
-  const query = `*[_type == "product" && featured == true && inStock == true][0...6] { ${PRODUCT_FIELDS} }`;
+export async function getFeaturedProducts(locale: Locale): Promise<Product[]> {
+  // Previously had no order clause at all, so the home strip's sequence was
+  // undefined and could change between builds.
+  const query = `*[_type == "product" && featured == true && inStock == true] ${PRODUCT_ORDER} [0...6] { ${PRODUCT_FIELDS} }`;
   const raw = await safeFetch<Record<string, unknown>[]>(query, undefined, []);
   if (!raw) return [];
-  return raw.map(mapProduct);
+  return raw.map((row) => mapProduct(row, locale));
 }
 
-export async function getProductsByCategory(categorySlug: string): Promise<Product[]> {
-  const query = `*[_type == "product" && category->slug.current == $categorySlug && inStock == true] | order(_createdAt desc) { ${PRODUCT_FIELDS} }`;
+export async function getProductsByCategory(categorySlug: string, locale: Locale): Promise<Product[]> {
+  const query = `*[_type == "product" && category->slug.current == $categorySlug && inStock == true] ${PRODUCT_ORDER} { ${PRODUCT_FIELDS} }`;
   const raw = await safeFetch<Record<string, unknown>[]>(query, { categorySlug }, []);
   if (!raw) return [];
-  return raw.map(mapProduct);
+  return raw.map((row) => mapProduct(row, locale));
 }
 
-export async function getProductBySlug(slug: string): Promise<Product | null> {
+export async function getProductBySlug(slug: string, locale: Locale): Promise<Product | null> {
   const query = `*[_type == "product" && slug.current == $slug][0] { ${PRODUCT_FIELDS} }`;
   const raw = await safeFetch<Record<string, unknown> | null>(query, { slug }, null);
   if (!raw) return null;
-  return mapProduct(raw);
+  return mapProduct(raw, locale);
 }
 
 export async function getAllProductSlugs(): Promise<{ slug: string; category: string }[]> {
@@ -187,8 +229,17 @@ const STORE_INFO_FALLBACK: StoreInfo = {
   hours: { weekday: 'Senin – Sabtu: 09.00 – 18.00', weekend: 'Minggu: 10.00 – 15.00' },
 };
 
-export const getStoreInfo = cache(async (): Promise<StoreInfo> => {
-  const query = `*[_type == "storeInfo"][0] {
+export const getStoreInfo = cache(async (locale: Locale = 'id'): Promise<StoreInfo> => {
+  // Prefer the document at the canonical id, falling back to whatever storeInfo
+  // document exists. Historically the live document had an auto-generated id
+  // while the Studio's menu opened `storeInfo`, so the owner edited a different
+  // document than the site read (see migration 001). The coalesce keeps the site
+  // correct both before and after that migration runs.
+  //
+  // Note: GROQ has no comment syntax, so keep all notes outside the query string.
+  // The menu entries resolve their category (`category->`) so that renaming or
+  // deleting a category can never leave a link pointing at a dead address.
+  const query = `coalesce(*[_id == "storeInfo"][0], *[_type == "storeInfo"][0]) {
     name,
     tagline,
     taglineEn,
@@ -200,8 +251,20 @@ export const getStoreInfo = cache(async (): Promise<StoreInfo> => {
     "hours": { "weekday": hoursWeekday, "weekend": hoursWeekend },
     "socialMedia": { "instagram": instagram, "tiktok": tiktok, "facebook": facebook },
     mapsEmbedUrl,
-    aboutContent,
-    aboutContentEn
+    logo ${IMAGE_PROJECTION},
+    wordmarkSub,
+    promoBar,
+    promoBarHidden,
+    footerBlurb,
+    copyright,
+    specOrigin,
+    specTechnique,
+    specMaterial,
+    specLeadTime,
+    defaultSeo { ..., shareImage ${IMAGE_PROJECTION} },
+    mainNav[] { ..., category->{ "slug": slug.current, name, nameEn } },
+    footerShopLinks[] { ..., category->{ "slug": slug.current, name, nameEn } },
+    footerAtelierLinks[] { ..., category->{ "slug": slug.current, name, nameEn } }
   }`;
 
   const raw = await safeFetch<Record<string, unknown> | null>(query, undefined, null);
@@ -218,102 +281,78 @@ export const getStoreInfo = cache(async (): Promise<StoreInfo> => {
     hours: (raw?.hours as StoreInfo['hours']) ?? STORE_INFO_FALLBACK.hours,
     socialMedia: raw?.socialMedia as StoreInfo['socialMedia'],
     mapsEmbedUrl: raw?.mapsEmbedUrl as string | undefined,
-    aboutContent: raw?.aboutContent as unknown[] | undefined,
-    aboutContentEn: raw?.aboutContentEn as unknown[] | undefined,
+
+    logo: buildImage(raw?.logo as SanityImage | undefined, {
+      width: 320,
+      fallbackAlt: (raw?.name as string) ?? STORE_INFO_FALLBACK.name,
+      locale,
+    }),
+    wordmarkSub: raw?.wordmarkSub as StoreInfo['wordmarkSub'],
+    promoBar: raw?.promoBar as StoreInfo['promoBar'],
+    promoBarHidden: raw?.promoBarHidden as boolean | undefined,
+    mainNav: raw?.mainNav as unknown[] | undefined,
+    footerShopLinks: raw?.footerShopLinks as unknown[] | undefined,
+    footerAtelierLinks: raw?.footerAtelierLinks as unknown[] | undefined,
+    footerBlurb: raw?.footerBlurb as StoreInfo['footerBlurb'],
+    copyright: raw?.copyright as StoreInfo['copyright'],
+    specOrigin: raw?.specOrigin as StoreInfo['specOrigin'],
+    specTechnique: raw?.specTechnique as StoreInfo['specTechnique'],
+    specMaterial: raw?.specMaterial as StoreInfo['specMaterial'],
+    specLeadTime: raw?.specLeadTime as StoreInfo['specLeadTime'],
+    defaultSeo: raw?.defaultSeo as StoreInfo['defaultSeo'],
   };
 });
 
 // ---- Page Content ----
 
-export async function getHomePageContent(): Promise<HomePageContent> {
-  const data = await safeFetch<Record<string, unknown> | null>(
-    `*[_type == "homePage" && _id == "homePage"][0]`,
-    undefined,
-    null
-  );
-  return (data ?? {}) as HomePageContent;
-}
-
 /**
- * V3 home content: the editable hero / heritage / manifesto text plus resolved
- * image URLs. Returns null when nothing is published (the page then falls back
- * to the built-in default copy).
+ * Fetch one page singleton with every image expanded to the full projection
+ * (hotspot, crop, description, blur data). Images are returned raw rather than
+ * pre-flattened to a URL string, so each component can request the size its own
+ * frame needs — and so the owner's focal point survives as far as the renderer.
+ *
+ * Returns null when nothing is published; the page then falls back to the
+ * built-in default copy.
  */
+async function getPageDocument(type: string): Promise<Record<string, unknown> | null> {
+  return safeFetch<Record<string, unknown> | null>(
+    `*[_type == $type && _id == $type][0] {
+      ...,
+      heroImage ${IMAGE_PROJECTION},
+      heritageImage ${IMAGE_PROJECTION},
+      formImage ${IMAGE_PROJECTION},
+      galleryImage1 ${IMAGE_PROJECTION},
+      galleryImage2 ${IMAGE_PROJECTION},
+      gallery[] ${IMAGE_PROJECTION},
+      seo { ..., shareImage ${IMAGE_PROJECTION} }
+    }`,
+    { type },
+    null
+  );
+}
+
+/** Editable home page content (hero, catalogue strip, heritage, manifesto). */
 export async function getHomeContent(): Promise<Record<string, unknown> | null> {
-  const data = await safeFetch<Record<string, unknown> | null>(
-    `*[_type == "homePage" && _id == "homePage"][0]`,
-    undefined,
-    null
-  );
-  if (!data) return null;
-  const toUrl = (value: unknown): string | undefined => {
-    try {
-      return value ? urlFor(value as Record<string, unknown>).width(1200).url() : undefined;
-    } catch {
-      return undefined;
-    }
-  };
-  return { ...data, heroImageUrl: toUrl(data.heroImage), heritageImageUrl: toUrl(data.heritageImage) };
+  return getPageDocument('homePage');
 }
 
-function imageUrl(value: unknown, width = 1200): string | undefined {
-  try {
-    return value ? urlFor(value as Record<string, unknown>).width(width).url() : undefined;
-  } catch {
-    return undefined;
-  }
-}
-
-/** Editable "Our Story" page content, with resolved image URLs. */
+/** Editable "Our Story" page content. */
 export async function getAboutContent(): Promise<Record<string, unknown> | null> {
-  const data = await safeFetch<Record<string, unknown> | null>(
-    `*[_type == "aboutPage" && _id == "aboutPage"][0]`,
-    undefined,
-    null
-  );
-  if (!data) return null;
-  return {
-    ...data,
-    heroImageUrl: imageUrl(data.heroImage),
-    galleryImage1Url: imageUrl(data.galleryImage1, 800),
-    galleryImage2Url: imageUrl(data.galleryImage2, 800),
-  };
+  return getPageDocument('aboutPage');
 }
 
 /** Editable Contact page headings (contact details come from Store Info). */
 export async function getContactContent(): Promise<Record<string, unknown> | null> {
-  return safeFetch<Record<string, unknown> | null>(
-    `*[_type == "contactPage" && _id == "contactPage"][0]`,
-    undefined,
-    null
-  );
+  return getPageDocument('contactPage');
 }
 
-/** Editable Bespoke / Custom Order page content, with resolved image URL. */
+/** Editable catalogue (/koleksi) page headings and empty-state message. */
+export async function getCatalogueContent(): Promise<Record<string, unknown> | null> {
+  return getPageDocument('cataloguePage');
+}
+
+/** Editable Silver Class (custom-order) page content. */
 export async function getBespokeContent(): Promise<Record<string, unknown> | null> {
-  const data = await safeFetch<Record<string, unknown> | null>(
-    `*[_type == "bespokePage" && _id == "bespokePage"][0]`,
-    undefined,
-    null
-  );
-  if (!data) return null;
-  return { ...data, heroImageUrl: imageUrl(data.heroImage) };
+  return getPageDocument('bespokePage');
 }
 
-export async function getAboutPageContent(): Promise<AboutPageContent> {
-  const data = await safeFetch<Record<string, unknown> | null>(
-    `*[_type == "aboutPage" && _id == "aboutPage"][0]`,
-    undefined,
-    null
-  );
-  return (data ?? {}) as AboutPageContent;
-}
-
-export async function getContactPageContent(): Promise<ContactPageContent> {
-  const data = await safeFetch<Record<string, unknown> | null>(
-    `*[_type == "contactPage" && _id == "contactPage"][0]`,
-    undefined,
-    null
-  );
-  return (data ?? {}) as ContactPageContent;
-}

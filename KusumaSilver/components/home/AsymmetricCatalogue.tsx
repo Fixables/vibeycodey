@@ -6,11 +6,13 @@ import { ImageSlot } from '@/components/ui/ImageSlot';
 import { PriceDisplay } from '@/components/ui/PriceDisplay';
 import { categoryLabel } from '@/lib/catalog';
 import { getT, type Translation } from '@/lib/i18n';
-import type { Locale, Product } from '@/types';
+import type { Category, Locale, Product } from '@/types';
 
 interface AsymmetricCatalogueProps {
   locale: Locale;
   products: Product[];
+  /** Used to label each cell with its category's real name. */
+  categories: Category[];
   /** Heading above the strip, resolved from the Studio. */
   head: string;
   /** Editorial cards between the photos, resolved from the Studio. */
@@ -23,13 +25,14 @@ function localizedName(product: Product, locale: Locale): string {
 
 interface CellProps {
   product: Product;
+  categories: Category[];
   locale: Locale;
   t: Translation;
   /** true for cells in the duplicated loop set — removed from the tab order */
   shadow?: boolean;
 }
 
-function CaptionBar({ product, locale, t }: CellProps) {
+function CaptionBar({ product, categories, locale }: CellProps) {
   return (
     <div className="flex items-start justify-between gap-4 p-4">
       <div>
@@ -37,7 +40,7 @@ function CaptionBar({ product, locale, t }: CellProps) {
           {localizedName(product, locale)}
         </h3>
         <p className="mt-1 text-[11px] uppercase tracking-[0.14em] text-ink/50">
-          {categoryLabel(t, product.category)}
+          {categoryLabel(categories, product.category, locale)}
         </p>
       </div>
       <PriceDisplay amountIdr={product.price} className="text-[13px] font-semibold text-ink" />
@@ -53,7 +56,8 @@ const WIDE = 'w-[300px] shrink-0 sm:w-[440px]';
 const NARROW = 'w-[230px] shrink-0 sm:w-[300px]';
 
 /** Reusable image + caption block that links to the product page. */
-function ProductBlock({ product, locale, t, shadow }: CellProps) {
+function ProductBlock(props: CellProps) {
+  const { product, locale, shadow } = props;
   return (
     <Link
       href={`/${locale}/koleksi/${product.category}/${product.slug}`}
@@ -62,35 +66,33 @@ function ProductBlock({ product, locale, t, shadow }: CellProps) {
       tabIndex={shadow ? -1 : undefined}
     >
       <ImageSlot
-        src={product.imageUrl}
+        image={product.card}
         alt={localizedName(product, locale)}
+        sizes="(min-width: 640px) 440px, 300px"
         className="min-h-0 flex-1 border-b border-ink"
         imgClassName="transition-transform duration-500 group-hover:scale-[1.04]"
       />
-      <CaptionBar product={product} locale={locale} t={t} />
+      <CaptionBar {...props} />
     </Link>
   );
 }
 
 /** Plain full-height product cell — image fills, caption at the bottom. */
-function ProductCell({ product, locale, t, shadow, width }: CellProps & { width: string }) {
+function ProductCell({ width, ...cell }: CellProps & { width: string }) {
   return (
     <div className={`flex ${width} flex-col border-r border-ink`}>
-      <ProductBlock product={product} locale={locale} t={t} shadow={shadow} />
+      <ProductBlock {...cell} />
     </div>
   );
 }
 
 /** Full-height cell with an editorial panel stacked above or below the product. */
 function PanelStack({
-  product,
-  locale,
-  t,
-  shadow,
   width,
   label,
   text,
   position,
+  ...cell
 }: CellProps & { width: string; label: string; text: string; position: 'top' | 'bottom' }) {
   const panel = (
     <div className={`p-6 ${position === 'top' ? 'border-b' : 'border-t'} border-ink`}>
@@ -103,11 +105,11 @@ function PanelStack({
       {position === 'top' ? (
         <>
           {panel}
-          <ProductBlock product={product} locale={locale} t={t} shadow={shadow} />
+          <ProductBlock {...cell} />
         </>
       ) : (
         <>
-          <ProductBlock product={product} locale={locale} t={t} shadow={shadow} />
+          <ProductBlock {...cell} />
           {panel}
         </>
       )}
@@ -122,7 +124,13 @@ const RESUME_DELAY = 2500;
 /** pointer travel in px beyond which a drag suppresses the click on release */
 const DRAG_CLICK_THRESHOLD = 8;
 
-export function AsymmetricCatalogue({ locale, products, head, panels }: AsymmetricCatalogueProps) {
+export function AsymmetricCatalogue({
+  locale,
+  products,
+  categories,
+  head,
+  panels,
+}: AsymmetricCatalogueProps) {
   const t = getT(locale);
   const scrollerRef = useRef<HTMLDivElement>(null);
   const firstSetRef = useRef<HTMLDivElement>(null);
@@ -265,7 +273,7 @@ export function AsymmetricCatalogue({ locale, products, head, panels }: Asymmetr
   const renderSet = (shadow: boolean) => {
     let panelIdx = 0;
     return products.map((product, i) => {
-      const props = { product, locale, t, shadow };
+      const props = { product, categories, locale, t, shadow };
       const kind = i % 3;
       if (kind === 0) {
         return <ProductCell key={product.slug} {...props} width={WIDE} />;

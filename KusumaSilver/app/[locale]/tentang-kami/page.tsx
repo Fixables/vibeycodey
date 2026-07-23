@@ -1,9 +1,12 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getAboutContent } from '@/lib/sanity-data';
 import { resolveAbout } from '@/lib/home-content';
+import { metadataFromSeo } from '@/lib/metadata';
 import { SUPPORTED_LOCALES, getT } from '@/lib/i18n';
 import { ImageSlot } from '@/components/ui/ImageSlot';
-import type { Locale } from '@/types';
+import { shapeClass } from '@/lib/image';
+import type { Locale, Seo } from '@/types';
 
 export function generateStaticParams() {
   return SUPPORTED_LOCALES.map((locale) => ({ locale }));
@@ -11,6 +14,20 @@ export function generateStaticParams() {
 
 // Studio edits go live within ~60s without a rebuild.
 export const revalidate = 60;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const doc = await getAboutContent();
+  const about = resolveAbout(doc, locale, getT(locale));
+  return metadataFromSeo(doc?.seo as Seo | undefined, locale, {
+    title: about.heroTitle,
+    description: about.lede,
+  });
+}
 
 export default async function TentangKamiPage({ params }: { params: Promise<{ locale: Locale }> }) {
   const { locale } = await params;
@@ -21,7 +38,13 @@ export default async function TentangKamiPage({ params }: { params: Promise<{ lo
     <div>
       {/* Image hero with scrim */}
       <section className="relative h-[420px] border-b border-ink lg:h-[520px]">
-        <ImageSlot src={about.heroImageUrl} alt={t.storyV3.heroImageAlt} className="h-full" />
+        <ImageSlot
+          image={about.heroImage}
+          alt={t.storyV3.heroImageAlt}
+          priority
+          sizes="100vw"
+          className="h-full"
+        />
         <div
           className="absolute inset-0"
           style={{
@@ -52,13 +75,28 @@ export default async function TentangKamiPage({ params }: { params: Promise<{ lo
         </div>
       </section>
 
-      {/* Two-up gallery */}
-      <section className="mx-auto max-w-[1280px] px-5 sm:px-10">
-        <div className="grid gap-5 sm:grid-cols-2">
-          <ImageSlot src={about.galleryImage1Url} alt={t.storyV3.galleryAlt1} className="aspect-square border border-ink" />
-          <ImageSlot src={about.galleryImage2Url} alt={t.storyV3.galleryAlt2} className="aspect-square border border-ink" />
-        </div>
-      </section>
+      {/* Gallery — two-up by default, widening to three when the owner adds more */}
+      {about.gallery.length > 0 && (
+        <section className="mx-auto max-w-[1280px] px-5 sm:px-10">
+          <div
+            className={`grid gap-5 ${
+              about.gallery.length >= 3 ? 'sm:grid-cols-3' : 'sm:grid-cols-2'
+            }`}
+          >
+            {about.gallery.map((image, i) => (
+              <ImageSlot
+                key={image.src}
+                image={image}
+                alt={i === 0 ? t.storyV3.galleryAlt1 : t.storyV3.galleryAlt2}
+                sizes="(min-width: 640px) 50vw, 100vw"
+                // The box matches the shape the owner chose, so object-cover
+                // does not crop the photo a second time.
+                className={`${shapeClass(image.shape)} border border-ink`}
+              />
+            ))}
+          </div>
+        </section>
+      )}
 
       {about.body[2] && (
         <section className="mx-auto max-w-[820px] px-5 pt-14 sm:px-10">
@@ -88,13 +126,13 @@ export default async function TentangKamiPage({ params }: { params: Promise<{ lo
             href={`/${locale}/koleksi`}
             className="bg-ink px-8 py-4 text-xs font-semibold tracking-[0.16em] text-paper transition-colors hover:bg-accent"
           >
-            {t.storyV3.ctaCatalogue}
+            {about.ctaCatalogue}
           </Link>
           <Link
             href={`/${locale}/custom-order`}
             className="border border-ink px-8 py-4 text-xs font-semibold tracking-[0.16em] text-ink transition-colors hover:border-accent hover:text-accent"
           >
-            {t.storyV3.ctaBespoke}
+            {about.ctaBespoke}
           </Link>
         </div>
       </section>

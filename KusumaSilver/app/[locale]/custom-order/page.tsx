@@ -1,9 +1,11 @@
+import type { Metadata } from 'next';
 import { getBespokeContent, getStoreInfo } from '@/lib/sanity-data';
 import { resolveBespoke } from '@/lib/home-content';
+import { metadataFromSeo } from '@/lib/metadata';
 import { SUPPORTED_LOCALES, getT } from '@/lib/i18n';
 import { ImageSlot } from '@/components/ui/ImageSlot';
 import { BespokeForm } from '@/components/bespoke/BespokeForm';
-import type { Locale } from '@/types';
+import type { Locale, Seo } from '@/types';
 
 export function generateStaticParams() {
   return SUPPORTED_LOCALES.map((locale) => ({ locale }));
@@ -11,6 +13,20 @@ export function generateStaticParams() {
 
 // Studio edits go live within ~60s without a rebuild.
 export const revalidate = 60;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const doc = await getBespokeContent();
+  const bespoke = resolveBespoke(doc, locale, getT(locale));
+  return metadataFromSeo(doc?.seo as Seo | undefined, locale, {
+    title: `${bespoke.heroTitle1} ${bespoke.heroTitle2}`.trim(),
+    description: bespoke.heroIntro,
+  });
+}
 
 export default async function CustomOrderPage({ params }: { params: Promise<{ locale: Locale }> }) {
   const { locale } = await params;
@@ -38,12 +54,14 @@ export default async function CustomOrderPage({ params }: { params: Promise<{ lo
             href="#commission"
             className="mt-9 inline-block bg-accent px-8 py-4 text-xs font-semibold tracking-[0.16em] text-ink transition-colors hover:bg-gold-warm"
           >
-            {t.bespokeV3.heroCta}
+            {bespoke.heroCta}
           </a>
         </div>
         <ImageSlot
-          src={bespoke.heroImageUrl}
+          image={bespoke.heroImage}
           alt={t.bespokeV3.heroImageAlt}
+          priority
+          sizes="(min-width: 1024px) 50vw, 100vw"
           className="min-h-[320px] border-t border-ink lg:min-h-[520px] lg:border-l lg:border-t-0"
         />
       </section>
@@ -78,7 +96,9 @@ export default async function CustomOrderPage({ params }: { params: Promise<{ lo
       <section id="commission" className="scroll-mt-28 px-5 pb-20 sm:px-10">
         <div className="mx-auto grid max-w-[1180px] items-start gap-10 lg:grid-cols-2">
           <ImageSlot
+            image={bespoke.formImage}
             alt={t.bespokeV3.formImageAlt}
+            sizes="(min-width: 1024px) 45vw, 100vw"
             className="hidden aspect-[4/5] border border-ink lg:block"
           />
           <div>

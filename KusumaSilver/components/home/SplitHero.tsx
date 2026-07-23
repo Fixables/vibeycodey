@@ -10,9 +10,12 @@ export function SplitHero({ locale, home }: { locale: Locale; home: ResolvedHome
   return (
     <section className="grid border-b border-ink lg:grid-cols-[58%_42%]">
       <ImageSlot
-        src={home.heroImageUrl}
+        image={home.heroImage}
         alt={t.homeV3.heroImageAlt}
         label={t.homeV3.heroImageAlt}
+        // The hero is the largest above-the-fold image, so it loads eagerly.
+        priority
+        sizes="(min-width: 1024px) 58vw, 100vw"
         className="h-[380px] border-b border-ink lg:h-[620px] lg:border-b-0 lg:border-r"
       />
       <div className="flex flex-col justify-center px-5 py-12 sm:px-10 lg:px-16">

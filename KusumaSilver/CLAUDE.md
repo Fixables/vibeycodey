@@ -54,6 +54,45 @@ The site is being redesigned to the spec in `design_handoff_kusuma_silver/README
   - `catalogV3.found` pluralization nit resolved (count line replaced by "Showing X of Y")
   - Verified: lint/tsc/build clean; 13 commerce unit checks pass; browser-smoked scroll-pause, asymmetry, and filter bar on both catalogue routes
 
+---
+
+## CMS overhaul (2026-07-22) — read `docs/CMS-MAINTENANCE.md` before touching content code
+
+The Sanity layer was audited and rebuilt for a non-technical owner. Two owner-facing
+docs now exist: `docs/CMS-GUIDE.md` (for the client) and `docs/CMS-MAINTENANCE.md`
+(for developers — schema map, migration procedure, invariants).
+
+**Non-negotiable invariants:**
+- **Blank is always valid.** Every content field is optional; `lib/home-content.ts`
+  falls back to the built-in translations. Never make a content field required.
+- **Readers accept old *and* new shapes.** `pickLocalized()` reads both a
+  `localeString` object and a legacy `foo`/`fooEn` pair; array lists fall back to
+  the old numbered fields. This is what lets schema changes ship before migrations.
+- **Never rename or retype a field in place** — add, dual-read, migrate, remove later.
+- **Images use inline `{type:'image', fields:[…]}`**, never a named object type —
+  a named type changes `_type` and orphans every existing photo.
+- **GROQ has no `//` comments.** Keep notes outside the template literal.
+- **`buildImage()` in `lib/image.ts` is the only place image URLs are built.**
+  Hotspot only applies when width *and* height are requested with `fit=crop`.
+- **Client components must not call `buildImage()`** — resolve server-side and pass
+  the result down (see `Product.card`).
+
+**Key changes:** `localeString`/`localeText` replace ~120 twin fields; drag ordering
+via `@sanity/orderable-document-list` for products and categories; arrays replace the
+numbered `step1..4` / `value1..3` / `stat*` field sets; new `cataloguePage` singleton;
+Site Settings now owns the menu, footer, logo, announcement bar and spec defaults
+(the nav no longer hardcodes category slugs); `seo` object + `generateMetadata` on
+every route; constrained home-page `sections[]` for drag-reorder + hide.
+
+**Fixed along the way:** the Site Settings singleton pointed at an id that did not
+exist in production (owner was editing an empty document); `/studio` had no
+`<html>`/`<body>` so the CMS would not open; `getFeaturedProducts()` had no `order()`
+clause; `safeFetch` now logs failures instead of silently serving defaults.
+
+**Migrations are written but NOT yet applied to production** —
+`sanity/scripts/migrations/`, run `fix-store-info-id.ts` first. Back up with
+`npx sanity dataset export` before applying.
+
 **Commerce decisions approved by owner (2026-07-15):**
 - Shipping: placeholder rule for now — free ≥ Rp 2,000,000, else Rp 45,000 flat, defined once in `lib/commerce/` and identical in both display currencies (final business rule TBD).
 - Sizes: keep free-text `sizes` field + `parseSizes()`; no structured variant migration.

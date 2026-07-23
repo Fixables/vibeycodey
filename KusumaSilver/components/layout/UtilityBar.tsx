@@ -9,13 +9,15 @@ import type { Locale } from '@/types';
 
 interface UtilityBarProps {
   locale: Locale;
+  /** Announcement text from Site Settings; falls back to the built-in wording. */
+  promo?: string;
 }
 
 function persistLocaleCookie(next: Locale) {
   document.cookie = `NEXT_LOCALE=${next};path=/;max-age=31536000`;
 }
 
-export function UtilityBar({ locale }: UtilityBarProps) {
+export function UtilityBar({ locale, promo }: UtilityBarProps) {
   const t = getT(locale);
   const pathname = usePathname();
   const router = useRouter();
@@ -66,7 +68,7 @@ export function UtilityBar({ locale }: UtilityBarProps) {
         <span className="opacity-35">|</span>
         {localeButton('id', 'ID')}
       </div>
-      <span className="hidden uppercase tracking-[0.18em] md:inline">{t.chrome.shipbar}</span>
+      <span className="hidden uppercase tracking-[0.18em] md:inline">{promo || t.chrome.shipbar}</span>
       <div className="flex items-center gap-[7px]">
         {currencyButton('idr', 'IDR')}
         <span className="opacity-35">|</span>
