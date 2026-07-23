@@ -13,7 +13,7 @@ import { PurchasePanel } from '@/components/product/PurchasePanel';
 import { ProductGallery } from '@/components/product/ProductGallery';
 import { buildImage } from '@/lib/image';
 import { metadataFromSeo } from '@/lib/metadata';
-import { categoryLabel, localizedValue, parseSizes } from '@/lib/catalog';
+import { categoryLabel, localizedValue } from '@/lib/catalog';
 import { SUPPORTED_LOCALES, getT } from '@/lib/i18n';
 import type { Locale, ResolvedImage } from '@/types';
 
@@ -101,7 +101,11 @@ export default async function PieceDetailPage({
   const specs = [
     {
       label: t.pieceV3.specMaterial,
-      value: fromSettings(product.material, storeInfo.specMaterial, t.pieceV3.specMaterialFallback),
+      value: fromSettings(
+        product.materials.map((m) => m.label).join(', '),
+        storeInfo.specMaterial,
+        t.pieceV3.specMaterialFallback
+      ),
     },
     {
       label: t.pieceV3.specOrigin,
@@ -116,7 +120,10 @@ export default async function PieceDetailPage({
       ),
     },
     product.weight && { label: t.pieceV3.specWeight, value: `${product.weight}g` },
-    product.stone && { label: t.pieceV3.specStone, value: product.stone },
+    product.gemstones.length > 0 && {
+      label: t.pieceV3.specStone,
+      value: product.gemstones.map((g) => g.label).join(', '),
+    },
     {
       label: t.pieceV3.specLead,
       value: fromSettings(product.craftingTime, storeInfo.specLeadTime, t.pieceV3.specLeadFallback),
@@ -160,7 +167,7 @@ export default async function PieceDetailPage({
             productId={product.id}
             slug={product.slug}
             category={kategori}
-            sizes={parseSizes(product.sizes)}
+            sizes={product.sizeOptions.map((s) => s.label)}
             inStock={product.inStock}
             whatsappLink={waLink}
           />

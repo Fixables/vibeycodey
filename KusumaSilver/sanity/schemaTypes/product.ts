@@ -93,25 +93,65 @@ export const product = defineType({
       group: 'details',
     }),
     defineField({
-      name: 'material',
+      name: 'materialRef',
       title: 'Material',
-      type: 'string',
-      description: 'e.g. Perak 925 / 925 Sterling Silver. Leave blank to use the site default.',
+      description:
+        'Pick from your Materials list. Add a new one under Materials in the sidebar. ' +
+        'Leave blank to use the site default.',
+      type: 'reference',
+      to: [{ type: 'material' }],
       group: 'details',
+    }),
+    defineField({
+      name: 'gemstones',
+      title: 'Gemstones',
+      description:
+        'Tick every stone this piece is available with — one entry each, not a sentence. ' +
+        'These become the Gemstone filter in the catalogue, so a shopper looking for ' +
+        'Amethyst will find this piece.',
+      type: 'array',
+      of: [{ type: 'reference', to: [{ type: 'gemstone' }] }],
+      group: 'details',
+    }),
+    defineField({
+      name: 'sizeOptions',
+      title: 'Available sizes',
+      description:
+        'Tick every size this piece comes in. Shoppers choose from these on the piece page, ' +
+        'and they become the Size filter. Leave empty if the piece has no sizes.',
+      type: 'array',
+      of: [{ type: 'reference', to: [{ type: 'size' }] }],
+      group: 'details',
+    }),
+
+    // ---- Superseded by the lists above; kept so nothing is lost and so the
+    // site still reads them for any piece that has not been migrated yet.
+    defineField({
+      name: 'material',
+      title: 'Material (old free text)',
+      type: 'string',
+      group: 'details',
+      readOnly: true,
+      hidden: ({ parent }) => !parent?.material,
+      description: 'Replaced by the Material picker above. Shown only because this piece still has a value.',
     }),
     defineField({
       name: 'sizes',
-      title: 'Available sizes',
+      title: 'Sizes (old free text)',
       type: 'string',
-      description: 'Separate them with commas, e.g. "6, 7, 8, 9" or "Free Size". Leave blank if there are no sizes.',
       group: 'details',
+      readOnly: true,
+      hidden: ({ parent }) => !parent?.sizes,
+      description: 'Replaced by Available sizes above.',
     }),
     defineField({
       name: 'stone',
-      title: 'Stone / gem',
+      title: 'Stone (old free text)',
       type: 'string',
-      description: 'e.g. Blue Topaz, Onyx. Leave blank if there is none.',
       group: 'details',
+      readOnly: true,
+      hidden: ({ parent }) => !parent?.stone,
+      description: 'Replaced by Gemstones above.',
     }),
     defineField({
       name: 'weight',

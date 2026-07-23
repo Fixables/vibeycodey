@@ -248,6 +248,8 @@ export const en = {
     facetCategory: 'Category',
     facetMaterial: 'Material',
     facetGemstone: 'Gemstone',
+    facetRingSize: 'Ring size',
+    facetLength: 'Length',
     facetPrice: 'Price',
     noStone: 'No stone',
     priceUnder: 'Under',

@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { ImageSlot } from '@/components/ui/ImageSlot';
 import { PriceDisplay } from '@/components/ui/PriceDisplay';
 import { CardAddToBag } from './CardAddToBag';
-import { categoryLabel, parseSizes } from '@/lib/catalog';
+import { categoryLabel } from '@/lib/catalog';
 import type { Category, Product, Locale } from '@/types';
 
 interface PieceCardProps {
@@ -14,7 +14,7 @@ interface PieceCardProps {
 
 export function PieceCard({ product, categories, locale }: PieceCardProps) {
   const name = locale === 'en' ? product.nameEn || product.name : product.name;
-  const defaultSize = parseSizes(product.sizes)[0] ?? null;
+  const defaultSize = product.sizeOptions[0]?.label ?? null;
 
   return (
     <div className="group flex h-full flex-col border border-ink bg-card">

@@ -16,6 +16,10 @@ import {
   TagIcon,
   DocumentsIcon,
   CogIcon,
+  FilterIcon,
+  SparkleIcon,
+  ComponentIcon,
+  ExpandIcon,
 } from '@sanity/icons';
 import { schemaTypes } from './sanity/schemaTypes';
 
@@ -114,6 +118,38 @@ export default defineConfig({
               S,
               context,
             }),
+
+            // ---- The lists that drive the catalogue filters ----
+            S.listItem()
+              .title('Filters')
+              .icon(FilterIcon)
+              .child(
+                S.list()
+                  .title('Catalogue Filters')
+                  .items([
+                    orderableDocumentListDeskItem({
+                      type: 'gemstone',
+                      title: 'Gemstones',
+                      icon: SparkleIcon,
+                      S,
+                      context,
+                    }),
+                    orderableDocumentListDeskItem({
+                      type: 'material',
+                      title: 'Materials',
+                      icon: ComponentIcon,
+                      S,
+                      context,
+                    }),
+                    orderableDocumentListDeskItem({
+                      type: 'size',
+                      title: 'Sizes',
+                      icon: ExpandIcon,
+                      S,
+                      context,
+                    }),
+                  ])
+              ),
 
             S.divider(),
 

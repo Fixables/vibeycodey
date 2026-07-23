@@ -128,6 +128,30 @@ run and only writes with `--apply`.
 | `fix-store-info-id.ts` | Moves the Site Settings document to `_id: 'storeInfo'` | **Must run first** · applied to production 2026-07-22 |
 | `002-locale-and-lists.ts` | `foo`/`fooEn` → `{id, en}`; numbered fields → arrays | Applied 2026-07-22 |
 | `003-order-rank.ts` | Seeds `orderRank` for categories and products | Applied 2026-07-22 |
+| `004-drop-legacy-fields.ts` | Removes the `*En` twins and numbered sets 002 left behind | Applied 2026-07-23 |
+| `005-build-taxonomy.ts` | Free-text stone/material/sizes → linked filter documents | Applied 2026-07-23 |
+
+### The catalogue taxonomy (005)
+
+`stone`, `material` and `sizes` were single free-text boxes, so a ring available
+in five stones held `"Amethyst, Garnet, Peridot, Citrine, and Pink Zirconia"` in
+one field. The filter treated that whole sentence as one gemstone — the Gemstone
+dropdown offered two nonsense options rather than eight real stones, and sizes
+could not be filtered at all.
+
+They are now `gemstone` / `material` / `size` documents, referenced from the
+product. `size` carries a `group` (`ring` | `length` | `other`) because ring
+sizes and necklace lengths are not comparable and must not share a dropdown.
+
+`mapProduct` reads the references **and** falls back to splitting the old text
+(`splitLegacyList` handles commas, "and", "&"), so a piece that has not been
+linked still filters correctly. The old fields remain on the documents, hidden
+and read-only in the Studio, until a follow-up migration drops them.
+
+Adding a new filter dimension (Finish, Occasion …) means: a document type in
+`taxonomy.ts`, a reference field on `product`, a projection line in
+`PRODUCT_FIELDS`, a `collectTerms` call plus a `FacetSelect` in
+`CollectionClient`, and two translation keys.
 
 **A note on the heritage figures.** The production `homePage` never held
 `statSilverValue` / `statGenValue` / `statHandValue` — only the labels were in

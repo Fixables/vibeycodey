@@ -248,6 +248,8 @@ export const id = {
     facetCategory: 'Kategori',
     facetMaterial: 'Material',
     facetGemstone: 'Batu',
+    facetRingSize: 'Ukuran cincin',
+    facetLength: 'Panjang',
     facetPrice: 'Harga',
     noStone: 'Tanpa batu',
     priceUnder: 'Di bawah',

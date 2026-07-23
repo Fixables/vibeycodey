@@ -7,6 +7,7 @@ import { contactPage } from './contactPage';
 import { bespokePage } from './bespokePage';
 import { cataloguePage } from './cataloguePage';
 import { order } from './order';
+import { gemstone, material, size } from './taxonomy';
 
 // Shared building blocks, reused across documents rather than repeated.
 import { localeString, localeText } from './objects/locale';
@@ -36,6 +37,11 @@ export const schemaTypes = [
   bespokePage,
   cataloguePage,
   order,
+
+  // Filter lists
+  gemstone,
+  material,
+  size,
 
   // Shared objects
   localeString,

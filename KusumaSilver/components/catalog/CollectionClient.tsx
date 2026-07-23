@@ -8,7 +8,7 @@ import { useCurrency } from '@/components/providers/CurrencyProvider';
 import { formatDisplayPrice } from '@/lib/commerce/config';
 import { categoryLabel } from '@/lib/catalog';
 import { getT } from '@/lib/i18n';
-import type { Product, Category, Locale } from '@/types';
+import type { Product, Category, Locale, SizeTerm, TaxonomyTerm } from '@/types';
 
 interface CollectionClientProps {
   products: Product[];
@@ -50,6 +50,41 @@ function localizedName(product: Product, locale: Locale): string {
 }
 
 const ALL = '__all__';
+/** Sentinel for "pieces with no stone at all". */
+const NONE = '__none__';
+
+/**
+ * Distinct filter options across a set of pieces, keyed by slug so two spellings
+ * of the same term collapse into one option, and sorted for a stable list.
+ */
+function collectTerms(
+  products: Product[],
+  pick: (product: Product) => TaxonomyTerm[]
+): TaxonomyTerm[] {
+  const bySlug = new Map<string, TaxonomyTerm>();
+  for (const product of products) {
+    for (const term of pick(product)) {
+      if (!bySlug.has(term.slug)) bySlug.set(term.slug, term);
+    }
+  }
+  return [...bySlug.values()].sort((a, b) => a.label.localeCompare(b.label));
+}
+
+/** Sizes for one group, ordered numerically ("10" after "9", not before it). */
+function collectSizes(products: Product[], group: SizeTerm['group']): SizeTerm[] {
+  const bySlug = new Map<string, SizeTerm>();
+  for (const product of products) {
+    for (const size of product.sizeOptions) {
+      if (size.group === group && !bySlug.has(size.slug)) bySlug.set(size.slug, size);
+    }
+  }
+  return [...bySlug.values()].sort((a, b) => {
+    const na = parseFloat(a.label);
+    const nb = parseFloat(b.label);
+    if (!Number.isNaN(na) && !Number.isNaN(nb)) return na - nb;
+    return a.label.localeCompare(b.label);
+  });
+}
 
 const selectClass =
   'cursor-pointer appearance-none border border-ink bg-card py-2 pl-3 pr-8 text-[12px] font-medium tracking-[0.04em] text-ink outline-none transition-colors hover:border-accent focus:border-accent';
@@ -99,6 +134,8 @@ export function CollectionClient({
   const [categoryFilter, setCategoryFilter] = useState(ALL);
   const [material, setMaterial] = useState(ALL);
   const [stone, setStone] = useState(ALL);
+  const [ringSize, setRingSize] = useState(ALL);
+  const [length, setLength] = useState(ALL);
   const [priceBucket, setPriceBucket] = useState(ALL);
   const [sort, setSort] = useState<SortKey>('recommended');
 
@@ -109,17 +146,22 @@ export function CollectionClient({
     [products, fixedCategory]
   );
 
-  // Facet option sets, derived from the scoped products so we never show a
-  // filter value that matches nothing.
-  const materials = useMemo(
-    () => [...new Set(scoped.map((p) => p.material).filter((m): m is string => Boolean(m)))].sort(),
-    [scoped]
-  );
-  const stones = useMemo(
-    () => [...new Set(scoped.map((p) => p.stone).filter((s): s is string => Boolean(s)))].sort(),
-    [scoped]
-  );
-  const hasStonelessPieces = useMemo(() => scoped.some((p) => !p.stone), [scoped]);
+  // Facet options, collected from the pieces actually in scope so a filter can
+  // never offer a value that matches nothing.
+  //
+  // Each piece contributes its individual terms rather than one combined string.
+  // A ring available in five stones used to produce a single Gemstone option
+  // reading "Amethyst, Garnet, Peridot, Citrine, and Pink Zirconia"; it now
+  // contributes five, and picking any one of them finds the ring.
+  const materials = useMemo(() => collectTerms(scoped, (p) => p.materials), [scoped]);
+  const stones = useMemo(() => collectTerms(scoped, (p) => p.gemstones), [scoped]);
+  const hasStonelessPieces = useMemo(() => scoped.some((p) => p.gemstones.length === 0), [scoped]);
+
+  // Ring sizes and necklace lengths are not comparable, so they are offered as
+  // separate filters — a shopper browsing rings is never shown "45 cm".
+  const ringSizes = useMemo(() => collectSizes(scoped, 'ring'), [scoped]);
+  const lengths = useMemo(() => collectSizes(scoped, 'length'), [scoped]);
+
   const activePriceBuckets = useMemo(
     () => PRICE_BUCKETS.filter((b) => scoped.some((p) => inBucket(p.price, b))),
     [scoped]
@@ -128,6 +170,8 @@ export function CollectionClient({
   const showCategoryFacet = !fixedCategory && categories.length > 1;
   const showMaterialFacet = materials.length > 1;
   const showStoneFacet = stones.length + (hasStonelessPieces ? 1 : 0) > 1 && stones.length > 0;
+  const showRingSizeFacet = ringSizes.length > 1;
+  const showLengthFacet = lengths.length > 1;
   const showPriceFacet = activePriceBuckets.length > 1;
 
   function priceBucketLabel(bucket: PriceBucket): string {
@@ -146,11 +190,22 @@ export function CollectionClient({
     if (showCategoryFacet && categoryFilter !== ALL) {
       result = result.filter((p) => p.category === categoryFilter);
     }
+    // A piece matches when it *contains* the chosen term, so a ring offered in
+    // five stones is found by any one of them.
     if (showMaterialFacet && material !== ALL) {
-      result = result.filter((p) => p.material === material);
+      result = result.filter((p) => p.materials.some((m) => m.slug === material));
     }
     if (showStoneFacet && stone !== ALL) {
-      result = stone === '__none__' ? result.filter((p) => !p.stone) : result.filter((p) => p.stone === stone);
+      result =
+        stone === NONE
+          ? result.filter((p) => p.gemstones.length === 0)
+          : result.filter((p) => p.gemstones.some((g) => g.slug === stone));
+    }
+    if (showRingSizeFacet && ringSize !== ALL) {
+      result = result.filter((p) => p.sizeOptions.some((s) => s.slug === ringSize));
+    }
+    if (showLengthFacet && length !== ALL) {
+      result = result.filter((p) => p.sizeOptions.some((s) => s.slug === length));
     }
     if (showPriceFacet && priceBucket !== ALL) {
       const bucket = PRICE_BUCKETS.find((b) => b.id === priceBucket);
@@ -164,7 +219,14 @@ export function CollectionClient({
       // in any order.
       const words = query.toLowerCase().split(/\s+/).filter(Boolean);
       result = result.filter((p) => {
-        const haystack = [p.name, p.nameEn, p.description, p.descriptionEn, p.material, p.stone]
+        const haystack = [
+          p.name,
+          p.nameEn,
+          p.description,
+          p.descriptionEn,
+          ...p.materials.map((m) => m.label),
+          ...p.gemstones.map((g) => g.label),
+        ]
           .filter(Boolean)
           .join(' ')
           .toLowerCase();
@@ -196,6 +258,10 @@ export function CollectionClient({
     material,
     showStoneFacet,
     stone,
+    showRingSizeFacet,
+    ringSize,
+    showLengthFacet,
+    length,
     showPriceFacet,
     priceBucket,
     query,
@@ -207,6 +273,8 @@ export function CollectionClient({
     categoryFilter !== ALL ||
     material !== ALL ||
     stone !== ALL ||
+    ringSize !== ALL ||
+    length !== ALL ||
     priceBucket !== ALL ||
     query.trim() !== '';
 
@@ -214,6 +282,8 @@ export function CollectionClient({
     setCategoryFilter(ALL);
     setMaterial(ALL);
     setStone(ALL);
+    setRingSize(ALL);
+    setLength(ALL);
     setPriceBucket(ALL);
     setQuery('');
   }
@@ -254,8 +324,8 @@ export function CollectionClient({
               <FacetSelect label={t.catalogV3.facetMaterial} value={material} onChange={setMaterial}>
                 <option value={ALL}>{t.catalogV3.facetMaterial}</option>
                 {materials.map((m) => (
-                  <option key={m} value={m}>
-                    {m}
+                  <option key={m.slug} value={m.slug}>
+                    {m.label}
                   </option>
                 ))}
               </FacetSelect>
@@ -264,11 +334,31 @@ export function CollectionClient({
               <FacetSelect label={t.catalogV3.facetGemstone} value={stone} onChange={setStone}>
                 <option value={ALL}>{t.catalogV3.facetGemstone}</option>
                 {stones.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
+                  <option key={s.slug} value={s.slug}>
+                    {s.label}
                   </option>
                 ))}
-                {hasStonelessPieces && <option value="__none__">{t.catalogV3.noStone}</option>}
+                {hasStonelessPieces && <option value={NONE}>{t.catalogV3.noStone}</option>}
+              </FacetSelect>
+            )}
+            {showRingSizeFacet && (
+              <FacetSelect label={t.catalogV3.facetRingSize} value={ringSize} onChange={setRingSize}>
+                <option value={ALL}>{t.catalogV3.facetRingSize}</option>
+                {ringSizes.map((s) => (
+                  <option key={s.slug} value={s.slug}>
+                    {s.label}
+                  </option>
+                ))}
+              </FacetSelect>
+            )}
+            {showLengthFacet && (
+              <FacetSelect label={t.catalogV3.facetLength} value={length} onChange={setLength}>
+                <option value={ALL}>{t.catalogV3.facetLength}</option>
+                {lengths.map((s) => (
+                  <option key={s.slug} value={s.slug}>
+                    {s.label}
+                  </option>
+                ))}
               </FacetSelect>
             )}
             {showPriceFacet && (

@@ -12,6 +12,21 @@ export interface Category {
   seo?: Seo;
 }
 
+/**
+ * One value in a catalogue filter — a gemstone, a material, a size.
+ * `slug` is the stable identifier used in filter state; `label` is what the
+ * shopper reads, already resolved for the current language.
+ */
+export interface TaxonomyTerm {
+  slug: string;
+  label: string;
+}
+
+/** Ring sizes and lengths are not comparable, so sizes carry their group. */
+export interface SizeTerm extends TaxonomyTerm {
+  group: 'ring' | 'length' | 'other';
+}
+
 export interface Product {
   id: string;
   slug: string;
@@ -34,6 +49,10 @@ export interface Product {
   origin?: LocaleString;
   technique?: LocaleString;
   seo?: Seo;
+  /** Filter values, resolved from the taxonomy lists (or legacy free text). */
+  gemstones: TaxonomyTerm[];
+  materials: TaxonomyTerm[];
+  sizeOptions: SizeTerm[];
   material?: string;
   weight?: number;
   sizes?: string;

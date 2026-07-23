@@ -3,7 +3,15 @@ import { client } from './sanity';
 import { sanityFetch } from './sanity.live';
 import { buildImage, IMAGE_PROJECTION } from './image';
 import { formatPrice } from './utils';
-import type { Category, Locale, Product, SanityImage, StoreInfo } from '@/types';
+import type {
+  Category,
+  Locale,
+  Product,
+  SanityImage,
+  SizeTerm,
+  StoreInfo,
+  TaxonomyTerm,
+} from '@/types';
 
 // ---- Helpers ----
 
@@ -75,6 +83,75 @@ const CARD_IMAGE_WIDTH = 640;
  * resolved here, on the server, while the raw image objects travel alongside for
  * server components that need a different size (the product detail page).
  */
+/**
+ * Read a filter dimension off a product.
+ *
+ * Prefers the linked taxonomy documents. Falls back to splitting the old
+ * free-text field ("Amethyst, Garnet, and Peridot") into separate terms, so a
+ * piece the owner has not re-linked yet still filters correctly instead of
+ * offering the whole sentence as one nonsense option.
+ */
+function taxonomyTerms(
+  refs: unknown,
+  legacy: unknown,
+  locale: Locale
+): TaxonomyTerm[] {
+  if (Array.isArray(refs) && refs.length > 0) {
+    return refs
+      .map((row) => row as Record<string, unknown> | null)
+      .filter((row): row is Record<string, unknown> => Boolean(row?.slug))
+      .map((row) => ({
+        slug: row.slug as string,
+        label:
+          (locale === 'en' ? (row.nameEn as string) : (row.name as string)) ||
+          (row.name as string),
+      }));
+  }
+  return splitLegacyList(legacy).map((label) => ({ slug: slugifyTerm(label), label }));
+}
+
+/**
+ * Sizes additionally carry a group, so ring sizes and lengths stay apart.
+ * No locale here: "7" and "45 cm" read the same in both languages.
+ */
+function sizeTerms(refs: unknown, legacy: unknown): SizeTerm[] {
+  if (Array.isArray(refs) && refs.length > 0) {
+    return refs
+      .map((row) => row as Record<string, unknown> | null)
+      .filter((row): row is Record<string, unknown> => Boolean(row?.slug))
+      .map((row) => ({
+        slug: row.slug as string,
+        label: row.name as string,
+        group: (row.group as SizeTerm['group']) ?? 'other',
+      }));
+  }
+  return splitLegacyList(legacy).map((label) => ({
+    slug: slugifyTerm(label),
+    label,
+    // Guess from the text so unmigrated pieces still group sensibly.
+    group: /\d\s*(cm|mm|inch|")/i.test(label) ? 'length' : /^\d+$/.test(label) ? 'ring' : 'other',
+  }));
+}
+
+/**
+ * Split a free-text list into terms. Handles the separators the owner actually
+ * used: commas, the word "and", and ampersands.
+ */
+function splitLegacyList(value: unknown): string[] {
+  if (typeof value !== 'string') return [];
+  return value
+    .split(/,|\band\b|&/gi)
+    .map((part) => part.trim())
+    .filter(Boolean);
+}
+
+function slugifyTerm(label: string): string {
+  return label
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
 function mapProduct(raw: Record<string, unknown>, locale: Locale): Product {
   const images = (raw.images as SanityImage[] | undefined) ?? [];
   const name = (locale === 'en' ? (raw.nameEn as string) : (raw.name as string)) || (raw.name as string);
@@ -99,10 +176,17 @@ function mapProduct(raw: Record<string, unknown>, locale: Locale): Product {
     origin: raw.origin as Product['origin'],
     technique: raw.technique as Product['technique'],
     seo: raw.seo as Product['seo'],
-    material: raw.material as string | undefined,
+    // Filter values come from the taxonomy lists when a piece has been linked
+    // up, and from the old free-text fields otherwise, so the catalogue is
+    // correct before, during and after the migration.
+    gemstones: taxonomyTerms(raw.gemstones, raw.stone, locale),
+    materials: taxonomyTerms(
+      raw.materialRef ? [raw.materialRef] : undefined,
+      raw.material,
+      locale
+    ),
+    sizeOptions: sizeTerms(raw.sizeOptions, raw.sizes),
     weight: raw.weight as number | undefined,
-    sizes: raw.sizes as string | undefined,
-    stone: raw.stone as string | undefined,
     craftingTime: raw.craftingTime as string | undefined,
     isCustomizable: (raw.isCustomizable as boolean) ?? false,
     featured: (raw.featured as boolean) ?? false,
@@ -198,6 +282,9 @@ const PRODUCT_FIELDS = `
   origin,
   technique,
   seo { ..., shareImage ${IMAGE_PROJECTION} },
+  gemstones[]->{ "slug": slug.current, name, nameEn },
+  materialRef->{ "slug": slug.current, name, nameEn },
+  sizeOptions[]->{ "slug": slug.current, name, group },
   material,
   weight,
   sizes,

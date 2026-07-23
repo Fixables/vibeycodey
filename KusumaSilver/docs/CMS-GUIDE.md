@@ -124,6 +124,44 @@ Notes:
 
 ---
 
+## 5b. Managing the catalogue filters
+
+The filters shoppers use — **Gemstone**, **Material**, **Ring size**, **Length** —
+come from lists you control. Click **Filters** in the sidebar.
+
+### Adding a new gemstone (or material, or size)
+
+1. Click **Filters → Gemstones**.
+2. Click **＋**, type the name, click **Publish**.
+3. Open the piece it belongs to, and tick it under **Gemstones**.
+
+**One stone per entry.** Write *Amethyst* on its own, not
+"Amethyst, Garnet and Peridot". A piece can have as many as you like — tick them
+all — and a shopper searching for any one of them will find it.
+
+That is the whole point of these lists: the filter can only offer what is in
+them, so a typo can never create a duplicate option like "Amethyst" and
+"amethist" sitting side by side.
+
+### Sizes come in two kinds
+
+When adding a size you choose what kind it is:
+
+- **Ring size** — 6, 7, 8 …
+- **Length** — 45 cm, 50 cm …
+- **One size / other**
+
+They appear as *separate* filters, so someone browsing rings is never offered
+"45 cm". Sizes are also what shoppers pick from on the piece page.
+
+### The filters look after themselves
+
+A filter only shows options that some piece actually uses, and it disappears
+entirely when there is nothing to choose between. So you never have to tidy the
+catalogue page — just keep the lists and the pieces accurate.
+
+Drag any entry to change the order it appears in the dropdown.
+
 ## 6. Putting things in a different order
 
 Anywhere you see a list, you can drag items into the order you want.
