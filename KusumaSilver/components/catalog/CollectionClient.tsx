@@ -157,13 +157,19 @@ export function CollectionClient({
       if (bucket) result = result.filter((p) => inBucket(p.price, bucket));
     }
     if (query.trim()) {
-      const q = query.toLowerCase();
-      result = result.filter(
-        (p) =>
-          p.name.toLowerCase().includes(q) ||
-          (p.nameEn && p.nameEn.toLowerCase().includes(q)) ||
-          p.description.toLowerCase().includes(q)
-      );
+      // Match every word separately rather than the whole phrase. Searching
+      // "cincin bali" used to find nothing for "Cincin Ukir Bali", because the
+      // phrase is not a substring of the name — the words are just not adjacent.
+      // Now a piece matches when all the words appear somewhere in its details,
+      // in any order.
+      const words = query.toLowerCase().split(/\s+/).filter(Boolean);
+      result = result.filter((p) => {
+        const haystack = [p.name, p.nameEn, p.description, p.descriptionEn, p.material, p.stone]
+          .filter(Boolean)
+          .join(' ')
+          .toLowerCase();
+        return words.every((word) => haystack.includes(word));
+      });
     }
 
     const sorted = [...result];

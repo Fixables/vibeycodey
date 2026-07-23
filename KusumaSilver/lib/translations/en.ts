@@ -328,6 +328,7 @@ export const en = {
     breadcrumbRoot: 'CATALOGUE',
     sizeLabel: 'Size',
     thumbLabel: 'Detail view',
+    galleryLabel: 'Product photos — use the arrow keys to move between them',
     addToBag: 'ADD TO BAG',
     addedToBag: 'Added to your bag',
     buyNow: 'BUY NOW',

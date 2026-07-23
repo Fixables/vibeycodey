@@ -328,6 +328,7 @@ export const id = {
     breadcrumbRoot: 'KATALOG',
     sizeLabel: 'Ukuran',
     thumbLabel: 'Tampilan detail',
+    galleryLabel: 'Foto produk — gunakan tombol panah untuk berpindah',
     addToBag: 'MASUKKAN KE TAS',
     addedToBag: 'Sudah masuk ke tas Anda',
     buyNow: 'BELI SEKARANG',

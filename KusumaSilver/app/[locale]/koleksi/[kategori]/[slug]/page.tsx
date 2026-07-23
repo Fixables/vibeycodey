@@ -8,9 +8,9 @@ import {
   getStoreInfo,
   getWhatsAppLink,
 } from '@/lib/sanity-data';
-import { ImageSlot } from '@/components/ui/ImageSlot';
 import { PriceDisplay } from '@/components/ui/PriceDisplay';
 import { PurchasePanel } from '@/components/product/PurchasePanel';
+import { ProductGallery } from '@/components/product/ProductGallery';
 import { buildImage } from '@/lib/image';
 import { metadataFromSeo } from '@/lib/metadata';
 import { categoryLabel, localizedValue, parseSizes } from '@/lib/catalog';
@@ -76,19 +76,18 @@ export default async function PieceDetailPage({
       : `Halo, saya tertarik dengan ${product.name}. Bisa info lebih lanjut?`;
   const waLink = getWhatsAppLink(storeInfo.whatsapp, waMessage);
 
-  // The main image is rendered large and square; the three thumbnails below it
-  // are small, so they are requested at a much smaller size.
-  const gallery = product.images
-    .map((image, i) =>
-      buildImage(image, {
-        width: i === 0 ? 1000 : 320,
-        aspect: 'square',
-        fallbackAlt: i === 0 ? name : `${name} — ${t.pieceV3.thumbLabel}`,
-        locale,
-      })
-    )
-    .filter((image): image is ResolvedImage => image !== null);
-  const [hero, ...thumbs] = gallery;
+  // Every photo is resolved at both sizes: large for the main frame, small for
+  // the thumbnail strip. The page previously rendered only the first four, so a
+  // piece with seven photos silently dropped three of them.
+  const resolveAll = (width: number) =>
+    product.images
+      .map((image) =>
+        buildImage(image, { width, aspect: 'square', fallbackAlt: name, locale })
+      )
+      .filter((image): image is ResolvedImage => image !== null);
+
+  const galleryLarge = resolveAll(1000);
+  const galleryThumbs = resolveAll(320);
 
   // Most pieces share the same origin, technique, material and lead time, so
   // those come from Site Settings. A piece only overrides one when it differs,
@@ -140,25 +139,12 @@ export default async function PieceDetailPage({
 
       <div className="mt-6 grid gap-10 lg:grid-cols-2 lg:gap-12">
         <div>
-          <ImageSlot
-            image={hero}
-            alt={name}
-            priority
-            sizes="(min-width: 1024px) 50vw, 100vw"
-            className="aspect-square border border-ink"
+          <ProductGallery
+            images={galleryLarge}
+            thumbnails={galleryThumbs}
+            productName={name}
+            locale={locale}
           />
-          <div className="mt-3 grid grid-cols-3 gap-3">
-            {[0, 1, 2].map((i) => (
-              <ImageSlot
-                key={i}
-                image={thumbs[i]}
-                alt={`${name} — ${t.pieceV3.thumbLabel}`}
-                label={t.pieceV3.thumbLabel}
-                sizes="(min-width: 1024px) 16vw, 32vw"
-                className="aspect-square border border-ink"
-              />
-            ))}
-          </div>
         </div>
 
         <div className="flex flex-col items-start">
