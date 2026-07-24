@@ -118,25 +118,46 @@ export const product = defineType({
       group: 'details',
     }),
     defineField({
-      name: 'gemstones',
+      name: 'gemstoneVariants',
       title: 'Gemstones',
       description:
-        'Tick every stone this piece is available with — one entry each, not a sentence. ' +
-        'These become the Gemstone filter in the catalogue, so a shopper looking for ' +
-        'Amethyst will find this piece.',
+        'Every stone this piece is available with. Add a price change if one costs more, ' +
+        'and untick "Available" when a stone runs out. These also become the Gemstone filter.',
       type: 'array',
-      of: [{ type: 'reference', to: [{ type: 'gemstone' }] }],
+      of: [{ type: 'gemstoneVariant' }],
       group: 'details',
     }),
     defineField({
-      name: 'sizeOptions',
-      title: 'Available sizes',
+      name: 'sizeVariants',
+      title: 'Sizes',
       description:
-        'Tick every size this piece comes in. Shoppers choose from these on the piece page, ' +
-        'and they become the Size filter. Leave empty if the piece has no sizes.',
+        'Every size this piece comes in. Add a price change if larger sizes cost more — ' +
+        'a 60 cm chain, for example. Untick "Available" when one runs out. ' +
+        'Leave empty if the piece has no sizes.',
+      type: 'array',
+      of: [{ type: 'sizeVariant' }],
+      group: 'details',
+    }),
+
+    // Superseded by the variant lists above, which add price and stock. Read as
+    // a fallback for any piece not yet migrated.
+    defineField({
+      name: 'gemstones',
+      title: 'Gemstones (old list)',
+      type: 'array',
+      of: [{ type: 'reference', to: [{ type: 'gemstone' }] }],
+      group: 'details',
+      readOnly: true,
+      hidden: ({ parent }) => !parent?.gemstones?.length,
+    }),
+    defineField({
+      name: 'sizeOptions',
+      title: 'Sizes (old list)',
       type: 'array',
       of: [{ type: 'reference', to: [{ type: 'size' }] }],
       group: 'details',
+      readOnly: true,
+      hidden: ({ parent }) => !parent?.sizeOptions?.length,
     }),
 
     // ---- Superseded by the lists above; kept so nothing is lost and so the

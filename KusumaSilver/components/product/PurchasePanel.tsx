@@ -6,17 +6,28 @@ import { useEffect, useRef, useState } from 'react';
 import { Check, Minus, Plus } from 'lucide-react';
 import { useCart } from '@/components/providers/CartProvider';
 import { MAX_QTY_PER_LINE } from '@/lib/commerce/cart';
+import { resolveVariant } from '@/lib/commerce/variants';
+import { PriceDisplay } from '@/components/ui/PriceDisplay';
+import { OptionPicker } from './OptionPicker';
 import { getT } from '@/lib/i18n';
-import type { Locale } from '@/types';
+import type { Locale, SizeTerm, TaxonomyTerm } from '@/types';
 
 interface PurchasePanelProps {
   locale: Locale;
   productId: string;
   slug: string;
   category: string;
-  sizes: string[];
+  /** Base price before any option price changes. */
+  basePrice: number;
+  gemstones: TaxonomyTerm[];
+  sizes: SizeTerm[];
   inStock: boolean;
   whatsappLink: string;
+}
+
+/** First option a shopper can actually buy, so the page never opens sold out. */
+function firstAvailable(options: TaxonomyTerm[]): string | null {
+  return options.find((option) => option.inStock)?.slug ?? options[0]?.slug ?? null;
 }
 
 /**
@@ -29,6 +40,8 @@ export function PurchasePanel({
   productId,
   slug,
   category,
+  basePrice,
+  gemstones,
   sizes,
   inStock,
   whatsappLink,
@@ -36,7 +49,10 @@ export function PurchasePanel({
   const t = getT(locale);
   const router = useRouter();
   const { addItem } = useCart();
-  const [selected, setSelected] = useState<string | null>(sizes[0] ?? null);
+  const [selectedSize, setSelectedSize] = useState<string | null>(() => firstAvailable(sizes));
+  const [selectedGemstone, setSelectedGemstone] = useState<string | null>(() =>
+    firstAvailable(gemstones)
+  );
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
   // Bumped on each add so the aria-live region re-announces even on a repeat
@@ -46,8 +62,20 @@ export function PurchasePanel({
 
   useEffect(() => () => clearTimeout(resetTimer.current), []);
 
+  // The exact combination the shopper is looking at. The checkout recalculates
+  // this server-side from Sanity and never trusts a price from the browser —
+  // this is only what to display, using the same function so the two agree.
+  const variant = resolveVariant(
+    { price: basePrice, gemstones, sizeOptions: sizes },
+    { gemstone: selectedGemstone, size: selectedSize }
+  );
+  const canBuy = inStock && variant.available;
+
   function addToCart() {
-    addItem({ productId, slug, category, size: selected }, qty);
+    addItem(
+      { productId, slug, category, size: selectedSize, gemstone: selectedGemstone },
+      qty
+    );
   }
 
   function handleAdd() {
@@ -65,38 +93,28 @@ export function PurchasePanel({
 
   return (
     <>
-      {sizes.length === 1 && (
-        <div className="mt-6 w-full">
-          <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-ink/55">
-            {t.pieceV3.sizeLabel}
-          </p>
-          <p className="mt-2 text-sm text-ink">{sizes[0]}</p>
-        </div>
-      )}
-      {sizes.length > 1 && (
-        <fieldset className="mt-6 w-full">
-          <legend className="text-[10px] font-medium uppercase tracking-[0.14em] text-ink/55">
-            {t.pieceV3.sizeLabel}
-          </legend>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {sizes.map((size) => (
-              <button
-                key={size}
-                type="button"
-                onClick={() => setSelected(size)}
-                aria-pressed={selected === size}
-                className={`min-h-11 min-w-11 cursor-pointer border border-ink px-4 text-[13px] transition-colors ${
-                  selected === size ? 'bg-ink text-paper' : 'bg-transparent text-ink hover:bg-ink/5'
-                }`}
-              >
-                {size}
-              </button>
-            ))}
-          </div>
-        </fieldset>
-      )}
+      <OptionPicker
+        label={t.pieceV3.specStone}
+        options={gemstones}
+        selected={selectedGemstone}
+        onSelect={setSelectedGemstone}
+        soldOutLabel={t.pieceV3.soldOut}
+      />
+      <OptionPicker
+        label={t.pieceV3.sizeLabel}
+        options={sizes}
+        selected={selectedSize}
+        onSelect={setSelectedSize}
+        soldOutLabel={t.pieceV3.soldOut}
+      />
 
-      {inStock ? (
+      {/* The price for the chosen combination, so it is never a surprise at
+          checkout. aria-live because it changes as options are picked. */}
+      <div className="mt-6 w-full" aria-live="polite">
+        <PriceDisplay amountIdr={variant.price} className="font-heading text-[26px] text-ink" />
+      </div>
+
+      {canBuy ? (
         <div className="mt-8 w-full">
           {/* Quantity stepper + add to bag, side by side. */}
           <div className="flex gap-3">

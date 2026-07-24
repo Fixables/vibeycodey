@@ -80,14 +80,16 @@ export const order = defineType({
             { name: 'slug', title: 'Slug', type: 'string' },
             { name: 'name', title: 'Nama', type: 'string' },
             { name: 'size', title: 'Ukuran', type: 'string' },
+            { name: 'gemstone', title: 'Batu', type: 'string' },
             { name: 'qty', title: 'Jumlah', type: 'number' },
             { name: 'priceIdr', title: 'Harga Satuan (IDR)', type: 'number' },
             { name: 'lineTotalIdr', title: 'Subtotal Baris (IDR)', type: 'number' },
           ],
           preview: {
-            select: { title: 'name', qty: 'qty', size: 'size' },
-            prepare({ title, qty, size }) {
-              return { title: `${title} × ${qty}`, subtitle: size ? `Ukuran ${size}` : undefined };
+            select: { title: 'name', qty: 'qty', size: 'size', gemstone: 'gemstone' },
+            prepare({ title, qty, size, gemstone }) {
+              const options = [gemstone, size ? `Ukuran ${size}` : null].filter(Boolean).join(' · ');
+              return { title: `${title} × ${qty}`, subtitle: options || undefined };
             },
           },
         },

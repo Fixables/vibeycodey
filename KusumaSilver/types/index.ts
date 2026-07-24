@@ -20,6 +20,10 @@ export interface Category {
 export interface TaxonomyTerm {
   slug: string;
   label: string;
+  /** Rupiah this option adds to the base price. Negative makes it cheaper. */
+  priceAdjust: number;
+  /** False when the owner has marked this option sold out. */
+  inStock: boolean;
 }
 
 /** Ring sizes and lengths are not comparable, so sizes carry their group. */

@@ -5,6 +5,7 @@ import { client } from '@/lib/sanity';
 import { getStoreInfoStatic, getWhatsAppLink } from '@/lib/sanity-data';
 import { shippingForSubtotalIdr } from '@/lib/commerce/shipping';
 import { MAX_QTY_PER_LINE } from '@/lib/commerce/cart';
+import { resolveVariant } from '@/lib/commerce/variants';
 import {
   createOrder,
   isOrderStoreConfigured,
@@ -22,6 +23,7 @@ const MAX_TEXT = 600;
 interface CheckoutLine {
   productId: string;
   size: string | null;
+  gemstone: string | null;
   qty: number;
 }
 
@@ -62,8 +64,10 @@ function parseBody(raw: unknown): CheckoutBody | null {
     const productId = str(line.productId, 120);
     const qty = Number(line.qty);
     const size = line.size === null || line.size === undefined ? null : str(line.size, 40);
+    const gemstone =
+      line.gemstone === null || line.gemstone === undefined ? null : str(line.gemstone, 60);
     if (!productId || !Number.isInteger(qty) || qty < 1 || qty > MAX_QTY_PER_LINE) return null;
-    items.push({ productId, size, qty });
+    items.push({ productId, size, gemstone, qty });
   }
 
   const rawCustomer = (body.customer ?? {}) as Record<string, unknown>;
@@ -91,6 +95,13 @@ function parseBody(raw: unknown): CheckoutBody | null {
   return { method, locale, items, customer };
 }
 
+interface CatalogVariantRow {
+  slug: string;
+  label: string;
+  priceAdjust: number;
+  inStock: boolean;
+}
+
 interface CatalogRow {
   _id: string;
   name: string;
@@ -99,6 +110,8 @@ interface CatalogRow {
   slug: string;
   category: string;
   inStock: boolean;
+  gemstones: CatalogVariantRow[];
+  sizeOptions: CatalogVariantRow[];
 }
 
 export async function POST(request: NextRequest) {
@@ -124,7 +137,27 @@ export async function POST(request: NextRequest) {
       _id, name, nameEn, price,
       "slug": slug.current,
       "category": category->slug.current,
-      inStock
+      inStock,
+      "gemstones": coalesce(
+        gemstoneVariants[]{
+          "slug": gemstone->slug.current,
+          "label": gemstone->name,
+          "priceAdjust": coalesce(priceAdjust, 0),
+          "inStock": coalesce(inStock, true)
+        },
+        gemstones[]{ "slug": @->slug.current, "label": @->name, "priceAdjust": 0, "inStock": true },
+        []
+      ),
+      "sizeOptions": coalesce(
+        sizeVariants[]{
+          "slug": size->slug.current,
+          "label": size->name,
+          "priceAdjust": coalesce(priceAdjust, 0),
+          "inStock": coalesce(inStock, true)
+        },
+        sizeOptions[]{ "slug": @->slug.current, "label": @->name, "priceAdjust": 0, "inStock": true },
+        []
+      )
     }`,
     { ids }
   );
@@ -138,15 +171,31 @@ export async function POST(request: NextRequest) {
       unavailable.push(line.productId);
       continue;
     }
+
+    // Price the exact combination from the data just read, using the same
+    // function the piece page displays with. A browser tab left open while a
+    // stone sold out, or one that tampered with the price, is rejected here.
+    const variant = resolveVariant(
+      { price: row.price, gemstones: row.gemstones ?? [], sizeOptions: row.sizeOptions ?? [] },
+      { gemstone: line.gemstone, size: line.size }
+    );
+    if (!variant.available || variant.price <= 0) {
+      unavailable.push(line.productId);
+      continue;
+    }
+
     const name = body.locale === 'en' ? row.nameEn || row.name : row.name;
     orderItems.push({
       productId: row._id,
       slug: row.slug,
       name,
-      size: line.size,
+      // Record the readable labels, so an order still makes sense months later
+      // even if the owner renames or deletes an option.
+      size: variant.size?.label ?? null,
+      gemstone: variant.gemstone?.label ?? null,
       qty: line.qty,
-      priceIdr: Math.round(row.price),
-      lineTotalIdr: Math.round(row.price) * line.qty,
+      priceIdr: variant.price,
+      lineTotalIdr: variant.price * line.qty,
     });
   }
   if (unavailable.length > 0) {
@@ -176,7 +225,10 @@ export async function POST(request: NextRequest) {
   if (body.method === 'whatsapp') {
     const storeInfo = await getStoreInfoStatic();
     const lines = orderItems
-      .map((item) => `- ${item.name}${item.size ? ` (${item.size})` : ''} × ${item.qty}`)
+      .map((item) => {
+        const options = [item.gemstone, item.size].filter(Boolean).join(', ');
+        return `- ${item.name}${options ? ` (${options})` : ''} × ${item.qty}`;
+      })
       .join('\n');
     const message =
       body.locale === 'en'

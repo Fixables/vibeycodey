@@ -3,6 +3,8 @@ import { ImageSlot } from '@/components/ui/ImageSlot';
 import { PriceDisplay } from '@/components/ui/PriceDisplay';
 import { CardAddToBag } from './CardAddToBag';
 import { categoryLabel } from '@/lib/catalog';
+import { hasVariantPricing, lowestVariantPrice } from '@/lib/commerce/variants';
+import { getT } from '@/lib/i18n';
 import type { Category, Product, Locale } from '@/types';
 
 interface PieceCardProps {
@@ -13,13 +15,25 @@ interface PieceCardProps {
 }
 
 export function PieceCard({ product, categories, locale }: PieceCardProps) {
+  const t = getT(locale);
   const name = locale === 'en' ? product.nameEn || product.name : product.name;
-  const defaultSize = product.sizeOptions[0]?.label ?? null;
+  const href = `/${locale}/koleksi/${product.category}/${product.slug}`;
+  const firstAvailable = (options: { slug: string; inStock: boolean }[]) =>
+    options.find((o) => o.inStock)?.slug ?? options[0]?.slug ?? null;
+  // Only a single fixed option each way can be added straight from the card.
+  const needsChoice = product.sizeOptions.length > 1 || product.gemstones.length > 1;
+  const priceable = {
+    price: product.price,
+    gemstones: product.gemstones,
+    sizeOptions: product.sizeOptions,
+  };
+  const varies = hasVariantPricing(priceable);
+  const fromPrice = varies ? lowestVariantPrice(priceable) : product.price;
 
   return (
     <div className="group flex h-full flex-col border border-ink bg-card">
       <Link
-        href={`/${locale}/koleksi/${product.category}/${product.slug}`}
+        href={href}
         className="flex flex-1 flex-col"
       >
         <ImageSlot
@@ -34,10 +48,16 @@ export function PieceCard({ product, categories, locale }: PieceCardProps) {
           <p className="mt-1 text-[10px] uppercase tracking-[0.14em] text-ink/45">
             {categoryLabel(categories, product.category, locale)}
           </p>
-          <PriceDisplay
-            amountIdr={product.price}
-            className="mt-auto pt-3 text-[13px] font-semibold text-ink"
-          />
+          {/* "From" when options are priced differently, so the card never
+              shows a number the piece page then contradicts. */}
+          <div className="mt-auto flex items-baseline gap-1.5 pt-3">
+            {varies && (
+              <span className="text-[10px] uppercase tracking-[0.1em] text-ink/45">
+                {t.catalogV3.priceFrom}
+              </span>
+            )}
+            <PriceDisplay amountIdr={fromPrice} className="text-[13px] font-semibold text-ink" />
+          </div>
         </div>
       </Link>
       {product.inStock && (
@@ -47,7 +67,10 @@ export function PieceCard({ product, categories, locale }: PieceCardProps) {
             productId={product.id}
             slug={product.slug}
             category={product.category}
-            size={defaultSize}
+            size={firstAvailable(product.sizeOptions)}
+            gemstone={firstAvailable(product.gemstones)}
+            needsChoice={needsChoice}
+            href={href}
           />
         </div>
       )}

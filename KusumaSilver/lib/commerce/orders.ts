@@ -28,6 +28,8 @@ export interface OrderItem {
   slug: string;
   name: string;
   size: string | null;
+  /** Chosen gemstone label, or null for pieces without stones. */
+  gemstone: string | null;
   qty: number;
   priceIdr: number;
   lineTotalIdr: number;

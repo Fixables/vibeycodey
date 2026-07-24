@@ -96,8 +96,30 @@ const CARD_IMAGE_WIDTH = 640;
 function taxonomyTerms(
   refs: unknown,
   legacy: unknown,
-  locale: Locale
+  locale: Locale,
+  variants?: unknown,
+  refKey = 'gemstone'
 ): TaxonomyTerm[] {
+  // Preferred shape: options carrying their own price change and stock.
+  if (Array.isArray(variants) && variants.length > 0) {
+    return variants
+      .map((row) => row as Record<string, unknown>)
+      .map((row) => ({ row, term: row[refKey] as Record<string, unknown> | null }))
+      .filter((entry): entry is { row: Record<string, unknown>; term: Record<string, unknown> } =>
+        Boolean(entry.term?.slug)
+      )
+      .map(({ row, term }) => ({
+        slug: term.slug as string,
+        label:
+          (locale === 'en' ? (term.nameEn as string) : (term.name as string)) ||
+          (term.name as string),
+        priceAdjust: typeof row.priceAdjust === 'number' ? row.priceAdjust : 0,
+        // Absent means available: a piece migrated before this field existed
+        // must not silently read as sold out.
+        inStock: row.inStock !== false,
+      }));
+  }
+
   if (Array.isArray(refs) && refs.length > 0) {
     return refs
       .map((row) => row as Record<string, unknown> | null)
@@ -107,16 +129,38 @@ function taxonomyTerms(
         label:
           (locale === 'en' ? (row.nameEn as string) : (row.name as string)) ||
           (row.name as string),
+        priceAdjust: 0,
+        inStock: true,
       }));
   }
-  return splitLegacyList(legacy).map((label) => ({ slug: slugifyTerm(label), label }));
+  return splitLegacyList(legacy).map((label) => ({
+    slug: slugifyTerm(label),
+    label,
+    priceAdjust: 0,
+    inStock: true,
+  }));
 }
 
 /**
  * Sizes additionally carry a group, so ring sizes and lengths stay apart.
  * No locale here: "7" and "45 cm" read the same in both languages.
  */
-function sizeTerms(refs: unknown, legacy: unknown): SizeTerm[] {
+function sizeTerms(refs: unknown, legacy: unknown, variants?: unknown): SizeTerm[] {
+  if (Array.isArray(variants) && variants.length > 0) {
+    return variants
+      .map((row) => row as Record<string, unknown>)
+      .map((row) => ({ row, term: row.size as Record<string, unknown> | null }))
+      .filter((entry): entry is { row: Record<string, unknown>; term: Record<string, unknown> } =>
+        Boolean(entry.term?.slug)
+      )
+      .map(({ row, term }) => ({
+        slug: term.slug as string,
+        label: term.name as string,
+        group: (term.group as SizeTerm['group']) ?? 'other',
+        priceAdjust: typeof row.priceAdjust === 'number' ? row.priceAdjust : 0,
+        inStock: row.inStock !== false,
+      }));
+  }
   if (Array.isArray(refs) && refs.length > 0) {
     return refs
       .map((row) => row as Record<string, unknown> | null)
@@ -125,6 +169,8 @@ function sizeTerms(refs: unknown, legacy: unknown): SizeTerm[] {
         slug: row.slug as string,
         label: row.name as string,
         group: (row.group as SizeTerm['group']) ?? 'other',
+        priceAdjust: 0,
+        inStock: true,
       }));
   }
   return splitLegacyList(legacy).map((label) => ({
@@ -132,6 +178,8 @@ function sizeTerms(refs: unknown, legacy: unknown): SizeTerm[] {
     label,
     // Guess from the text so unmigrated pieces still group sensibly.
     group: /\d\s*(cm|mm|inch|")/i.test(label) ? 'length' : /^\d+$/.test(label) ? 'ring' : 'other',
+    priceAdjust: 0,
+    inStock: true,
   }));
 }
 
@@ -197,13 +245,13 @@ function mapProduct(raw: Record<string, unknown>, locale: Locale): Product {
     // Filter values come from the taxonomy lists when a piece has been linked
     // up, and from the old free-text fields otherwise, so the catalogue is
     // correct before, during and after the migration.
-    gemstones: taxonomyTerms(raw.gemstones, raw.stone, locale),
+    gemstones: taxonomyTerms(raw.gemstones, raw.stone, locale, raw.gemstoneVariants, 'gemstone'),
     materials: taxonomyTerms(
       raw.materialRef ? [raw.materialRef] : undefined,
       raw.material,
       locale
     ),
-    sizeOptions: sizeTerms(raw.sizeOptions, raw.sizes),
+    sizeOptions: sizeTerms(raw.sizeOptions, raw.sizes, raw.sizeVariants),
     weight: raw.weight as number | undefined,
     craftingTime: raw.craftingTime as string | undefined,
     isCustomizable: (raw.isCustomizable as boolean) ?? false,
@@ -301,6 +349,8 @@ const PRODUCT_FIELDS = `
   origin,
   technique,
   seo { ..., shareImage ${IMAGE_PROJECTION} },
+  gemstoneVariants[]{ priceAdjust, inStock, gemstone->{ "slug": slug.current, name, nameEn } },
+  sizeVariants[]{ priceAdjust, inStock, size->{ "slug": slug.current, name, group } },
   gemstones[]->{ "slug": slug.current, name, nameEn },
   materialRef->{ "slug": slug.current, name, nameEn },
   sizeOptions[]->{ "slug": slug.current, name, group },

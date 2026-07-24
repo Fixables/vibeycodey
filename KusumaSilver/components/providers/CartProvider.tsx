@@ -8,6 +8,7 @@ import {
   sameLine,
   writeStoredCart,
   type CartItem,
+  type LineKey,
 } from '@/lib/commerce/cart';
 
 interface CartContextValue {
@@ -16,8 +17,8 @@ interface CartContextValue {
   /** Total piece count across lines. */
   count: number;
   addItem: (item: Omit<CartItem, 'addedAt' | 'qty'>, qty?: number) => void;
-  setQty: (productId: string, size: string | null, qty: number) => void;
-  removeItem: (productId: string, size: string | null) => void;
+  setQty: (line: LineKey, qty: number) => void;
+  removeItem: (line: LineKey) => void;
   clear: () => void;
 }
 
@@ -69,20 +70,20 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
-  const setQty = useCallback((productId: string, size: string | null, qty: number) => {
+  const setQty = useCallback((line: LineKey, qty: number) => {
     setItems((prev) =>
       qty <= 0
-        ? prev.filter((line) => !sameLine(line, { productId, size }))
-        : prev.map((line) =>
-            sameLine(line, { productId, size })
-              ? { ...line, qty: Math.min(qty, MAX_QTY_PER_LINE) }
-              : line
+        ? prev.filter((existing) => !sameLine(existing, line))
+        : prev.map((existing) =>
+            sameLine(existing, line)
+              ? { ...existing, qty: Math.min(qty, MAX_QTY_PER_LINE) }
+              : existing
           )
     );
   }, []);
 
   const removeItem = useCallback(
-    (productId: string, size: string | null) => setQty(productId, size, 0),
+    (line: LineKey) => setQty(line, 0),
     [setQty]
   );
 

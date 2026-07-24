@@ -8,6 +8,7 @@ import { useCart } from '@/components/providers/CartProvider';
 import { PriceDisplay } from '@/components/ui/PriceDisplay';
 import { shippingForSubtotalIdr } from '@/lib/commerce/shipping';
 import { getT } from '@/lib/i18n';
+import { variantPrice, type VariantOption } from '@/lib/commerce/variants';
 import type { CartProductInfo } from '@/components/cart/CartClient';
 import type { Locale } from '@/types';
 
@@ -86,6 +87,17 @@ function Field({
   );
 }
 
+/** Same variant arithmetic the bag and the checkout API use. */
+function checkoutLinePrice(
+  product: { priceIdr: number; gemstones?: VariantOption[]; sizeOptions?: VariantOption[] },
+  line: { size: string | null; gemstone: string | null }
+) {
+  return variantPrice(
+    { price: product.priceIdr, gemstones: product.gemstones ?? [], sizeOptions: product.sizeOptions ?? [] },
+    { gemstone: line.gemstone, size: line.size }
+  );
+}
+
 export function CheckoutClient({
   locale,
   midtransAvailable,
@@ -153,7 +165,7 @@ export function CheckoutClient({
 
   const subtotalIdr = items.reduce((sum, line) => {
     const product = products?.get(line.productId);
-    return product && product.inStock ? sum + product.priceIdr * line.qty : sum;
+    return product && product.inStock ? sum + checkoutLinePrice(product, line) * line.qty : sum;
   }, 0);
   const shippingIdr = shippingForSubtotalIdr(subtotalIdr);
 
@@ -197,6 +209,7 @@ export function CheckoutClient({
           items: items.map((line) => ({
             productId: line.productId,
             size: line.size,
+            gemstone: line.gemstone,
             qty: line.qty,
           })),
           customer,
@@ -382,7 +395,7 @@ export function CheckoutClient({
                 </span>
                 {product && (
                   <PriceDisplay
-                    amountIdr={product.priceIdr * line.qty}
+                    amountIdr={checkoutLinePrice(product, line) * line.qty}
                     className="shrink-0 font-medium text-ink"
                   />
                 )}

@@ -14,6 +14,15 @@ interface Row {
   category: string;
   inStock: boolean;
   image?: Record<string, unknown>;
+  gemstones: VariantRow[];
+  sizeOptions: VariantRow[];
+}
+
+interface VariantRow {
+  slug: string;
+  label: string;
+  priceAdjust: number;
+  inStock: boolean;
 }
 
 /**
@@ -37,7 +46,27 @@ export async function GET(request: NextRequest) {
       "slug": slug.current,
       "category": category->slug.current,
       inStock,
-      "image": images[0]
+      "image": images[0],
+      "gemstones": coalesce(
+        gemstoneVariants[]{
+          "slug": gemstone->slug.current,
+          "label": gemstone->name,
+          "priceAdjust": coalesce(priceAdjust, 0),
+          "inStock": coalesce(inStock, true)
+        },
+        gemstones[]{ "slug": @->slug.current, "label": @->name, "priceAdjust": 0, "inStock": true },
+        []
+      ),
+      "sizeOptions": coalesce(
+        sizeVariants[]{
+          "slug": size->slug.current,
+          "label": size->name,
+          "priceAdjust": coalesce(priceAdjust, 0),
+          "inStock": coalesce(inStock, true)
+        },
+        sizeOptions[]{ "slug": @->slug.current, "label": @->name, "priceAdjust": 0, "inStock": true },
+        []
+      )
     }`,
     { ids }
   );
@@ -58,6 +87,10 @@ export async function GET(request: NextRequest) {
       name: row.name,
       nameEn: row.nameEn ?? '',
       priceIdr: row.price,
+      // The bag prices each line for its own stone and size, so a shopper sees
+      // the same number there as on the piece page and at checkout.
+      gemstones: row.gemstones ?? [],
+      sizeOptions: row.sizeOptions ?? [],
       inStock: row.inStock,
       imageUrl,
     };

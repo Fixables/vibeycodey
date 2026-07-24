@@ -10,8 +10,14 @@ export interface CartItem {
   slug: string;
   /** Category slug, needed to build the product URL. */
   category: string;
-  /** Chosen size chip, or null for pieces without sizes. */
+  /** Chosen size, by slug — or null for pieces without sizes. */
   size: string | null;
+  /**
+   * Chosen gemstone, by slug — or null for pieces without stones.
+   * Part of the line identity: the same ring in Amethyst and in Garnet are two
+   * different lines, and may be two different prices.
+   */
+  gemstone: string | null;
   qty: number;
   addedAt: number;
 }
@@ -32,6 +38,9 @@ function isCartItem(value: unknown): value is CartItem {
     typeof item.slug === 'string' &&
     typeof item.category === 'string' &&
     (typeof item.size === 'string' || item.size === null) &&
+    // Carts saved before variants existed have no gemstone at all; treat that
+    // as "no stone chosen" rather than discarding the shopper's whole cart.
+    (typeof item.gemstone === 'string' || item.gemstone === null || item.gemstone === undefined) &&
     typeof item.qty === 'number' &&
     item.qty > 0 &&
     typeof item.addedAt === 'number'
@@ -45,7 +54,7 @@ export function readStoredCart(): CartItem[] {
     const parsed: unknown = JSON.parse(raw);
     const items = (parsed as StoredCart)?.items;
     if (!Array.isArray(items)) return [];
-    return items.filter(isCartItem);
+    return items.filter(isCartItem).map((item) => ({ ...item, gemstone: item.gemstone ?? null }));
   } catch {
     return [];
   }
@@ -60,7 +69,14 @@ export function writeStoredCart(items: CartItem[]): void {
   }
 }
 
-/** Two lines are the same when product and size match. */
-export function sameLine(a: Pick<CartItem, 'productId' | 'size'>, b: Pick<CartItem, 'productId' | 'size'>): boolean {
-  return a.productId === b.productId && a.size === b.size;
+/** Identity of a cart line: the same piece in a different stone or size is a
+ * different line, because it is a different thing to buy at a different price. */
+export type LineKey = Pick<CartItem, 'productId' | 'size' | 'gemstone'>;
+
+export function sameLine(a: LineKey, b: LineKey): boolean {
+  return (
+    a.productId === b.productId &&
+    a.size === b.size &&
+    (a.gemstone ?? null) === (b.gemstone ?? null)
+  );
 }

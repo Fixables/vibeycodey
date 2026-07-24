@@ -131,6 +131,35 @@ run and only writes with `--apply`.
 | `004-drop-legacy-fields.ts` | Removes the `*En` twins and numbered sets 002 left behind | Applied 2026-07-23 |
 | `005-build-taxonomy.ts` | Free-text stone/material/sizes → linked filter documents | Applied 2026-07-23 |
 | `006-rich-text.ts` | Plain paragraphs → Portable Text (`localeRichText`) | Applied 2026-07-23 |
+| `007-variants.ts` | Option lists → variants carrying price and stock | Applied 2026-07-23 |
+
+### Variants (007)
+
+Options need their own price ("the longer the chain, the more expensive") and
+their own availability. `gemstones` / `sizeOptions` were plain reference lists
+with nowhere to record either, so they became `gemstoneVariants` /
+`sizeVariants`: `{ ref, priceAdjust, inStock }`.
+
+**Prices add up rather than being listed per combination.** A ring in 5 stones
+and 5 sizes has 25 combinations; listing each would mean 25 rows per ring and 30
+after a sixth stone. Each option instead carries a change against the base
+price, so the ring needs 10 rows. The accepted trade-off: availability is per
+option, so a stone or a size can be sold out, but not one specific pairing.
+
+**`lib/commerce/variants.ts` is the only place a variant price is computed**, and
+the piece page, the bag, the checkout page and the checkout API all import it —
+if the page showed a price the server disagreed with, a shopper would be charged
+something other than what they saw. The API still re-reads Sanity and calls
+`resolveVariant` against fresh data, so it never trusts a browser number and
+rejects a stale tab buying a stone that has since sold out.
+
+Cart lines are keyed by `(productId, size, gemstone)` — the same ring in two
+stones is two lines at two prices. Carts saved before this shipped have no
+gemstone; `readStoredCart` fills in `null` rather than discarding the cart.
+
+Catalogue cards show "From <cheapest available>" when options are priced
+differently, and a piece with a real choice links to its page instead of
+quick-adding, so nobody ends up buying a stone they never picked.
 
 ### Rich text (006)
 

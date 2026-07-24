@@ -8,7 +8,6 @@ import {
   getStoreInfo,
   getWhatsAppLink,
 } from '@/lib/sanity-data';
-import { PriceDisplay } from '@/components/ui/PriceDisplay';
 import { PurchasePanel } from '@/components/product/PurchasePanel';
 import { ProductGallery } from '@/components/product/ProductGallery';
 import { RichText } from '@/components/ui/RichText';
@@ -160,7 +159,6 @@ export default async function PieceDetailPage({
           <h1 className="mt-3 font-heading text-[32px] font-medium leading-tight text-ink lg:text-[40px]">
             {name}
           </h1>
-          <PriceDisplay amountIdr={product.price} className="mt-4 font-heading text-[26px] text-ink" />
           <RichText
             value={product.bodyRich}
             fallback={<p>{description}</p>}
@@ -172,7 +170,9 @@ export default async function PieceDetailPage({
             productId={product.id}
             slug={product.slug}
             category={kategori}
-            sizes={product.sizeOptions.map((s) => s.label)}
+            basePrice={product.price}
+            gemstones={product.gemstones}
+            sizes={product.sizeOptions}
             inStock={product.inStock}
             whatsappLink={waLink}
           />

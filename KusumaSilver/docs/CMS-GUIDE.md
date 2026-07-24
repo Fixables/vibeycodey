@@ -184,6 +184,38 @@ catalogue page — just keep the lists and the pieces accurate.
 
 Drag any entry to change the order it appears in the dropdown.
 
+## 5c. Prices and stock per gemstone or size
+
+A piece has a **base price**, and each gemstone and each size can change it.
+
+Open a piece, go to **Details**, and you will see **Gemstones** and **Sizes**.
+Each row has three things:
+
+- which gemstone or size it is
+- **Price change** — how much it adds to the base price, in Rupiah
+- **Available** — untick when that option runs out
+
+**Example — a necklace that costs more the longer it is.** Base price
+Rp 130.000, then:
+
+| Size | Price change | Shopper pays |
+|---|---|---|
+| 45 cm | 0 | Rp 130.000 |
+| 50 cm | 50000 | Rp 180.000 |
+| 55 cm | 100000 | Rp 230.000 |
+| 60 cm | 150000 | Rp 280.000 |
+
+Type `50000`, not `50.000` — digits only, no dots. A negative number like
+`-25000` makes an option cheaper.
+
+**When something sells out**, untick **Available** on that row. Shoppers still
+see the option, greyed out and crossed through, so they know the piece comes in
+that size — they just cannot buy it today. Tick it again when it is back.
+
+**On the catalogue**, a piece whose options cost different amounts shows
+"From Rp 130.000", and its button says *Choose options* instead of adding
+straight to the bag — so nobody accidentally buys the wrong stone.
+
 ## 6. Putting things in a different order
 
 Anywhere you see a list, you can drag items into the order you want.

@@ -9,6 +9,7 @@ import { PriceDisplay } from '@/components/ui/PriceDisplay';
 import { MAX_QTY_PER_LINE } from '@/lib/commerce/cart';
 import { shippingForSubtotalIdr } from '@/lib/commerce/shipping';
 import { getT } from '@/lib/i18n';
+import { variantPrice, type VariantOption } from '@/lib/commerce/variants';
 import type { Locale } from '@/types';
 
 export interface CartProductInfo {
@@ -18,6 +19,8 @@ export interface CartProductInfo {
   name: string;
   nameEn: string;
   priceIdr: number;
+  gemstones: VariantOption[];
+  sizeOptions: VariantOption[];
   inStock: boolean;
   imageUrl?: string;
 }
@@ -29,6 +32,23 @@ export interface CartProductInfo {
  */
 /** Product info plus the id set it was fetched for — so a line whose id isn't
  *  yet in `requested` is treated as still-loading rather than unavailable. */
+/**
+ * What one line actually costs, for the stone and size the shopper chose.
+ * The checkout recalculates this from Sanity — this is the display side of the
+ * same `variantPrice`, so the bag and the bill always agree.
+ */
+function linePrice(product: CartProductInfo, line: { size: string | null; gemstone: string | null }) {
+  return variantPrice(
+    { price: product.priceIdr, gemstones: product.gemstones ?? [], sizeOptions: product.sizeOptions ?? [] },
+    { gemstone: line.gemstone, size: line.size }
+  );
+}
+
+/** Show the option's readable name; fall back to the stored slug. */
+function labelFor(options: VariantOption[] | undefined, slug: string): string {
+  return options?.find((option) => option.slug === slug)?.label ?? slug;
+}
+
 interface CatalogueState {
   map: Map<string, CartProductInfo>;
   requested: Set<string>;
@@ -115,7 +135,7 @@ export function CartClient({ locale }: { locale: Locale }) {
 
   const subtotalIdr = items.reduce((sum, line) => {
     const { product, available } = lineState(line.productId);
-    return available && product ? sum + product.priceIdr * line.qty : sum;
+    return available && product ? sum + linePrice(product, line) * line.qty : sum;
   }, 0);
   const shippingIdr = shippingForSubtotalIdr(subtotalIdr);
   const hasUnavailable = items.some((line) => {
@@ -136,7 +156,10 @@ export function CartClient({ locale }: { locale: Locale }) {
               : product.name
             : line.slug;
           return (
-            <li key={`${line.productId}:${line.size ?? ''}`} className="flex gap-4 p-4 sm:gap-5">
+            <li
+              key={`${line.productId}:${line.size ?? ''}:${line.gemstone ?? ''}`}
+              className="flex gap-4 p-4 sm:gap-5"
+            >
               <Link
                 href={`/${locale}/koleksi/${line.category}/${line.slug}`}
                 className="shrink-0"
@@ -158,9 +181,14 @@ export function CartClient({ locale }: { locale: Locale }) {
                     >
                       {name}
                     </Link>
+                    {line.gemstone && (
+                      <span className="text-[11px] uppercase tracking-[0.1em] text-ink/50">
+                        {labelFor(product?.gemstones, line.gemstone)}
+                      </span>
+                    )}
                     {line.size && (
                       <p className="mt-0.5 text-[11px] uppercase tracking-[0.12em] text-ink/50">
-                        {t.bag.sizePrefix} {line.size}
+                        {t.bag.sizePrefix} {labelFor(product?.sizeOptions, line.size)}
                       </p>
                     )}
                     {!pending && !available && (
@@ -169,7 +197,7 @@ export function CartClient({ locale }: { locale: Locale }) {
                   </div>
                   {product && available && (
                     <PriceDisplay
-                      amountIdr={product.priceIdr * line.qty}
+                      amountIdr={linePrice(product, line) * line.qty}
                       className="shrink-0 text-[13px] font-semibold text-ink"
                     />
                   )}
@@ -182,7 +210,7 @@ export function CartClient({ locale }: { locale: Locale }) {
                   >
                     <button
                       type="button"
-                      onClick={() => setQty(line.productId, line.size, line.qty - 1)}
+                      onClick={() => setQty(line, line.qty - 1)}
                       aria-label={line.qty <= 1 ? t.bag.remove : t.bag.decrease}
                       className="flex h-9 w-9 cursor-pointer items-center justify-center text-ink transition-colors hover:bg-ink/5"
                     >
@@ -193,7 +221,7 @@ export function CartClient({ locale }: { locale: Locale }) {
                     </span>
                     <button
                       type="button"
-                      onClick={() => setQty(line.productId, line.size, line.qty + 1)}
+                      onClick={() => setQty(line, line.qty + 1)}
                       disabled={line.qty >= MAX_QTY_PER_LINE}
                       aria-label={t.bag.increase}
                       className="flex h-9 w-9 cursor-pointer items-center justify-center text-ink transition-colors hover:bg-ink/5 disabled:cursor-default disabled:opacity-30"
@@ -203,7 +231,7 @@ export function CartClient({ locale }: { locale: Locale }) {
                   </div>
                   <button
                     type="button"
-                    onClick={() => removeItem(line.productId, line.size)}
+                    onClick={() => removeItem(line)}
                     className="flex cursor-pointer items-center gap-1 text-[11px] font-medium uppercase tracking-[0.12em] text-ink/50 transition-colors hover:text-error"
                   >
                     <X size={13} strokeWidth={1.5} aria-hidden="true" />
