@@ -34,13 +34,13 @@ export const aboutPage = defineType({
       type: 'localeText',
       group: 'story',
     }),
-    defineField({ name: 'body1', title: 'Paragraph 1', type: 'localeText', group: 'story' }),
-    defineField({ name: 'body2', title: 'Paragraph 2', type: 'localeText', group: 'story' }),
+    defineField({ name: 'body1Rich', title: 'Paragraph 1', type: 'localeRichText', group: 'story' }),
+    defineField({ name: 'body2Rich', title: 'Paragraph 2', type: 'localeRichText', group: 'story' }),
     defineField({
-      name: 'body3',
+      name: 'body3Rich',
       title: 'Paragraph 3 (after the photos)',
       description: 'This one appears below the photo gallery. Leave blank to skip it.',
-      type: 'localeText',
+      type: 'localeRichText',
       group: 'story',
     }),
 

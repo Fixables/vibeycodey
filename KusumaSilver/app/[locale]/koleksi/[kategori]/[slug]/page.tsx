@@ -11,6 +11,7 @@ import {
 import { PriceDisplay } from '@/components/ui/PriceDisplay';
 import { PurchasePanel } from '@/components/product/PurchasePanel';
 import { ProductGallery } from '@/components/product/ProductGallery';
+import { RichText } from '@/components/ui/RichText';
 import { buildImage } from '@/lib/image';
 import { metadataFromSeo } from '@/lib/metadata';
 import { categoryLabel, localizedValue } from '@/lib/catalog';
@@ -160,7 +161,11 @@ export default async function PieceDetailPage({
             {name}
           </h1>
           <PriceDisplay amountIdr={product.price} className="mt-4 font-heading text-[26px] text-ink" />
-          <p className="mt-5 text-sm leading-[1.75] text-ink/65">{description}</p>
+          <RichText
+            value={product.bodyRich}
+            fallback={<p>{description}</p>}
+            className="mt-5 text-sm leading-[1.75] text-ink/65"
+          />
 
           <PurchasePanel
             locale={locale}

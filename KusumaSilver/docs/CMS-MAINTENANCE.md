@@ -130,6 +130,33 @@ run and only writes with `--apply`.
 | `003-order-rank.ts` | Seeds `orderRank` for categories and products | Applied 2026-07-22 |
 | `004-drop-legacy-fields.ts` | Removes the `*En` twins and numbered sets 002 left behind | Applied 2026-07-23 |
 | `005-build-taxonomy.ts` | Free-text stone/material/sizes → linked filter documents | Applied 2026-07-23 |
+| `006-rich-text.ts` | Plain paragraphs → Portable Text (`localeRichText`) | Applied 2026-07-23 |
+
+### Rich text (006)
+
+The owner asked how to add bullet points to a description. Paragraph fields are
+now `localeRichText` (Portable Text) with a deliberately small toolbar: bold,
+italic, bullet list, numbered list, link. **No headings, sizes, colours or
+alignment** — the page design owns typography, and a heading typed into a
+product description would never match the ones the page renders.
+
+Only genuine paragraphs were converted. Headings, eyebrows, button labels and
+one-line subtitles remain plain strings: formatting inside a button label breaks
+a layout rather than improving it. If you add a rich-text field, apply the same
+test — would a bulleted list ever belong here?
+
+New fields are named `…Rich` (`heroDescRich`, `body1Rich`, product `body`)
+rather than replacing the plain field in place, because retyping a field whose
+documents hold strings would make every existing value invalid. Resolvers
+(`pickRichText`, `pickProductBody`) return `null` when nothing is written — even
+for a block the owner opened and left blank — so components fall back to the
+plain text and then to the built-in copy.
+
+Render with `components/ui/RichText.tsx`, which takes a `fallback`:
+
+```tsx
+<RichText value={product.bodyRich} fallback={<p>{description}</p>} />
+```
 
 ### The catalogue taxonomy (005)
 

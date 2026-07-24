@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { ImageSlot } from '@/components/ui/ImageSlot';
+import { RichText } from '@/components/ui/RichText';
 import { getT } from '@/lib/i18n';
 import type { ResolvedHome } from '@/lib/home-content';
 import type { Locale } from '@/types';
@@ -25,7 +26,11 @@ export function SplitHero({ locale, home }: { locale: Locale; home: ResolvedHome
           <br />
           <em className="font-normal italic">{home.heroTitle2}</em>
         </h1>
-        <p className="mt-6 max-w-[360px] text-sm leading-[1.75] text-ink/65">{home.heroDesc}</p>
+        <RichText
+          value={home.heroDescRich}
+          fallback={<p>{home.heroDesc}</p>}
+          className="mt-6 max-w-[360px] text-sm leading-[1.75] text-ink/65"
+        />
         <div className="mt-8 flex flex-wrap gap-3">
           <Link
             href={`/${locale}/koleksi`}

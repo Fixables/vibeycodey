@@ -53,6 +53,28 @@ on the page.
 
 ---
 
+### Bullet points, numbering, bold and links
+
+Longer paragraphs — a piece's **Description**, the story paragraphs on Our Story,
+the intro on Silver Class, the home page paragraphs — have a small toolbar above
+them.
+
+To make a list (for example, explaining what a dragonfly motif means):
+
+1. Click into the box and type your intro line, then press Enter.
+2. Click the **bullet list** or **numbered list** button in the toolbar.
+3. Type each point, pressing Enter between them.
+4. To stop the list, press Enter twice.
+
+You can also make text **bold** or *italic*, and add a link.
+
+**There is no heading button, and that is deliberate.** The page design decides
+what headings look like, so a heading typed here would not match the rest of the
+site. If you need a new heading, it is a separate field — or ask your developer.
+
+Short fields — page headings, button labels, the small labels above headings —
+stay plain text on purpose. Formatting inside a button would break the layout.
+
 ## 4. Changing a photo
 
 1. Click the photo you want to replace.

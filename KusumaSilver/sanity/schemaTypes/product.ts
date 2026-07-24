@@ -77,20 +77,35 @@ export const product = defineType({
     }),
 
     defineField({
+      name: 'body',
+      title: 'Description',
+      description:
+        'Shown on the piece page. Use the toolbar for bullet points, numbered lists, bold and ' +
+        'italic — handy for explaining what a motif means, or listing what is included.',
+      type: 'localeRichText',
+      group: 'details',
+    }),
+
+    // Superseded by the formatted Description above. Kept so nothing is lost and
+    // so the site still reads them for any piece not yet migrated.
+    defineField({
       name: 'description',
-      title: 'Description (Indonesian)',
-      description: 'Shown on the piece page.',
+      title: 'Description (old plain text)',
       type: 'text',
       rows: 4,
       group: 'details',
-      validation: (Rule) => Rule.required(),
+      readOnly: true,
+      hidden: ({ parent }) => !parent?.description,
+      description: 'Replaced by the formatted Description above.',
     }),
     defineField({
       name: 'descriptionEn',
-      title: 'Description (English)',
+      title: 'Description, English (old plain text)',
       type: 'text',
       rows: 4,
       group: 'details',
+      readOnly: true,
+      hidden: ({ parent }) => !parent?.descriptionEn,
     }),
     defineField({
       name: 'materialRef',

@@ -19,7 +19,7 @@ export const bespokePage = defineType({
     defineField({ name: 'heroEyebrow', title: 'Small label', type: 'localeString', group: 'hero' }),
     defineField({ name: 'heroTitle1', title: 'Heading — first line', type: 'localeString', group: 'hero' }),
     defineField({ name: 'heroTitle2', title: 'Heading — second line (italic)', type: 'localeString', group: 'hero' }),
-    defineField({ name: 'heroIntro', title: 'Intro paragraph', type: 'localeText', group: 'hero' }),
+    defineField({ name: 'heroIntroRich', title: 'Intro paragraph', type: 'localeRichText', group: 'hero' }),
     defineField({
       name: 'heroCta',
       title: 'Button text',

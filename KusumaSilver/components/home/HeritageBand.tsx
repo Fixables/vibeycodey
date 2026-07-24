@@ -1,4 +1,5 @@
 import { ImageSlot } from '@/components/ui/ImageSlot';
+import { RichText } from '@/components/ui/RichText';
 import { getT } from '@/lib/i18n';
 import type { ResolvedHome } from '@/lib/home-content';
 import type { Locale } from '@/types';
@@ -13,9 +14,11 @@ export function HeritageBand({ locale, home }: { locale: Locale; home: ResolvedH
         <h2 className="mt-4 font-heading text-[30px] font-normal leading-tight lg:text-[38px]">
           {home.heritageTitle}
         </h2>
-        <p className="mt-5 max-w-[400px] text-sm leading-relaxed text-ink-soft/60">
-          {home.heritageBody}
-        </p>
+        <RichText
+          value={home.heritageBodyRich}
+          fallback={<p>{home.heritageBody}</p>}
+          className="mt-5 max-w-[400px] text-sm leading-relaxed text-ink-soft/60"
+        />
         {home.stats.length > 0 && (
           <div
             // The band is a fixed 2-column layout, so the figures stay in one

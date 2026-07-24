@@ -11,6 +11,7 @@ import { gemstone, material, size } from './taxonomy';
 
 // Shared building blocks, reused across documents rather than repeated.
 import { localeString, localeText } from './objects/locale';
+import { richText, localeRichText } from './objects/richText';
 import { seo } from './objects/seo';
 import { navItem } from './objects/navItem';
 import {
@@ -46,6 +47,8 @@ export const schemaTypes = [
   // Shared objects
   localeString,
   localeText,
+  richText,
+  localeRichText,
   seo,
   navItem,
   cataloguePanel,

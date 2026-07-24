@@ -45,9 +45,9 @@ export const homePage = defineType({
       group: 'hero',
     }),
     defineField({
-      name: 'heroDesc',
+      name: 'heroDescRich',
       title: 'Paragraph under the headline',
-      type: 'localeText',
+      type: 'localeRichText',
       group: 'hero',
     }),
     defineField({
@@ -120,7 +120,7 @@ export const homePage = defineType({
       type: 'localeString',
       group: 'heritage',
     }),
-    defineField({ name: 'heritageBody', title: 'Paragraph', type: 'localeText', group: 'heritage' }),
+    defineField({ name: 'heritageBodyRich', title: 'Paragraph', type: 'localeRichText', group: 'heritage' }),
     defineField({
       name: 'stats',
       title: 'The figures',

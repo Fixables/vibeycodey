@@ -4,6 +4,7 @@ import { resolveBespoke } from '@/lib/home-content';
 import { metadataFromSeo } from '@/lib/metadata';
 import { SUPPORTED_LOCALES, getT } from '@/lib/i18n';
 import { ImageSlot } from '@/components/ui/ImageSlot';
+import { RichText } from '@/components/ui/RichText';
 import { BespokeForm } from '@/components/bespoke/BespokeForm';
 import type { Locale, Seo } from '@/types';
 
@@ -47,9 +48,11 @@ export default async function CustomOrderPage({ params }: { params: Promise<{ lo
             <br />
             <em className="font-normal">{bespoke.heroTitle2}</em>
           </h1>
-          <p className="mt-6 max-w-[400px] text-sm leading-[1.75] text-ink-soft/65">
-            {bespoke.heroIntro}
-          </p>
+          <RichText
+            value={bespoke.heroIntroRich}
+            fallback={<p>{bespoke.heroIntro}</p>}
+            className="mt-6 max-w-[400px] text-sm leading-[1.75] text-ink-soft/65"
+          />
           <a
             href="#commission"
             className="mt-9 inline-block bg-accent px-8 py-4 text-xs font-semibold tracking-[0.16em] text-ink transition-colors hover:bg-gold-warm"

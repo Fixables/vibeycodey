@@ -5,6 +5,7 @@ import { resolveAbout } from '@/lib/home-content';
 import { metadataFromSeo } from '@/lib/metadata';
 import { SUPPORTED_LOCALES, getT } from '@/lib/i18n';
 import { ImageSlot } from '@/components/ui/ImageSlot';
+import { RichText } from '@/components/ui/RichText';
 import { shapeClass } from '@/lib/image';
 import type { Locale, Seo } from '@/types';
 
@@ -69,8 +70,8 @@ export default async function TentangKamiPage({ params }: { params: Promise<{ lo
           {about.lede}
         </p>
         <div className="mt-8 space-y-6 text-[15px] leading-[1.85] text-ink/70">
-          {about.body.slice(0, 2).map((paragraph, i) => (
-            <p key={i}>{paragraph}</p>
+          {[0, 1].map((i) => (
+            <RichText key={i} value={about.bodyRich[i]} fallback={<p>{about.body[i]}</p>} />
           ))}
         </div>
       </section>
@@ -98,9 +99,13 @@ export default async function TentangKamiPage({ params }: { params: Promise<{ lo
         </section>
       )}
 
-      {about.body[2] && (
+      {(about.bodyRich[2] || about.body[2]) && (
         <section className="mx-auto max-w-[820px] px-5 pt-14 sm:px-10">
-          <p className="text-[15px] leading-[1.85] text-ink/70">{about.body[2]}</p>
+          <RichText
+            value={about.bodyRich[2]}
+            fallback={<p>{about.body[2]}</p>}
+            className="text-[15px] leading-[1.85] text-ink/70"
+          />
         </section>
       )}
 

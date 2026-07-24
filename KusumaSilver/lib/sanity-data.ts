@@ -8,6 +8,8 @@ import type {
   Locale,
   Product,
   SanityImage,
+  LocaleRichText,
+  PortableTextBlock,
   SizeTerm,
   StoreInfo,
   TaxonomyTerm,
@@ -152,6 +154,21 @@ function slugifyTerm(label: string): string {
     .replace(/^-+|-+$/g, '');
 }
 
+/** Formatted product description for this locale, or null if unwritten. */
+function pickProductBody(value: unknown, locale: Locale): PortableTextBlock[] | null {
+  const body = value as LocaleRichText | undefined;
+  if (!body) return null;
+  const chosen = locale === 'en' ? body.en : body.id;
+  const blocks = chosen?.length ? chosen : body.id;
+  if (!blocks?.length) return null;
+  const hasText = blocks.some((block) =>
+    block._type !== 'block'
+      ? true
+      : (block.children ?? []).some((child) => (child.text ?? '').trim().length > 0)
+  );
+  return hasText ? blocks : null;
+}
+
 function mapProduct(raw: Record<string, unknown>, locale: Locale): Product {
   const images = (raw.images as SanityImage[] | undefined) ?? [];
   const name = (locale === 'en' ? (raw.nameEn as string) : (raw.name as string)) || (raw.name as string);
@@ -166,6 +183,7 @@ function mapProduct(raw: Record<string, unknown>, locale: Locale): Product {
     priceDisplay: formatPrice((raw.price as number) ?? 0),
     description: (raw.description as string) ?? '',
     descriptionEn: (raw.descriptionEn as string) ?? '',
+    bodyRich: pickProductBody(raw.body, locale),
     images,
     card: buildImage(images[0], {
       width: CARD_IMAGE_WIDTH,
@@ -278,6 +296,7 @@ const PRODUCT_FIELDS = `
   price,
   description,
   descriptionEn,
+  body,
   images[] ${IMAGE_PROJECTION},
   origin,
   technique,

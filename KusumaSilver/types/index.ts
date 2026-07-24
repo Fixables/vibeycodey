@@ -37,6 +37,8 @@ export interface Product {
   priceDisplay: string;
   description: string;
   descriptionEn: string;
+  /** Formatted description; render when present, else `description`. */
+  bodyRich: PortableTextBlock[] | null;
   /** Raw CMS photos, for server components that resolve their own size. */
   images: SanityImage[];
   /**
@@ -105,6 +107,27 @@ export interface StoreInfo {
 export interface LocaleString {
   id?: string;
   en?: string;
+}
+
+/**
+ * One block of formatted text as Sanity stores it (Portable Text). Rendered by
+ * `components/ui/RichText.tsx`; the shape is only ever passed through, never
+ * constructed by hand.
+ */
+export interface PortableTextBlock {
+  _type: string;
+  _key?: string;
+  style?: string;
+  listItem?: string;
+  level?: number;
+  children?: { _type?: string; _key?: string; text?: string; marks?: string[] }[];
+  markDefs?: { _type?: string; _key?: string; href?: string }[];
+}
+
+/** Bilingual formatted text. Same both-in-one-field reasoning as LocaleString. */
+export interface LocaleRichText {
+  id?: PortableTextBlock[];
+  en?: PortableTextBlock[];
 }
 
 /** Sanity image reference plus the presentation data the frontend needs. */

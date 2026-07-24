@@ -1,6 +1,12 @@
 import { buildImage } from '@/lib/image';
 import type { Translation } from '@/lib/i18n';
-import type { Locale, ResolvedImage, SanityImage } from '@/types';
+import type {
+  Locale,
+  LocaleRichText,
+  PortableTextBlock,
+  ResolvedImage,
+  SanityImage,
+} from '@/types';
 
 /**
  * Read one localized value from a Studio document.
@@ -42,6 +48,32 @@ function pickLocalized(
   return fallback;
 }
 
+/**
+ * Read formatted text for the current locale.
+ *
+ * Returns null when the owner has not written any, so the caller can fall back
+ * to the plain-text field (or the built-in copy) instead. English is optional,
+ * exactly as with plain text.
+ */
+function pickRichText(
+  doc: Record<string, unknown> | null,
+  key: string,
+  locale: Locale
+): PortableTextBlock[] | null {
+  const value = doc?.[key] as LocaleRichText | undefined;
+  if (!value) return null;
+  const chosen = locale === 'en' ? value.en : value.id;
+  const blocks = chosen?.length ? chosen : value.id;
+  if (!blocks?.length) return null;
+  // A block the owner opened and left blank should still fall through.
+  const hasText = blocks.some((block) =>
+    block._type !== 'block'
+      ? true
+      : (block.children ?? []).some((child) => (child.text ?? '').trim().length > 0)
+  );
+  return hasText ? blocks : null;
+}
+
 /** Resolve a CMS image on a page document to render-ready URLs. */
 function pickImage(
   doc: Record<string, unknown> | null,
@@ -77,6 +109,8 @@ export interface ResolvedHome {
   heroTitle1: string;
   heroTitle2: string;
   heroDesc: string;
+  /** Formatted version; render this when present, else `heroDesc`. */
+  heroDescRich: PortableTextBlock[] | null;
   heroCta1: string;
   heroCta2: string;
   heroCoords: string;
@@ -86,6 +120,7 @@ export interface ResolvedHome {
   heritageEyebrow: string;
   heritageTitle: string;
   heritageBody: string;
+  heritageBodyRich: PortableTextBlock[] | null;
   /** Drag-reorderable in the Studio; falls back to the three legacy stat pairs. */
   stats: { value: string; label: string }[];
   heritageImage: ResolvedImage | null;
@@ -186,6 +221,7 @@ export function resolveHome(
     heroTitle1: pick('heroTitle1', 'heroTitle1En', h.heroTitle1),
     heroTitle2: pick('heroTitle2', 'heroTitle2En', h.heroTitle2),
     heroDesc: pick('heroDesc', 'heroDescEn', h.heroDesc),
+    heroDescRich: pickRichText(doc, 'heroDescRich', locale),
     heroCta1: pick('heroCta1', 'heroCta1En', h.heroCta1),
     heroCta2: pick('heroCta2', 'heroCta2En', h.heroCta2),
     heroCoords: pickPlain('heroCoords', h.heroCoords),
@@ -196,6 +232,7 @@ export function resolveHome(
     heritageEyebrow: pick('heritageEyebrow', 'heritageEyebrowEn', h.heritageEyebrow),
     heritageTitle: pick('heritageTitle', 'heritageTitleEn', h.heritageTitle),
     heritageBody: pick('heritageBody', 'heritageBodyEn', h.heritageBody),
+    heritageBodyRich: pickRichText(doc, 'heritageBodyRich', locale),
     stats,
     heritageImage: pickImage(doc, 'heritageImage', locale, 1200, h.heritageImageAlt),
     manifestoQuote: pick('manifestoQuote', 'manifestoQuoteEn', h.manifestoQuote),
@@ -225,6 +262,8 @@ export interface ResolvedAbout {
   heroImage: ResolvedImage | null;
   lede: string;
   body: string[];
+  /** Formatted paragraphs, index-aligned with `body`; null where unwritten. */
+  bodyRich: (PortableTextBlock[] | null)[];
   /** Drag-reorderable gallery; falls back to the two legacy gallery fields. */
   gallery: ResolvedImage[];
   values: { head: string; body: string }[];
@@ -311,6 +350,11 @@ export function resolveAbout(
       pick('body2', 'body2En', defaults[1]),
       pick('body3', 'body3En', defaults[2]),
     ],
+    bodyRich: [
+      pickRichText(doc, 'body1Rich', locale),
+      pickRichText(doc, 'body2Rich', locale),
+      pickRichText(doc, 'body3Rich', locale),
+    ],
     gallery,
     values,
     ctaTitle: pick('ctaTitle', 'ctaTitleEn', s.ctaTitle),
@@ -377,6 +421,7 @@ export interface ResolvedBespoke {
   heroTitle1: string;
   heroTitle2: string;
   heroIntro: string;
+  heroIntroRich: PortableTextBlock[] | null;
   heroCta: string;
   heroImage: ResolvedImage | null;
   processEyebrow: string;
@@ -433,6 +478,7 @@ export function resolveBespoke(
     heroTitle1: pick('heroTitle1', 'heroTitle1En', b.title1),
     heroTitle2: pick('heroTitle2', 'heroTitle2En', b.title2),
     heroIntro: pick('heroIntro', 'heroIntroEn', b.intro),
+    heroIntroRich: pickRichText(doc, 'heroIntroRich', locale),
     heroCta: pick('heroCta', 'heroCtaEn', b.heroCta),
     heroImage: pickImage(doc, 'heroImage', locale, 1200, b.heroImageAlt),
     processEyebrow: pick('processEyebrow', 'processEyebrowEn', b.processEyebrow),
